@@ -28,12 +28,12 @@
 - Parsing
   - [json](https://github.com/nlohmann/json)
 
-###Future plans
--Projectile aim
-  -Support for handling multiple points on the same player without reprediction
-  -Support for splash damage
--Visuals
-  -Chams
-  -Pickup, Projectile, and Sentry esp
-  -A full hitbox scanning aimbot
-  -Further backtracking(Fake latency)
+### Future plans
+- Projectile aim
+  - Support for handling multiple points on the same player without reprediction
+  - Support for splash damage
+- Visuals
+  - Chams
+  - Pickup, Projectile, and Sentry esp
+  - A full hitbox scanning aimbot
+  - Further backtracking(Fake latency)
