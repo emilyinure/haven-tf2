@@ -12,7 +12,7 @@
 -Bhop
 -Player esp
 
-### Here's where you can reach/support the afformentioned friend who made the base and menu framework
+### Here's where you can reach/support the aforementioned friend who made the base and menu framework
 ### >Ways to support
 >- [Buy me a ☕!](https://www.buymeacoffee.com/abience)
 
