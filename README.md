@@ -1,17 +1,17 @@
 ## Haven, an internal tf2 cheat.
--Main focus for the project was projectile prediction/aimbot
--Still has redundant and messy code, will be refactoring when I have time aside from my other projects
--Using a friends framework as a base.
+- Main focus for the project was projectile prediction/aimbot
+- Still has redundant and messy code, will be refactoring when I have time aside from my other projects
+- Using a friends framework as a base.
 
 ### Features
--Movement Simulation
--Projectile aim, with hitchance, different firing modes and Fov
--Aimbot, very simple head aim
--Auto-Backstab, Partially rebuilt stab code, as well as some backtracking
--Engine prediction
--Autostrafer
--Bhop
--Player esp
+- Movement Simulation
+- Projectile aim, with hitchance, different firing modes and Fov
+- Aimbot, very simple head aim
+- Auto-Backstab, Partially rebuilt stab code, as well as some backtracking
+- Engine prediction
+- Autostrafer
+- Bhop
+- Player esp
 
 ## Here's where you can reach/support the aforementioned friend who made the base and menu framework
 > ### >Ways to support
