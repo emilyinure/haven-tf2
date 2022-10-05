@@ -28,7 +28,7 @@
 - Parsing
   - [json](https://github.com/nlohmann/json)
 
-#Future plans
+###Future plans
 -Projectile aim
   -Support for handling multiple points on the same player without reprediction
   -Support for splash damage
