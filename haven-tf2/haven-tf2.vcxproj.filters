@@ -1,0 +1,657 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sdk">
+      <UniqueIdentifier>{265fc734-6329-4346-b95c-84c4614cc4d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="client">
+      <UniqueIdentifier>{14e3d804-441c-499b-bb1b-86248b9f1b88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\utils">
+      <UniqueIdentifier>{652d1c97-610a-49fa-b407-3a3604569bb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tier0">
+      <UniqueIdentifier>{11b2dd70-7439-404b-a893-efba25eb93e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2">
+      <UniqueIdentifier>{6406da68-9546-434c-9ce5-eb95489af1da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\modules">
+      <UniqueIdentifier>{06948b81-4dab-43e4-be9e-b7dda7404cea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces">
+      <UniqueIdentifier>{948e6383-10e5-40bf-9b8e-05d5f3f046c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes">
+      <UniqueIdentifier>{9528dd4d-19f0-4bbf-be01-a2255e6b1bc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes">
+      <UniqueIdentifier>{f1ddb390-eba0-4f79-9b19-4e271b622d2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\offsets">
+      <UniqueIdentifier>{ce81a51f-ef09-40d9-8d01-ecfd0564b052}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\netvars">
+      <UniqueIdentifier>{73e10d11-72d7-49ee-a4b4-9595c960b21f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\base_types">
+      <UniqueIdentifier>{fa68a86a-8968-4503-aa44-44c7a481b082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\bit_buf">
+      <UniqueIdentifier>{fcbbcc79-ecde-4e6e-9f8c-cde52d345a39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\button_code">
+      <UniqueIdentifier>{c6006e2c-9456-41a1-83f7-0b3998b00301}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\c_utl_memory">
+      <UniqueIdentifier>{0410b8c0-c01a-4f38-a4b8-d52b24006ebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\c_utl_vector">
+      <UniqueIdentifier>{8efd163e-38ed-435a-bffa-33b14c858ace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\client_class">
+      <UniqueIdentifier>{c8628da8-964a-44f8-8744-6e6fe40361e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\client_text_message">
+      <UniqueIdentifier>{ed04fe76-adfd-450f-8fe4-39cd9cceb794}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\data_map">
+      <UniqueIdentifier>{036fa851-79c0-4b13-8b29-5e4456dc626e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\dt_recv">
+      <UniqueIdentifier>{64a01c1e-b7f5-439d-9744-f84d303ae131}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\i_achievement_mgr">
+      <UniqueIdentifier>{fa4e18af-9825-42fb-97e7-a8eb5c2eb996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\i_file_list">
+      <UniqueIdentifier>{bc43e177-359d-4687-99e5-fad1f8bb0273}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\i_net_channel_info">
+      <UniqueIdentifier>{cbda0967-3aa4-4db5-b42d-e4cfc79b19ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\i_recipient_filter">
+      <UniqueIdentifier>{6a0c4090-00e3-4fef-8753-d9d5f4fc3eb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\i_spatial_query">
+      <UniqueIdentifier>{3a233daf-c284-45b4-8dea-a8731462031f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\interface_reg">
+      <UniqueIdentifier>{89935671-d2fe-47e5-b9ef-089df096e100}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\key_values">
+      <UniqueIdentifier>{8a3236c6-df71-4f06-8777-d31117cb401a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\modes">
+      <UniqueIdentifier>{3a0118fb-f43c-4022-aa39-2711d987325b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\mouth_info">
+      <UniqueIdentifier>{d3b92793-0a0f-4488-bdb3-bb9a660310f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\renamed_recv_table_info">
+      <UniqueIdentifier>{dda68545-836a-4ff1-9946-77d86f3ce378}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\snd_info">
+      <UniqueIdentifier>{7839bc8d-59cb-4c35-9424-f2b8eb3fcd14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\view_setup">
+      <UniqueIdentifier>{acad6e13-a13f-4e1c-bc95-2ea435359704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\c_global_vars_base">
+      <UniqueIdentifier>{a531e6d2-ab50-4cd2-ae8e-ae2c4b6798ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_base_client_dll">
+      <UniqueIdentifier>{7993f853-af2f-48f5-adfc-eb0c7825c430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_engine_sound">
+      <UniqueIdentifier>{58754da6-5e42-4dd9-88ea-ea5a9256d3fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_prediction">
+      <UniqueIdentifier>{3969167f-9b78-4199-b381-faf8694cbe7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\iv_engine_client">
+      <UniqueIdentifier>{b64af86f-58c9-4467-a058-ab8bba873186}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\sound_info">
+      <UniqueIdentifier>{cba76ba9-cfc1-43d1-a558-8e4220eab9df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity">
+      <UniqueIdentifier>{854b2d6c-66a8-4dbd-8289-9a41593cb28f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_handle_entity">
+      <UniqueIdentifier>{61ac1f7f-f65b-44fb-a58c-0ae13e8cc03e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\c_base_handle">
+      <UniqueIdentifier>{9b79d9b0-fe00-4203-83e7-3b952f0fde2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_client_entity">
+      <UniqueIdentifier>{2decc2a3-ad4a-4861-97c4-9c85fccb32a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_client_unknown">
+      <UniqueIdentifier>{4c83ab21-6081-4cd6-b1dd-82a1da0ab0d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_client_renderable">
+      <UniqueIdentifier>{0d9b4eea-07c9-4e3c-9815-b03389be7545}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_client_networkable">
+      <UniqueIdentifier>{1f317169-6fe3-43ae-9f28-de9c3e758a55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_client_thinkable">
+      <UniqueIdentifier>{4c8e42a2-8f8a-496f-af1e-64c1d542a785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_client_entity_list">
+      <UniqueIdentifier>{9ffb0eed-76d6-40c2-a5e2-93be83b9df95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\minhook">
+      <UniqueIdentifier>{76bdc526-9036-4254-920e-def8ccb1d173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\usercmd">
+      <UniqueIdentifier>{9400ba5a-d8ff-437c-8e06-e960ce7057a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="client\hooks">
+      <UniqueIdentifier>{9b1f37d0-632d-442e-9d8d-76e502ca54a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_engine_vgui">
+      <UniqueIdentifier>{6d0ec596-8c6f-41f5-b368-994072696369}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_surface">
+      <UniqueIdentifier>{8b83f393-8fef-4b84-a95a-44cc99b16074}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render">
+      <UniqueIdentifier>{3cc61a35-b475-4049-8694-8c17dd880812}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render\color">
+      <UniqueIdentifier>{cea7f705-ea61-4add-9d30-f507fe6088e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\iv_debug_overlay">
+      <UniqueIdentifier>{690a6181-930e-4420-9c21-61778c9523f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\overlay_text_t">
+      <UniqueIdentifier>{1a0d44e2-3558-4e36-94f7-f57da9914390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\minhook\source">
+      <UniqueIdentifier>{cceb6297-e061-40fa-be62-04ea71715e98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\minhook\source\hde">
+      <UniqueIdentifier>{92693b81-9c1d-4b8f-bd7f-dda8e2796b7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\entity\i_collideable">
+      <UniqueIdentifier>{57b4cfca-917c-4460-a489-59de3dc0d980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="client\feature">
+      <UniqueIdentifier>{7a66d660-cc6e-4259-ac67-922dce220de4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features">
+      <UniqueIdentifier>{e6dbbc04-82d4-467d-b60b-7f7a9150a85f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\visuals">
+      <UniqueIdentifier>{5cd72ebc-78aa-46e3-947b-e937a9f4b78c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\visuals\player_esp">
+      <UniqueIdentifier>{f571d8f0-9d0a-4bef-8a94-aa726e8edfbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\input">
+      <UniqueIdentifier>{6cb5564c-7c71-4ba9-94da-c558ca1cdd75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{d527ec18-77dc-4405-a4d2-f7b90de1872e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\controls">
+      <UniqueIdentifier>{a89092ee-6f82-4ec1-b4f8-d22590436b1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\controls\window">
+      <UniqueIdentifier>{689f5e19-f4e4-4d90-89fe-d49c5d60cdb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\controls\base_control">
+      <UniqueIdentifier>{c54d933e-f6ec-43bf-bde4-c3f1f33c20d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\controls\tab">
+      <UniqueIdentifier>{ac2cbb8b-5a9f-42df-86be-c438400107de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\i_app_system">
+      <UniqueIdentifier>{55ac43cc-da0d-4f05-8510-9db9b237e1f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_cvar">
+      <UniqueIdentifier>{254be856-9077-4c34-8b94-3ce50d2816d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\convar">
+      <UniqueIdentifier>{7b385382-52fc-42d7-a5b4-265e0b4d5626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\classes\c_utl_string">
+      <UniqueIdentifier>{a09dbea9-6647-4bc6-bef2-064825728d5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\cvars">
+      <UniqueIdentifier>{43bd2c74-5812-4757-a926-9140b1626568}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_engine_trace">
+      <UniqueIdentifier>{bd4635c2-5153-468a-b77b-52f154c69ef8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pch">
+      <UniqueIdentifier>{5bb3888c-741e-40e2-bff1-e926c8eaffc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_model_info">
+      <UniqueIdentifier>{801008df-7b29-4196-b20b-60676d91d6ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\mem_alloc">
+      <UniqueIdentifier>{178f5e19-e502-417a-85c0-33bb304572c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\game_rules">
+      <UniqueIdentifier>{5f751dc7-f8a8-4847-85a5-4d56413b2762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\i_localize">
+      <UniqueIdentifier>{c10ff6f9-03ed-4c22-a163-67bddf54de32}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="entry_point.cpp" />
+    <ClCompile Include="client.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>sdk\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="tier0.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="tf2.cpp">
+      <Filter>sdk\tf2</Filter>
+    </ClCompile>
+    <ClCompile Include="modules.cpp">
+      <Filter>sdk\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="interfaces.cpp">
+      <Filter>sdk\tf2\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="offsets.cpp">
+      <Filter>sdk\offsets</Filter>
+    </ClCompile>
+    <ClCompile Include="netvars.cpp">
+      <Filter>sdk\netvars</Filter>
+    </ClCompile>
+    <ClCompile Include="entity.cpp">
+      <Filter>sdk\tf2\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks.cpp">
+      <Filter>client\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="i_surface.cpp">
+      <Filter>sdk\tf2\interfaces\classes\i_surface</Filter>
+    </ClCompile>
+    <ClCompile Include="render.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\hde\hde32.cpp">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\hde\hde64.cpp">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\buffer.cpp">
+      <Filter>sdk\minhook\source</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\hook.cpp">
+      <Filter>sdk\minhook\source</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\trampoline.cpp">
+      <Filter>sdk\minhook\source</Filter>
+    </ClCompile>
+    <ClCompile Include="movement_simulate.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals.cpp">
+      <Filter>features\visuals</Filter>
+    </ClCompile>
+    <ClCompile Include="player_esp.cpp">
+      <Filter>features\visuals\player_esp</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>sdk\input</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>ui\controls\window</Filter>
+    </ClCompile>
+    <ClCompile Include="tab.cpp">
+      <Filter>ui\controls\tab</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>pch</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile aim.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="combobox.cpp">
+      <Filter>ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="groupbox.cpp">
+      <Filter>ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="base_control.cpp">
+      <Filter>ui\controls\base_control</Filter>
+    </ClCompile>
+    <ClCompile Include="checkbox.cpp">
+      <Filter>ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="button.cpp">
+      <Filter>ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="slider.cpp">
+      <Filter>ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="prediction.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="stab.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="movement.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="aimbot.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="player_manager.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="math.cpp" />
+    <ClCompile Include="i_engine_trace.cpp">
+      <Filter>sdk\tf2\interfaces\classes\i_engine_trace</Filter>
+    </ClCompile>
+    <ClCompile Include="key_bind.cpp">
+      <Filter>ui\controls</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="client.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>sdk\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="tier0.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="tf2.h">
+      <Filter>sdk\tf2</Filter>
+    </ClInclude>
+    <ClInclude Include="modules.h">
+      <Filter>sdk\modules</Filter>
+    </ClInclude>
+    <ClInclude Include="interfaces.h">
+      <Filter>sdk\tf2\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="offsets.h">
+      <Filter>sdk\offsets</Filter>
+    </ClInclude>
+    <ClInclude Include="netvars.h">
+      <Filter>sdk\netvars</Filter>
+    </ClInclude>
+    <ClInclude Include="base_types.h">
+      <Filter>sdk\tf2\classes\base_types</Filter>
+    </ClInclude>
+    <ClInclude Include="bit_buf.h">
+      <Filter>sdk\tf2\classes\bit_buf</Filter>
+    </ClInclude>
+    <ClInclude Include="button_code.h">
+      <Filter>sdk\tf2\classes\button_code</Filter>
+    </ClInclude>
+    <ClInclude Include="c_utl_memory.h">
+      <Filter>sdk\tf2\classes\c_utl_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="c_utl_vector.h">
+      <Filter>sdk\tf2\classes\c_utl_vector</Filter>
+    </ClInclude>
+    <ClInclude Include="client_class.h">
+      <Filter>sdk\tf2\classes\client_class</Filter>
+    </ClInclude>
+    <ClInclude Include="client_text_message.h">
+      <Filter>sdk\tf2\classes\client_text_message</Filter>
+    </ClInclude>
+    <ClInclude Include="data_map.h">
+      <Filter>sdk\tf2\classes\data_map</Filter>
+    </ClInclude>
+    <ClInclude Include="dt_recv.h">
+      <Filter>sdk\tf2\classes\dt_recv</Filter>
+    </ClInclude>
+    <ClInclude Include="i_achievement_mgr.h">
+      <Filter>sdk\tf2\classes\i_achievement_mgr</Filter>
+    </ClInclude>
+    <ClInclude Include="i_file_list.h">
+      <Filter>sdk\tf2\classes\i_file_list</Filter>
+    </ClInclude>
+    <ClInclude Include="i_net_channel_info.h">
+      <Filter>sdk\tf2\classes\i_net_channel_info</Filter>
+    </ClInclude>
+    <ClInclude Include="i_recipient_filter.h">
+      <Filter>sdk\tf2\classes\i_recipient_filter</Filter>
+    </ClInclude>
+    <ClInclude Include="i_spatial_query.h">
+      <Filter>sdk\tf2\classes\i_spatial_query</Filter>
+    </ClInclude>
+    <ClInclude Include="interface_reg.h">
+      <Filter>sdk\tf2\classes\interface_reg</Filter>
+    </ClInclude>
+    <ClInclude Include="key_values.h">
+      <Filter>sdk\tf2\classes\key_values</Filter>
+    </ClInclude>
+    <ClInclude Include="modes.h">
+      <Filter>sdk\tf2\classes\modes</Filter>
+    </ClInclude>
+    <ClInclude Include="mouth_info.h">
+      <Filter>sdk\tf2\classes\mouth_info</Filter>
+    </ClInclude>
+    <ClInclude Include="renamed_recv_table_info.h">
+      <Filter>sdk\tf2\classes\renamed_recv_table_info</Filter>
+    </ClInclude>
+    <ClInclude Include="snd_info.h">
+      <Filter>sdk\tf2\classes\snd_info</Filter>
+    </ClInclude>
+    <ClInclude Include="view_setup.h">
+      <Filter>sdk\tf2\classes\view_setup</Filter>
+    </ClInclude>
+    <ClInclude Include="c_global_vars_base.h">
+      <Filter>sdk\tf2\interfaces\classes\c_global_vars_base</Filter>
+    </ClInclude>
+    <ClInclude Include="i_base_client_dll.h">
+      <Filter>sdk\tf2\interfaces\classes\i_base_client_dll</Filter>
+    </ClInclude>
+    <ClInclude Include="i_engine_sound.h">
+      <Filter>sdk\tf2\interfaces\classes\i_engine_sound</Filter>
+    </ClInclude>
+    <ClInclude Include="i_prediction.h">
+      <Filter>sdk\tf2\interfaces\classes\i_prediction</Filter>
+    </ClInclude>
+    <ClInclude Include="iv_engine_client.h">
+      <Filter>sdk\tf2\interfaces\classes\iv_engine_client</Filter>
+    </ClInclude>
+    <ClInclude Include="entity.h">
+      <Filter>sdk\tf2\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="sound_info.h">
+      <Filter>sdk\tf2\classes\sound_info</Filter>
+    </ClInclude>
+    <ClInclude Include="c_base_handle.h">
+      <Filter>sdk\tf2\entity\c_base_handle</Filter>
+    </ClInclude>
+    <ClInclude Include="i_handle_entity.h">
+      <Filter>sdk\tf2\entity\i_handle_entity</Filter>
+    </ClInclude>
+    <ClInclude Include="i_client_entity.h">
+      <Filter>sdk\tf2\entity\i_client_entity</Filter>
+    </ClInclude>
+    <ClInclude Include="i_client_unknown.h">
+      <Filter>sdk\tf2\entity\i_client_unknown</Filter>
+    </ClInclude>
+    <ClInclude Include="i_client_renderable.h">
+      <Filter>sdk\tf2\entity\i_client_renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="i_client_networkable.h">
+      <Filter>sdk\tf2\entity\i_client_networkable</Filter>
+    </ClInclude>
+    <ClInclude Include="i_client_thinkable.h">
+      <Filter>sdk\tf2\entity\i_client_thinkable</Filter>
+    </ClInclude>
+    <ClInclude Include="i_client_entity_list.h">
+      <Filter>sdk\tf2\interfaces\classes\i_client_entity_list</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\minhook.h">
+      <Filter>sdk\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks.h">
+      <Filter>client\hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="i_engine_vgui.h">
+      <Filter>sdk\tf2\interfaces\classes\i_engine_vgui</Filter>
+    </ClInclude>
+    <ClInclude Include="i_surface.h">
+      <Filter>sdk\tf2\interfaces\classes\i_surface</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>render\color</Filter>
+    </ClInclude>
+    <ClInclude Include="render.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="iv_debug_overlay.h">
+      <Filter>sdk\tf2\interfaces\classes\iv_debug_overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay_text_t.h">
+      <Filter>sdk\tf2\classes\overlay_text_t</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\hde\hde32.h">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\hde\hde64.h">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\hde\pstdint.h">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\hde\table32.h">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\hde\table64.h">
+      <Filter>sdk\minhook\source\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\buffer.h">
+      <Filter>sdk\minhook\source</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\trampoline.h">
+      <Filter>sdk\minhook\source</Filter>
+    </ClInclude>
+    <ClInclude Include="i_collideable.h">
+      <Filter>sdk\tf2\entity\i_collideable</Filter>
+    </ClInclude>
+    <ClInclude Include="features.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals.h">
+      <Filter>features\visuals</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>sdk\input</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>ui\controls\window</Filter>
+    </ClInclude>
+    <ClInclude Include="base_control.h">
+      <Filter>ui\controls\base_control</Filter>
+    </ClInclude>
+    <ClInclude Include="tab.h">
+      <Filter>ui\controls\tab</Filter>
+    </ClInclude>
+    <ClInclude Include="i_app_system.h">
+      <Filter>sdk\tf2\classes\i_app_system</Filter>
+    </ClInclude>
+    <ClInclude Include="i_cvar.h">
+      <Filter>sdk\tf2\interfaces\classes\i_cvar</Filter>
+    </ClInclude>
+    <ClInclude Include="convar.h">
+      <Filter>sdk\tf2\classes\convar</Filter>
+    </ClInclude>
+    <ClInclude Include="c_utl_string.h">
+      <Filter>sdk\tf2\classes\c_utl_string</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="projectile aim.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="i_model_info.h">
+      <Filter>sdk\tf2\interfaces\classes\i_model_info</Filter>
+    </ClInclude>
+    <ClInclude Include="weapon_list.h">
+      <Filter>sdk\tf2\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="combobox.h">
+      <Filter>ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="groupbox.h">
+      <Filter>ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="checkbox.h">
+      <Filter>ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="button.h">
+      <Filter>ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="slider.h">
+      <Filter>ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="prediction.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="stab.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="movement.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="aimbot.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="player_manager.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="mem_alloc.h">
+      <Filter>sdk\tf2\interfaces\classes\mem_alloc</Filter>
+    </ClInclude>
+    <ClInclude Include="game_rules.h">
+      <Filter>sdk\tf2\interfaces\classes\game_rules</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk.h">
+      <Filter>sdk\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="box.h" />
+    <ClInclude Include="c_user_cmd.h" />
+    <ClInclude Include="json.h" />
+    <ClInclude Include="math.h" />
+    <ClInclude Include="matrix_3x4.h" />
+    <ClInclude Include="vector.h" />
+    <ClInclude Include="vector_2d.h" />
+    <ClInclude Include="view_matrix.h" />
+    <ClInclude Include="i_engine_trace.h">
+      <Filter>sdk\tf2\interfaces\classes\i_engine_trace</Filter>
+    </ClInclude>
+    <ClInclude Include="movement_simulate.h" />
+    <ClInclude Include="usercmd.h" />
+    <ClInclude Include="i_localize.h">
+      <Filter>sdk\tf2\interfaces\classes\i_localize</Filter>
+    </ClInclude>
+    <ClInclude Include="key_bind.h">
+      <Filter>ui\controls</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
