@@ -1,6 +1,7 @@
-## Haven, an internal tf2 cheat. Using a friends framework as a base.
+## Haven, an internal tf2 cheat.
 -Main focus for the project was projectile prediction/aimbot
 -Still has redundant and messy code, will be refactoring when I have time aside from my other projects
+-Using a friends framework as a base.
 
 ### Features
 -Movement Simulation
