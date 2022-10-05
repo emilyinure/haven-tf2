@@ -12,14 +12,14 @@
 -Bhop
 -Player esp
 
-### Here's where you can reach/support the aforementioned friend who made the base and menu framework
-### >Ways to support
->- [Buy me a ☕!](https://www.buymeacoffee.com/abience)
+## Here's where you can reach/support the aforementioned friend who made the base and menu framework
+> ### >Ways to support
+> - [Buy me a ☕!](https://www.buymeacoffee.com/abience)
 
 
-### >Contacts
->- Discord: lun#1507
->- [Steam](https://steamcommunity.com/id/nahbrofr/)
+> ### Contacts
+> - Discord: lun#1507
+> - [Steam](https://steamcommunity.com/id/nahbrofr/)
 
 
 ### Dependencies
