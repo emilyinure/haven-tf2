@@ -3,6 +3,8 @@
 - Still has redundant and messy code, will be refactoring when I have time aside from my other projects
 - Using a outdated version of a friends framework as a base. Not much is left the same but still a necessary credit!
 
+![video](https://youtu.be/bpmpp5XJhtE)
+
 ### Features
 - Movement Simulation
 - Projectile aim, with hitchance, different firing modes and Fov
