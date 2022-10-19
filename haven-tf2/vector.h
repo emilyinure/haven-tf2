@@ -208,7 +208,7 @@ public:
 			fabsf( m_z ) < other;
 	}
 	float& operator[](const int i) {
-		_[ i ];
+		return _[ i ];
 	}
 
 	float length() const {
