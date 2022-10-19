@@ -182,7 +182,7 @@ int c_movement_simulate::try_player_move( )
 				if (stuck.m_start_solid || stuck.m_fraction != 1.0f)
 				{
 					//Msg( "Player will become stuck!!!\n" );
-					mv.m_velocity.init;
+					mv.m_velocity.init();
 					break;
 				}
 			}
@@ -221,7 +221,7 @@ int c_movement_simulate::try_player_move( )
 		{
 			// this shouldn't really happen
 			//  Stop our movement if so.
-			mv.m_velocity.init;
+			mv.m_velocity.init( );
 			//Con_DPrintf("Too many planes 4\n");
 
 			break;
@@ -286,7 +286,7 @@ int c_movement_simulate::try_player_move( )
 			{	// go along the crease
 				if (numplanes != 2)
 				{
-					mv.m_velocity.init;
+					mv.m_velocity.init( );
 					break;
 				}
 				planes[0].cross_product(planes[1], dir);
@@ -303,7 +303,7 @@ int c_movement_simulate::try_player_move( )
 			if (d <= 0.f)
 			{
 				//Con_DPrintf("Back\n");
-				mv.m_velocity.init;
+				mv.m_velocity.init( );
 				break;
 			}
 		}
@@ -311,7 +311,7 @@ int c_movement_simulate::try_player_move( )
 
 	if (allFraction == 0.f)
 	{
-		mv.m_velocity.init;
+		mv.m_velocity.init( );
 	}
 
 	return blocked;
@@ -1231,7 +1231,7 @@ bool c_movement_simulate::setup_mv( vector last_vel, c_base_player* player, int 
 				//mv.m_walk_direction = mv.m_air_dir;
 				const float dir = record->eye_angle.m_y - record->vel.angle_to().m_y;
 
-				mv.m_walk_direction = vector(0, dir, 0).angle_vector(  ) * record->vel.length(  ) );
+				mv.m_walk_direction = vector(0, dir, 0).angle_vector(  ) * record->vel.length(  );
 			}
 			//mv.m_decay = 1.f;
 		}
