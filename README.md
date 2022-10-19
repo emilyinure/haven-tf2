@@ -4,7 +4,7 @@
 - Using a outdated version of a friends framework as a base. Not much is left the same but still a necessary credit!
 
 ### Demo video
-- [![video](https://img.youtube.com/vi/bpmpp5XJhtE/0.jpg)](https://youtu.be/bpmpp5XJhtE)
+[![video](https://img.youtube.com/vi/bpmpp5XJhtE/0.jpg)](https://youtu.be/bpmpp5XJhtE)
 
 ### Features
 - Movement Simulation
