@@ -140,7 +140,7 @@ int c_movement_simulate::try_player_move( )
 	allFraction = 0;
 	time_left = g_interfaces.m_global_vars->m_interval_per_tick;   // Total time for this movement operation.
 
-	new_velocity = vector();
+	new_velocity.init();
 
 	for ( int bumpcount = 0; bumpcount < 4; bumpcount++)
 	{
@@ -162,7 +162,7 @@ int c_movement_simulate::try_player_move( )
 		if (pm.m_allsolid)
 		{
 			// entity is trapped in another solid
-			mv.m_velocity = vector();
+			mv.m_velocity.init();
 			return 4;
 		}
 
@@ -182,7 +182,7 @@ int c_movement_simulate::try_player_move( )
 				if (stuck.m_start_solid || stuck.m_fraction != 1.0f)
 				{
 					//Msg( "Player will become stuck!!!\n" );
-					mv.m_velocity = vector();
+					mv.m_velocity.init;
 					break;
 				}
 			}
@@ -221,7 +221,7 @@ int c_movement_simulate::try_player_move( )
 		{
 			// this shouldn't really happen
 			//  Stop our movement if so.
-			mv.m_velocity = vector();
+			mv.m_velocity.init;
 			//Con_DPrintf("Too many planes 4\n");
 
 			break;
@@ -286,7 +286,7 @@ int c_movement_simulate::try_player_move( )
 			{	// go along the crease
 				if (numplanes != 2)
 				{
-					mv.m_velocity = vector();
+					mv.m_velocity.init;
 					break;
 				}
 				planes[0].cross_product(planes[1], dir);
@@ -303,7 +303,7 @@ int c_movement_simulate::try_player_move( )
 			if (d <= 0.f)
 			{
 				//Con_DPrintf("Back\n");
-				mv.m_velocity = vector();
+				mv.m_velocity.init;
 				break;
 			}
 		}
@@ -311,7 +311,7 @@ int c_movement_simulate::try_player_move( )
 
 	if (allFraction == 0.f)
 	{
-		mv.m_velocity = vector();
+		mv.m_velocity.init;
 	}
 
 	return blocked;
@@ -671,7 +671,7 @@ void c_movement_simulate::walk_move( ) {
 	//vector look = vector( ).look( mv.m_walk_direction );
 	//look.m_y += mv.m_ground_dir;
 	//mv.m_walk_direction = look.angle_vector( ) * mv.m_walk_direction.length( );
-	vector temp = vector( ).look( mv.m_walk_direction );
+	vector temp = mv.m_walk_direction.angle_to();
 	if ( fabsf(mv.target_ground_dir) > 360.f || fabsf(mv.target_ground_dir) > fabsf( mv.total_changed ) ) {
 		temp.m_y += mv.m_ground_dir;
 		mv.total_changed += mv.m_ground_dir;
@@ -684,7 +684,7 @@ void c_movement_simulate::walk_move( ) {
 	const vector new_vel = mv.m_walk_direction;//mv.m_velocity + mv.m_walk_direction;
 
 	//vector view = vector( 0, 0, 0 ).look( new_vel );
-	vector view = vector(0,mv.m_eye_dir,0);
+	vector view(0,mv.m_eye_dir,0);
 	view.angle_vectors( &forward, &right, &up );  // Determine movement angles
 
 	// Copy movement amounts
@@ -917,7 +917,7 @@ vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fr
 	forward.normalize_in_place( );  // Normalize remainder of vectors.
 	right.normalize_in_place( );    // 
 
-	vector best = vector( );
+	vector best;
 	float best_dist = FLT_MAX;
 
 	for ( auto f = 0; f < 3; f++ ) {
@@ -1019,7 +1019,7 @@ vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fr
 			try_player_move( );
 			float dst = ( velocity - mv.m_velocity ).length_2d( );
 			if( dst < best_dist ) {
-				best = vector( fmove, smove, 0 );
+				best.init( fmove, smove, 0 );
 				best_dist = dst;
 			}
 		}
@@ -1032,7 +1032,7 @@ vector c_movement_simulate::estimate_air_dir( vector velocity, vector last_fric_
 	vector forward, right, up;
 	eye_ang.angle_vectors( &forward, &right, &up );  // Determine movement angles
 
-	vector best = vector( );
+	vector best;
 	float best_dist = FLT_MAX;
 
 	for ( auto f = 0; f < 3; f++ ) {
@@ -1078,7 +1078,7 @@ vector c_movement_simulate::estimate_air_dir( vector velocity, vector last_fric_
 			mv.m_velocity[ 2 ] = 0;
 			float dst = ( velocity - mv.m_velocity ).length_2d( );
 			if ( dst < best_dist ) {
-				best = vector( fmove, smove, 0 );
+				best.init( fmove, smove, 0 );
 				best_dist = dst;
 			}
 		}
@@ -1124,7 +1124,7 @@ bool c_movement_simulate::setup_mv( vector last_vel, c_base_player* player, int 
 		mv.m_eye_dir = record->eye_angle.m_y;
 		mv.m_max_speed = max_speed( player );
 		//mv.m_ground_dir = record->ground_dir;
-		mv.m_walk_direction = vector( 0, 0, 0 );
+		mv.m_walk_direction.init( );
 		if ( player_info.m_records.size( ) > 1 && record->vel.length() > 5.f) {
 			mv.m_surface_friction = 1.f;
 
@@ -1163,7 +1163,7 @@ bool c_movement_simulate::setup_mv( vector last_vel, c_base_player* player, int 
 					mv.m_walk_direction = estimate_walking_dir( record->vel, last_fric_vel, record->eye_angle, find_unstuck( player_info.m_records[ 1 ]->origin ) );
 				}
 				else {
-					mv.m_walk_direction = vector( 0, 0, 0 );
+					mv.m_walk_direction.init();
 					//mv.m_decay = std::clamp<float>( mv.m_decay - 0.1f / record->m_lag, 0.7f, 1.f );
 				}
 				float change_over_sec = 0.f;
@@ -1229,9 +1229,9 @@ bool c_movement_simulate::setup_mv( vector last_vel, c_base_player* player, int 
 				mv.m_decay = 0.f;
 
 				//mv.m_walk_direction = mv.m_air_dir;
-				const float dir = record->eye_angle.m_y - vector( ).look( record->vel ).m_y;
+				const float dir = record->eye_angle.m_y - record->vel.angle_to().m_y;
 
-				mv.m_walk_direction = vector(0, dir, 0).angle_vector(  ) * record->vel.length(  );
+				mv.m_walk_direction = vector(0, dir, 0).angle_vector(  ) * record->vel.length(  ) );
 			}
 			//mv.m_decay = 1.f;
 		}
@@ -1283,7 +1283,7 @@ void c_movement_simulate::draw( ) {
 	
 		//if ( (i % 4) == 0 ) {
 		//	vector dif = path[ i ] - last;
-		//	const auto difference = vector().look(dif).m_y;
+		//	const auto difference.init.look(dif).m_y;
 		//
 		//	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(), 15);
 		//

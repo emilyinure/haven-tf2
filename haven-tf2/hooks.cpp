@@ -78,7 +78,7 @@ void c_hooks::init( ) {
 	MH_Initialize( );
 
 	MH_CreateHook( g_modules.get( "client.dll" ).get_sig( "55 8B EC E8 ? ? ? ? 8B C8 85 C9 75 ? B0 ?" ).as<void*>( ), create_move, reinterpret_cast< void** >( &this->m_original.create_move ) );
-	MH_CreateHook( c_utils::get_virtual_function<void*>( g_interfaces.m_engine_vgui, 13 ), paint, reinterpret_cast< void** >( &this->m_original.paint ) );
+	MH_CreateHook( c_utils::get_virtual_function<void*>( g_interfaces.m_engine_vgui, 14 ), paint, reinterpret_cast< void** >( &this->m_original.paint ) );
 	//MH_CreateHook( c_utils::get_virtual_function<void*>( g_interfaces.m_prediction, 17 ), run_command, reinterpret_cast< void** >( &this->m_original.run_command ) );
 	this->m_original.wnd_proc = reinterpret_cast< WNDPROC >( SetWindowLongPtr( g_cl.m_hwnd, GWLP_WNDPROC, reinterpret_cast< LONG_PTR >( wnd_proc ) ) );
 	MH_CreateHook( c_utils::get_virtual_function<void*>( g_interfaces.m_surface, e_indexes::index_lock_cursor ), lock_cursor, reinterpret_cast< void** >( &this->m_original.lock_cursor ) );

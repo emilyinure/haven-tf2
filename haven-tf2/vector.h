@@ -1,24 +1,27 @@
 #pragma once
 
-constexpr float pi = 3.1415926535897932384f; // pi
-constexpr float pi_2 = pi * 2.f;               // pi * 2
+constexpr double pi = 3.1415926535897932384; // pi
+constexpr double pi_2 = pi * 2.;               // pi * 2
 __forceinline constexpr float deg_to_rad( float val ) {
-	return val * ( pi / 180.f );
+	return val * ( pi / 180. );
 }
 
 // radians to degrees.
 __forceinline constexpr float rad_to_deg( float val ) {
-	return val * ( 180.f / pi );
+	return val * ( 180. / pi );
 }
 
 
 class vector {
 public:
+	union {
+		float m_x, m_y, m_z;
+		float _[ 3 ];
+	};
 	static void sin_cos( float r, float* s, float* c ) {
 		*s = std::sin( r );
 		*c = std::cos( r );
 	}
-	float m_x, m_y, m_z;
 	void init(float x, float y, float z) {
 		m_x = x;
 		m_y = y;
@@ -46,17 +49,10 @@ public:
 
 	bool const operator!=( const vector other ) const {
 		int ret = 0;
-		if ( ( m_x != other.m_x ) )
-			return true;
-		if ( ( m_y != other.m_y ) )
-			return true;
-		if ( ( m_z != other.m_z ) )
-			return true;
-		//ret &= ( 1 << ( m_x != other.m_x ) );
-		//ret &= ( 1 << ( m_y != other.m_y ) );
-		//ret &= ( 1 << ( m_z != other.m_z ) );
-		//return ret & ( 1 << 0 );
-		return false;
+		ret |= ( 1 << ( m_x != other.m_x ) );
+		ret |= ( 1 << ( m_y != other.m_y ) );
+		ret |= ( 1 << ( m_z != other.m_z ) );
+		return ret & ( 1 << 1 );
 	}
 
 	vector const operator+(const vector other) const {
@@ -212,12 +208,7 @@ public:
 			fabsf( m_z ) < other;
 	}
 	float& operator[](const int i) {
-		if (i == 0)
-			return m_x;
-		if (i == 1)
-			return m_y;
-		if (i == 2)
-			return m_z;
+		_[ i ];
 	}
 
 	float length() const {
@@ -296,6 +287,27 @@ public:
 		else {
 			angles.m_x = static_cast< float >( atan2( -target.m_z, target.length_2d( ) ) * 180.f / pi );
 			angles.m_y = static_cast< float >( atan2( target.m_y, target.m_x ) * 180.f / pi );
+
+			//if ( angles.y > 90 )
+			//	angles.y -= 180;
+			//else if ( angles.y < 90 )
+			//	angles.y += 180;
+			//else if ( angles.y == 90 )
+			//	angles.y = 0;
+		}
+
+		angles.m_z = 0.0f;
+		return angles;
+	}
+	vector angle_to( ) const {
+		vector angles;
+		if ( m_y == 0.0f && m_x == 0.0f ) {
+			angles.m_x = ( m_z > 0.0f ) ? 270.0f : 90.0f;
+			angles.m_y = 0.0f;
+		}
+		else {
+			angles.m_x = static_cast< float >( atan2( -m_z, length_2d( ) ) * 180.f / pi );
+			angles.m_y = static_cast< float >( atan2( m_y, m_x ) * 180.f / pi );
 
 			//if ( angles.y > 90 )
 			//	angles.y -= 180;

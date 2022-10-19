@@ -39,7 +39,7 @@ void c_visuals::player_esp() {
 			g_render.outlined_rect(bounding_box, { 255, 255, 255 });
 		}
 
-		if (player_esp.health->m_value) {
+		if (player_esp.health->m_selected_index == 1 ) {
 			const box_t health_bar_area = { bounding_box.m_x - 6, bounding_box.m_y, 4, bounding_box.m_h };
 
 			// get our healthbar height.
@@ -48,6 +48,12 @@ void c_visuals::player_esp() {
 			g_render.filled_rect(health_bar_area, { 35, 35, 35 });
 			g_render.filled_rect({ health_bar_area.m_x, health_bar_area.m_y + (health_bar_area.m_h - healthbar_height), health_bar_area.m_w, healthbar_height }, { 0, 255, 0 });
 			g_render.outlined_rect(health_bar_area, { 0, 0, 0 });
+		}
+		else if( player_esp.health->m_selected_index == 2 ) {
+			char buffer[ 128 ];
+			_itoa( health, buffer, 10 );
+
+			g_render.text( g_render.m_fonts.menu.main, { bounding_box.m_x - 2, bounding_box.m_y }, buffer, color( 255, 255, 255 ), text_align_right );
 		}
 
 		// eventually do multi combo box.

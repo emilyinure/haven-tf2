@@ -108,22 +108,21 @@ float proj_aim::travel_time( c_base_player* target, vector weapon_pos, vector po
 		target->mins( ) = backup_mins;
 		target->maxs( ) = backup_maxs;
 	}
-	vector new_dir = angle.angle_vector( ) * this->m_weapon_speed;
-	float desired_dist = ( pos - weapon_pos ).length_2d( );
-	float step = new_dir.length_2d( ) * g_interfaces.m_global_vars->m_interval_per_tick;
+	const vector new_dir = angle.angle_vector( ) * this->m_weapon_speed;
+	const float desired_dist = ( pos - weapon_pos ).length_2d( );
 	return desired_dist / new_dir.length_2d( );
 }
 
 #define TIME_TO_TICKS( dt )		( ( int )( 0.5f + ( float )( dt ) / g_interfaces.m_global_vars->m_interval_per_tick ) )
 #define TICKS_TO_TIME( dt )		( g_interfaces.m_global_vars->m_interval_per_tick * (float)(dt) )
 
-float get_speed ( ) {
+double get_speed ( ) {
 	float begin_charge = 0;
 	float charge = 0;
 	auto weapon_speed = 0.0f;
 	switch ( g_cl.m_weapon->item_index( ) ) {
 	case WPN_DirectHit:
-		weapon_speed = 1980.0f; break;
+		weapon_speed = 1980.; break;
 	case WPN_BotRocketlauncherB:
 	case WPN_BotRocketlauncherC:
 	case WPN_BotRocketlauncherD:
@@ -138,39 +137,39 @@ float get_speed ( ) {
 	case WPN_Original:
 	case WPN_Airstrike:
 	case WPN_BlackBox:
-		weapon_speed = 1100.0f; break;
+		weapon_speed = 1100.; break;
 	case WPN_FestiveFlaregun:
 	case WPN_Flaregun:
 	case WPN_ScorchShot:
-		weapon_speed = 2000.0f; break;
+		weapon_speed = 2000.; break;
 	case WPN_SyringeGun:
 	case WPN_NewSyringeGun:
 	case WPN_Blutsauger:
 	case WPN_Overdose:
-		weapon_speed = 1000.0f; break;
+		weapon_speed = 1000.; break;
 	case WPN_RescueRanger:
 	case WPN_Crossbow:
 	case WPN_FestiveCrossbow:
-		weapon_speed = 2400.0f; break;
+		weapon_speed = 2400.; break;
 	case WPN_Huntsman:
 	case WPN_CompoundBow:
 		begin_charge = g_cl.m_weapon->charge_time( );
 
 		charge = (begin_charge == 0.0f) ? 0.0f : TICKS_TO_TIME( g_cl.m_local->m_tick_base( ) ) - begin_charge;
 
-		weapon_speed = RemapValClamped( charge, 0.0f, 1.f, 1800, 2600 );
+		weapon_speed = RemapValClamped( charge, 0.0f, 1.f, 1800.f, 2600.f );
 		break;
 	case WPN_GrenadeLauncher:
 	case WPN_NewGrenadeLauncher:
 	case WPN_FestiveGrenadeLauncher:
-		weapon_speed = 1200.f; break;
+		weapon_speed = 1200.; break;
 	case WPN_LochNLoad:
-		weapon_speed = 1500.f; break;
+		weapon_speed = 1575.; break;
 	case WPN_LoooseCannon:
-		weapon_speed = 1400.0f; break;
+		weapon_speed = 1440.; break;
 	case WPN_StickyLauncher:
 		begin_charge = g_cl.m_weapon->pipe_charge_time( );
-		charge = ( begin_charge == 0.0f ) ? 0.0f : TICKS_TO_TIME( g_cl.m_local->m_tick_base( ) ) - begin_charge;
+		charge = ( begin_charge == 0.0f ) ? 0.f : TICKS_TO_TIME( g_cl.m_local->m_tick_base( ) ) - begin_charge;
 		weapon_speed = RemapValClamped( ( charge ),
 			0.0f,
 			4.f,
@@ -188,10 +187,10 @@ float get_speed ( ) {
 		//	2400 );
 		//
 		//break;
-		weapon_speed = 1200.f; break;
+		weapon_speed = 1200.; break;
 	case WPN_Sandman:
-		weapon_speed = 3000.f; break;
-	default: weapon_speed = 0.0f; break;
+		weapon_speed = 3000.; break;
+	default: weapon_speed = 0.; break;
 	}
 	return weapon_speed;
 };
@@ -228,7 +227,7 @@ float get_gravity( ) {
 	case WPN_LochNLoad:
 	case WPN_IronBomber:
 	case WPN_StickyLauncher:
-		weapon_gravity = 1.2f; break;
+		weapon_gravity = 1.3f; break;
 	case WPN_Sandman:
 		weapon_gravity = 0.5f; break;
 	default: weapon_gravity = 0.0f; break;
@@ -238,7 +237,7 @@ float get_gravity( ) {
 
 vector iter_arrow_hitspot( player_t* player ) {
 	const auto target = player->player;
-	const vector dir = vector(0,g_movement.mv.m_ground_dir,0).angle_vector();
+	const vector dir = vector( 0,g_movement.mv.m_ground_dir,0 ).angle_vector( );
 	const vector mins = target->mins( );
 	const vector maxs = target->maxs( );
 	vector cur = (target->maxs( ) + target->mins( )) * 0.5f;
@@ -255,7 +254,7 @@ vector iter_arrow_hitspot( player_t* player ) {
 
 vector aim_offset( player_t *player ) {
 	const auto target = player->player;
-	auto offset = vector( );
+	vector offset;
 	auto dir = g_cl.m_shoot_pos.look(g_movement.mv.m_position + ( player->m_records[ 0 ]->mins + player->m_records[ 0 ]->maxs ) * 0.5f);
 	vector forward, up;
 	dir.angle_vectors( &forward, nullptr, &up );
@@ -267,10 +266,10 @@ vector aim_offset( player_t *player ) {
 	case WPN_Huntsman:
 	case WPN_CompoundBow:
 		offset = target->get_hitbox_pos( 0 ) - ( target->get_abs_origin( ) );// -vector( 0, 0, target->get_collideable( )->obb_mins( ).m_z ));
-		temp = iter_arrow_hitspot( player );
-		offset.m_x = temp.m_x;
-		offset.m_y = temp.m_y;
-		offset.m_z = fmaxf( offset.m_z + ( ( temp.m_z - offset.m_z ) * 0.5f ), offset.m_z );
+		//temp = iter_arrow_hitspot( player );
+		//offset.m_x = temp.m_x;
+		//offset.m_y = temp.m_y;
+		//offset.m_z = fmaxf( offset.m_z + ( ( temp.m_z - offset.m_z ) * 0.5f ), offset.m_z );
 
 		//if ( !g_movement.mv.on_ground )
 		//	offset.m_z += 15.f;
@@ -305,16 +304,16 @@ vector aim_offset( player_t *player ) {
 	case WPN_Original:
 	case WPN_Airstrike:
 	case WPN_BlackBox:
-		if( g_movement.mv.on_ground )
-			offset = vector( 0, 0, 8 * fabsf(up.m_z) + fabsf(forward.m_z) * 8.f );
-		else
-			offset = target->get_hitbox_pos( HITBOX_BODY ) - ( target->get_abs_origin( ) );
+		//if( g_movement.mv.on_ground )
+			offset.init( 0, 0, 8 * fabsf( up.m_z ) + fabsf( forward.m_z ) * 8.f );
+		//else
+		//	offset = target->get_hitbox_pos( HITBOX_BODY ) - ( target->get_abs_origin( ) );
 		break;
 	case WPN_StickyLauncher:
 		if ( g_movement.mv.on_ground )
-			offset = vector( 0, 0, 10 );
+			offset.init( 0, 0, 10 );
 		else
-			offset = vector( 0, 0, 0 );
+			offset.init( 0, 0, 0 );
 		break;
 	default:
 		break;
@@ -325,7 +324,7 @@ vector aim_offset( player_t *player ) {
 vector proj_aim::get_weapon_delta( vector eye_pos, vector weapon_pos, vector view ) {
 	vector current_delta;
 	const vector dir = view.angle_vector( );
-	auto min = vector( );
+	vector min;
 	vector max = ( dir * 4000.f );
 	const int max_iter = 1000;
 	for ( auto i = 0; i < max_iter; i++ ) {
@@ -348,11 +347,11 @@ float proj_aim::get_pipe_aim( float speed, float pitch ) {
 	for ( auto i = 0; i < max_iter; i++ ) {
 		const float test_pos = ( ( max + min ) * 0.5f );
 
-		auto test_dir = vector( test_pos, 0, 0 );
+		vector test_dir{ test_pos, 0, 0 };
 		vector forward, up;
 		test_dir.angle_vectors( &forward, nullptr, &up );
 		test_dir = (forward * speed) + (up * 200.f);
-		test_dir = vector(0,0,0).look(test_dir);
+		test_dir = test_dir.angle_to();
 
 		const float delta = (test_dir.m_x - pitch);
 		if ( fabsf( delta ) < 0.0005f )
@@ -373,7 +372,7 @@ vector proj_aim::get_aim_offset( ) {
 	case WPN_FestiveCrossbow:
 	case WPN_Huntsman:
 	case WPN_CompoundBow:
-		vec_offset = vector( 23.5f, 8.0f, -3.0f );
+		vec_offset.init( 23.5f, 8.0f, -3.0f );
 		break;
 	case WPN_IronBomber:
 	case WPN_StickyLauncher:
@@ -382,13 +381,13 @@ vector proj_aim::get_aim_offset( ) {
 	case WPN_GrenadeLauncher:
 	case WPN_NewGrenadeLauncher:
 	case WPN_FestiveGrenadeLauncher:
-		vec_offset = vector( 16.0f, 8.0f, -6.0f );
+		vec_offset.init( 16.0f, 8.0f, -6.0f );
 		break;
 	case WPN_SyringeGun:
 	case WPN_NewSyringeGun:
 	case WPN_Blutsauger:
 	case WPN_Overdose:
-		vec_offset = vector( 16, 6, -8 );
+		vec_offset.init( 16, 6, -8 );
 		break;
 	default:
 		break;
@@ -490,6 +489,8 @@ void proj_aim::select_target( ) {
 	}
 }
 
+double pipe_vel_change[ 2 ] = { 1200., 200. };
+
 void proj_aim::run( ) {
 	int attack = IN_ATTACK;
 	if ( g_cl.m_weapon->item_index( ) == WPN_Sandman )
@@ -511,13 +512,19 @@ void proj_aim::run( ) {
 	//}
 	if ( attack == IN_ATTACK2 ) {
 		if ( TICKS_TO_TIME( g_cl.m_local->m_tick_base( ) ) < g_cl.m_weapon->m_next_secondary_attack( ) ) {
-			ticks_since_shot = 0;
+			if ( g_cl.m_cmd->buttons_ & attack )
+				ticks_since_shot = 0;
+			else
+				ticks_since_shot = min( 5, ticks_since_shot + 1 );
 			was_shoot = false;
 			return;
 		}
 	}
 	else if ( TICKS_TO_TIME( g_cl.m_local->m_tick_base( ) ) < g_cl.m_weapon->m_next_primary_attack( ) ) {
-		ticks_since_shot = 0;
+		if ( g_cl.m_cmd->buttons_ & attack )
+			ticks_since_shot = 0;
+		else
+			ticks_since_shot = min( 5, ticks_since_shot + 1 );
 		was_shoot = false;
 		return;
 	}
@@ -543,6 +550,7 @@ void proj_aim::run( ) {
 
 
 	this->m_weapon_speed = get_speed( );
+	pipe_vel_change[0] = this->m_weapon_speed;
 	if ( this->m_weapon_speed == 0.f ) {
 		was_shoot = g_cl.m_cmd->buttons_ & IN_ATTACK;
 		return;
@@ -554,6 +562,7 @@ void proj_aim::run( ) {
 		this->m_weapon_gravity *= sv_gravity->m_value.m_float_value;
 	}
 	else {
+		this->m_weapon_speed = sqrt( pipe_vel_change[ 0 ] * pipe_vel_change[ 0 ] + pipe_vel_change[ 1 ] * pipe_vel_change[ 1 ] );
 		this->m_weapon_gravity *= 800.f;
 	}
 
@@ -568,8 +577,8 @@ void proj_aim::run( ) {
 	else
 		ticks_since_shot = min( 5, ticks_since_shot + 1 );
 	was_shoot = g_cl.m_cmd->buttons_ & attack;
-	//g_movement.path.erase( g_movement.path.begin( ) + selected_step + 1, g_movement.path.end( ) );
 }
+
 
 void proj_aim::find_shot( bool& was_shoot, int attack ) {
 	auto target = g_player_manager.players[ this->m_target->entindex( ) - 1 ];
@@ -590,15 +599,16 @@ void proj_aim::find_shot( bool& was_shoot, int attack ) {
 
 	auto mindelta = FLT_MAX; auto maxsteps = 5000;
 	float cur_time = 0.f; -( latency + ( fmaxf( 0.f, TICKS_TO_TIME( g_cl.m_local->m_tick_base( ) ) - this->m_target->sim_time( ) ) ) );
-	auto last = vector( );
-	int selected_step = 0;
-	bool found = false;
-	vector found_pos;
-	float found_time;
-	vector found_eye_pos;
-	vector found_view;
-	int found_step = 0;
-	bool found_ground;
+	vector last;
+	struct target_holder {
+		bool valid = false;
+		vector pos;
+		float time;
+		vector eye_pos;
+		vector view;
+		int step = 0;
+		bool ground;
+	} found_holder;
 	for ( int steps = 0; steps < maxsteps; steps++ ) {
 		cur_time += g_interfaces.m_global_vars->m_interval_per_tick;
 		auto pos = g_movement.run( ) + aim_offset( &target );// +vector( 0, 0, closest->get_collideable( )->obb_mins( ).m_z );;
@@ -617,9 +627,7 @@ void proj_aim::find_shot( bool& was_shoot, int attack ) {
 				continue;
 
 			if ( is_pipe( ) ) {
-				vector forward, up;
-				view.angle_vectors( &forward, nullptr, &up );
-				view = vector( 0, 0, 0 ).look( ( forward * get_speed( ) ) + ( up * 200.f ) );
+				view.m_x -= static_cast< float >( atan2( -pipe_vel_change[ 1 ], pipe_vel_change[ 0 ] ) * 180. / pi );
 				view.m_x = std::clamp<float>( view.m_x, -89.f, 89.f );
 			}
 		}
@@ -652,14 +660,14 @@ void proj_aim::find_shot( bool& was_shoot, int attack ) {
 		auto vis_pos = pos;
 
 		if ( fabsf(delta) < mindelta && fabsf(delta) <  g_interfaces.m_global_vars->m_interval_per_tick * 5 ) {
-			found = true;
-			found_pos = pos;
+			found_holder.valid = true;
+			found_holder.pos = pos;
 			mindelta = fabsf( delta );
-			found_eye_pos = new_eye_pos;
-			found_view = view;
-			found_time = rocket_time;
-			found_step = steps;
-			found_ground = g_movement.mv.on_ground;
+			found_holder.eye_pos = new_eye_pos;
+			found_holder.view = view;
+			found_holder.time = rocket_time;
+			found_holder.step = steps;
+			found_holder.ground = g_movement.mv.on_ground;
 		}
 
 		if ( rocket_time <= ( steps * g_interfaces.m_global_vars->m_interval_per_tick ) ) {
@@ -668,11 +676,11 @@ void proj_aim::find_shot( bool& was_shoot, int attack ) {
 		last = pos;
 	}
 	bool shot = false;
-	if ( found ) {
+	if ( found_holder.valid ) {
 		float needed_hit_chance = g_ui.m_controls.aim.players.hitchance->m_value;
 		if ( needed_hit_chance > 0.f ) {
-			float cur_hitchance = ( 1.f - ( fminf( TICKS_TO_TIME( found_step ), 1.f ) ) ) * 100.f;
-			if ( !found_ground )
+			float cur_hitchance = ( 1.f - ( fminf( TICKS_TO_TIME( found_holder.step ), 1.f ) ) ) * 100.f;
+			if ( !found_holder.ground )
 				cur_hitchance *= 0.5f;
 
 			if ( needed_hit_chance > cur_hitchance )
@@ -680,10 +688,10 @@ void proj_aim::find_shot( bool& was_shoot, int attack ) {
 		}
 
 		m_path.clear( );
-		vector view = found_view;
+		vector view = found_holder.view;
 		if ( this->m_weapon_gravity < 1 ) {
 			ray_t ray;
-			ray.initialize( found_eye_pos, found_pos );
+			ray.initialize( found_holder.eye_pos, found_holder.pos );
 			CTraceFilterIgnorePlayers traceFilter( g_cl.m_local, TFCOLLISION_GROUP_ROCKETS );
 			trace_t trace;
 			g_interfaces.m_engine_trace->trace_ray( ray, MASK_SHOT, &traceFilter, &trace );
@@ -699,16 +707,14 @@ void proj_aim::find_shot( bool& was_shoot, int attack ) {
 			}
 		}
 		else {
-			//if ( get_gravity_aim( speed, gravity, found_pos - found_eye_pos, &view.m_x, false ) ) {
+			//if ( get_gravity_aim( speed, gravity, found_holder.pos - found_holder.eye_pos, &view.m_x, false ) ) {
 			vector forward, right, up;
 			if ( is_pipe( ) ) {
-				vector( 0, 0, 0 ).angle_vectors( &forward, &right, &up );
-				vector vec_velocity = ( ( forward * get_speed( ) ) + ( up * 200.0f ) );
-				view.m_x = get_pipe_aim( get_speed( ), view.m_x );
+				view.m_x -= static_cast< float >( atan2( -pipe_vel_change[ 1 ], pipe_vel_change[ 0 ] ) * 180. / pi );
 				view.m_x = std::clamp<float>( view.m_x, -89.f, 89.f );
 			}
 			vector new_dir = view.angle_vector( );
-			if ( proj_can_hit( this->m_target, view, found_time, found_eye_pos, true ) ) {
+			if ( proj_can_hit( this->m_target, view, found_holder.time, found_holder.eye_pos, true ) ) {
 				//}
 				if ( g_ui.m_controls.aim.players.fire_mode->m_selected_index != 0 )
 					if ( was_shoot )
@@ -736,7 +742,7 @@ bool proj_aim::setup_projectile( vector& view, vector& pos, vector& new_eyepos )
 	vector forward, right, up;
 
 	if ( is_pipe( ) ) {
-		view.m_x = get_pipe_aim( get_speed( ), view.m_x );
+		view.m_x -= static_cast< float >( atan2( -pipe_vel_change[ 1 ], pipe_vel_change[ 0 ] ) * 180. / pi );
 		view.m_x = std::clamp<float>( view.m_x, -89.f, 89.f );
 	}
 
@@ -766,7 +772,7 @@ bool proj_aim::setup_projectile( vector& view, vector& pos, vector& new_eyepos )
 		}
 
 		if ( is_pipe( ) ) {
-			new_view.m_x = get_pipe_aim( get_speed( ), new_view.m_x );
+			new_view.m_x -= static_cast< float >( atan2( -pipe_vel_change[ 1 ], pipe_vel_change[ 0 ] ) * 180. / pi );
 			new_view.m_x = std::clamp<float>( new_view.m_x, -89.f, 89.f );
 			view = new_view;
 		}
@@ -791,19 +797,19 @@ bool proj_aim::setup_projectile( vector& view, vector& pos, vector& new_eyepos )
 	return should_continue;
 }
 
-bool proj_aim::get_gravity_aim( vector difference, float *ret, bool lob ) {
+bool proj_aim::get_gravity_aim( vector difference, float* ret, bool lob ) {
 	//float travel_time = difference.length_2d( ) / speed;
 	//difference.m_z += travel_time * 800.f * g_interfaces.m_global_vars->m_interval_per_tick;
 	//*ret = vector( ).look( difference ).m_x;
 	//return true;
 
 	const float x = difference.length_2d( );
-	float root = this->m_weapon_speed * this->m_weapon_speed * this->m_weapon_speed * this->m_weapon_speed - this->m_weapon_gravity * ( this->m_weapon_gravity * x * x + 2.0f * difference.m_z * this->m_weapon_speed * this->m_weapon_speed );
-	if (root < 0.0f || isnan(root)) {
+	double root = this->m_weapon_speed * this->m_weapon_speed * this->m_weapon_speed * this->m_weapon_speed - this->m_weapon_gravity * ( this->m_weapon_gravity * x * x + 2. * difference.m_z * this->m_weapon_speed * this->m_weapon_speed );
+	if ( root < 0.0f || isnan( root ) ) {
 		return false;
 	}
 	root = sqrt( root );
-	*ret = -rad_to_deg( ( std::atan(  ( ( this->m_weapon_speed * this->m_weapon_speed ) - (lob ? -root : root) ) / ( this->m_weapon_gravity * x ) )));
+	*ret = -rad_to_deg( ( std::atan2( ( ( this->m_weapon_speed * this->m_weapon_speed ) - ( lob ? -root : root ) ), ( this->m_weapon_gravity * x ) ) ) );
 	return true;
 }
 
@@ -876,8 +882,8 @@ bool proj_aim::proj_can_hit( c_base_player* target, vector view, float goal_time
 	vector dir = view.angle_vector( );
 	vector velocity = ( dir * this->m_weapon_speed );
 	if ( is_pipe( ) ) {
-		vector( view ).angle_vectors( &forward, nullptr, &up );
-			velocity = ( ( forward * get_speed( ) ) + ( up * 200.0f ) );
+		view.angle_vectors( &forward, nullptr, &up );
+		velocity = ( ( forward * get_speed( ) ) + ( up * 200. ) );
 	}
 	float time = 0;
 	if ( record )

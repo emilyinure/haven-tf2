@@ -52,7 +52,10 @@ void c_ui::init( ) {
 				this->m_controls.visuals.players.enabled = players->add_checkbox( "Enabled" );
 				this->m_controls.visuals.players.name = players->add_checkbox( "Name" );
 				this->m_controls.visuals.players.box = players->add_checkbox( "Box" );
-				this->m_controls.visuals.players.health = players->add_checkbox( "Health" );
+				this->m_controls.visuals.players.health = players->add_combobox( "Health" );
+				this->m_controls.visuals.players.health->add_item( "Off" );
+				this->m_controls.visuals.players.health->add_item( "Bar" );
+				this->m_controls.visuals.players.health->add_item( "Text" );
 				this->m_controls.visuals.players.flags = players->add_checkbox( "Flags" );
 				this->m_controls.visuals.players.weapon = players->add_checkbox( "Weapon" );
 			}

@@ -65,7 +65,7 @@ public:
 				std::shared_ptr< c_checkbox > enabled;
 				std::shared_ptr< c_checkbox > name;
 				std::shared_ptr< c_checkbox > box;
-				std::shared_ptr< c_checkbox > health;
+				std::shared_ptr< c_combobox > health;
 				std::shared_ptr< c_checkbox > flags;
 				std::shared_ptr< c_checkbox > weapon;
 			} players;

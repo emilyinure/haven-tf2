@@ -37,7 +37,7 @@ vector direction_pressed( player_record_t* record, vector last_vel ) {
 	if ( ( vel - last_vel ).length_2d() > 0.1f) {
 		vector vel_difference = vel - last_vel;
 		vel_difference.m_z = 0;
-		vector dir = vector( ).look( vel_difference );
+		vector dir = vel_difference.angle_to();
 		dir.m_y -= record->eye_angle.m_y;
 		return dir.angle_vector( ) * 450.f;
 	}
@@ -128,8 +128,8 @@ void c_player_manager::update_players( ) {
 		if ( player->m_sim_time < target->sim_time( ) ) {
 			player_record_t new_record;
 			new_record.eye_angle = target->m_eye_angles( );
-			new_record.m_lag = ( player->m_sim_time == -1.f ) ? 1 : static_cast< int >(0.5f + (float)(new_time - player->m_sim_time) / g_interfaces.m_global_vars->m_interval_per_tick);// TIME_TO_TICKS( ( new_time - player->sim_time ) );
- 			player->m_sim_time = new_time;
+			new_record.m_lag = ( player->m_sim_time == -1.f ) ? 1 : static_cast< int >( 0.5f + ( float )( new_time - player->m_sim_time ) / g_interfaces.m_global_vars->m_interval_per_tick );// TIME_TO_TICKS( ( new_time - player->sim_time ) );
+			player->m_sim_time = new_time;
 			new_record.origin = target->m_vec_origin( );
 			const vector dif = new_record.origin - player->pred_origin;
 			if ( fabsf( dif.m_x ) <= 0.03125f )
