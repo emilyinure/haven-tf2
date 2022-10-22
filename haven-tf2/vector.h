@@ -14,10 +14,7 @@ __forceinline constexpr float rad_to_deg( float val ) {
 
 class vector {
 public:
-	union {
-		float m_x, m_y, m_z;
-		float _[ 3 ];
-	};
+	float m_x, m_y, m_z;
 	static void sin_cos( float r, float* s, float* c ) {
 		*s = std::sin( r );
 		*c = std::cos( r );
@@ -207,8 +204,13 @@ public:
 			fabsf( m_y ) < other &&
 			fabsf( m_z ) < other;
 	}
-	float& operator[](const int i) {
-		return _[ i ];
+	float &operator[](const int i) {
+		if ( i == 0 )
+			return m_x;
+		if ( i == 1 )
+			return m_y;
+		if ( i == 2 )
+			return m_z;
 	}
 
 	float length() const {

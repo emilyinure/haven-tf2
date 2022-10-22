@@ -28,7 +28,7 @@ void c_movement::auto_strafe( float *view ) {
 	vector direction;
 	direction.m_x = 1 * ( fabsf( g_cl.m_cmd->sidemove_ ) < 0 && fabsf( g_cl.m_cmd->forwardmove_ ) < 0); // branchless optimization
 	direction.m_x += 1 * ( g_cl.m_cmd->forwardmove_ > 0 ) + -1 * ( g_cl.m_cmd->forwardmove_ < 0 );
-	direction.m_y = 1 * ( g_cl.m_cmd->sidemove_ > 0 ) + -1 * ( g_cl.m_cmd->sidemove_ < 0 );
+	direction.m_y = 1 * ( g_cl.m_cmd->sidemove_ < 0 ) + -1 * ( g_cl.m_cmd->sidemove_ > 0 );
 
 	*view += vector( ).look( direction ).m_y;
 
@@ -55,7 +55,7 @@ void c_movement::auto_strafe( float *view ) {
 	*/
 	//std::printf( std::to_string( g_cl.m_local->m_velocity(  ).length_2d(  ) ).c_str(  ) );
 	//std::printf( "\n" );
-	if ( (abs_delta <= ideal2 || abs_delta >= 30.f) && g_cl.m_cmd->sidemove_ == 0 ) {
+	if ( abs_delta <= ideal2 || abs_delta >= 30.f ) {
 		// compute angle of the direction we are traveling in.
 		const auto velocity_angle = rad_to_deg( atan2( velocity.m_y, velocity.m_x ) );
 
@@ -109,15 +109,15 @@ void c_movement::correct_movement( vector old ) {
 		wish_up_norm.m_y * movedata.m_z;
 
 	vector correct_movement{ 
-		cmd_forward_norm.m_x * v24 + cmd_forward_norm.m_y * v23 + cmd_forward_norm.m_z * v25
+		  ( cmd_forward_norm.m_x * v24 + cmd_forward_norm.m_y * v23 + cmd_forward_norm.m_z * v25 )
 		+ ( cmd_forward_norm.m_x * v22 + cmd_forward_norm.m_y * v26 + cmd_forward_norm.m_z * v28 )
 		+ ( cmd_forward_norm.m_y * v30 + cmd_forward_norm.m_x * v29 + cmd_forward_norm.m_z * v27 ),
 		
-		cmd_right_norm.m_x * v24 + cmd_right_norm.m_y * v23 + cmd_right_norm.m_z * v25
+		  ( cmd_right_norm.m_x * v24 + cmd_right_norm.m_y * v23 + cmd_right_norm.m_z * v25 )
 		+ ( cmd_right_norm.m_x * v22 + cmd_right_norm.m_y * v26 + cmd_right_norm.m_z * v28 )
 		+ ( cmd_right_norm.m_x * v29 + cmd_right_norm.m_y * v30 + cmd_right_norm.m_z * v27 ),
 		
-		correct_movement.m_z = cmd_up_norm.m_x * v23 + cmd_up_norm.m_y * v24 + cmd_up_norm.m_z * v25
+		  (correct_movement.m_z = cmd_up_norm.m_x * v23 + cmd_up_norm.m_y * v24 + cmd_up_norm.m_z * v25 )
 		+ ( cmd_up_norm.m_x * v26 + cmd_up_norm.m_y * v22 + cmd_up_norm.m_z * v28 )
 		+ ( cmd_up_norm.m_x * v30 + cmd_up_norm.m_y * v29 + cmd_up_norm.m_z * v27 ) 
 	};
