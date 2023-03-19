@@ -168,6 +168,16 @@ int& c_base_player::m_tick_base()
     return this->get<int>(g_netvars.m_offsets.dt_base_player.m_tick_base);
 }
 
+int& c_base_weapon::m_clip1()
+{
+    return this->get<int>(g_netvars.m_offsets.dt_base_weapon.m_clip1);
+}
+
+int& c_base_weapon::m_clip2()
+{
+    return this->get<int>(g_netvars.m_offsets.dt_base_weapon.m_clip2);
+}
+
 float& c_base_player::m_next_attack()
 {
     return this->get<float>(g_netvars.m_offsets.dt_base_player.m_next_attack);

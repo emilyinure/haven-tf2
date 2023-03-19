@@ -114,6 +114,8 @@ class c_base_player;
 class c_base_weapon : public c_base_entity
 {
 public:
+    int& m_clip1();
+    int& m_clip2();
     float charge_time();
     float pipe_charge_time();
     float& m_next_primary_attack();

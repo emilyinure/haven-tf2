@@ -558,7 +558,7 @@ void proj_aim::run()
     // }
     if (attack == IN_ATTACK2)
     {
-        if (TICKS_TO_TIME(g_cl.m_local->m_tick_base()) < g_cl.m_weapon->m_next_secondary_attack())
+        if (g_cl.m_weapon->m_clip2() <= 0)
         {
             if (g_cl.m_cmd->buttons_ & attack)
                 ticks_since_shot = 0;
@@ -568,7 +568,7 @@ void proj_aim::run()
             return;
         }
     }
-    else if (TICKS_TO_TIME(g_cl.m_local->m_tick_base()) < g_cl.m_weapon->m_next_primary_attack())
+    else if (g_cl.m_weapon->m_clip1() <= 0)
     {
         if (g_cl.m_cmd->buttons_ & attack)
             ticks_since_shot = 0;

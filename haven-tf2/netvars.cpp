@@ -96,8 +96,11 @@ void c_netvars::get_offsets()
         this->get("DT_BaseCombatWeapon", "m_flNextSecondaryAttack").m_offset;
     this->m_offsets.dt_base_weapon.m_item_definition_index =
         this->get("DT_EconEntity", "m_iItemDefinitionIndex").m_offset;
-    this->m_offsets.dt_base_weapon.m_charge_damage = this->get("DT_TFSniperRifle", "m_flChargedDamage").m_offset;
-    this->m_offsets.dt_base_weapon.m_rot_speed = this->get("DT_WeaponMinigun", "m_flRotationSpeed").m_offset;
+    this->m_offsets.dt_base_weapon.m_charge_damage = this->get("DT_BaseCombatWeapon", "m_iClip1").m_offset;
+    this->m_offsets.dt_base_weapon.m_rot_speed = this->get("DT_BaseCombatWeapon", "m_iClip2").m_offset;
+
+    this->m_offsets.dt_base_weapon.m_clip1 = this->get("DT_TFSniperRifle", "m_flChargedDamage").m_offset;
+    this->m_offsets.dt_base_weapon.m_clip2 = this->get("DT_TFSniperRifle", "m_flChargedDamage").m_offset;
 
     this->m_offsets.dt_base_animating.m_hitbox_set = this->get("DT_BaseAnimating", "m_nHitboxSet").m_offset;
 

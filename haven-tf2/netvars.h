@@ -35,7 +35,7 @@ public:
         struct
         {
             uintptr_t m_item_definition_index, m_pipe_charge_begin_time, m_charge_begin_time, m_next_primary_attack,
-                m_next_secondary_attack, m_charge_damage, m_rot_speed;
+                m_next_secondary_attack, m_charge_damage, m_rot_speed, m_clip1, m_clip2;
         } dt_base_weapon;
 
         struct
