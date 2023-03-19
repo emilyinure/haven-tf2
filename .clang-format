@@ -1,0 +1,19 @@
+---
+BasedOnStyle: Microsoft
+IndentWidth: 4
+ColumnLimit: 120
+---
+Language: Cpp
+AccessModifierOffset: -4
+SortIncludes: false
+IndentCaseLabels: true
+NamespaceIndentation: All
+DerivePointerAlignment: false
+PointerAlignment: Left
+TabWidth: 4
+UseCRLF: false
+UseTab: Never
+BraceWrapping:
+    AfterCaseLabel: true
+    AfterUnion: true
+    BeforeLambdaBody: true
