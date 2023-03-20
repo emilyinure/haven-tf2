@@ -771,12 +771,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
             if (!trace.did_hit())
             {
                 if (g_ui.m_controls.aim.players.fire_mode->m_selected_index != 0)
-                    if (was_shoot)
-                        g_cl.m_cmd->buttons_ &= ~attack;
-                    else
-                    {
                         g_cl.m_cmd->buttons_ |= attack;
-                    }
                 g_cl.m_cmd->m_viewangles = view;
                 shot = true;
             }

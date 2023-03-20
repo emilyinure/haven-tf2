@@ -1335,10 +1335,8 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                                                 find_unstuck(player_info.m_records[1]->origin));
                 mv.m_decay = 0.f;
 
-                // mv.m_walk_direction = mv.m_air_dir;
-                const float dir = record->eye_angle.m_y - record->vel.angle_to().m_y;
-
-                mv.m_walk_direction = vector(0, dir, 0).angle_vector() * record->vel.length();
+                if (mv.m_air_dir.length_2d() > 0.1f)
+                    mv.m_walk_direction = vector(450.f, 0, 0);
             }
             // mv.m_decay = 1.f;
         }
