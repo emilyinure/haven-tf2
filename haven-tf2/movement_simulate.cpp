@@ -1343,8 +1343,6 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
         mv.m_target_velocity = mv.m_velocity = record->vel;
         if (mv.on_ground)
             mv.m_target_velocity.m_z = mv.m_velocity.m_z = 0;
-        else
-            start_gravity();
         path.clear();
         mv.m_position = find_unstuck(record->origin); // player->get_collideable( )->obb_mins( ).m_z );
         path.push_back(mv.m_position);

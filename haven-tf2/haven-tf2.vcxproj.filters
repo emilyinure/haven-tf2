@@ -181,15 +181,6 @@
     <Filter Include="client\feature">
       <UniqueIdentifier>{7a66d660-cc6e-4259-ac67-922dce220de4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="features">
-      <UniqueIdentifier>{e6dbbc04-82d4-467d-b60b-7f7a9150a85f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="features\visuals">
-      <UniqueIdentifier>{5cd72ebc-78aa-46e3-947b-e937a9f4b78c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="features\visuals\player_esp">
-      <UniqueIdentifier>{f571d8f0-9d0a-4bef-8a94-aa726e8edfbc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\input">
       <UniqueIdentifier>{6cb5564c-7c71-4ba9-94da-c558ca1cdd75}</UniqueIdentifier>
     </Filter>
@@ -298,12 +289,6 @@
     <ClCompile Include="movement_simulate.cpp">
       <Filter>client\feature</Filter>
     </ClCompile>
-    <ClCompile Include="visuals.cpp">
-      <Filter>features\visuals</Filter>
-    </ClCompile>
-    <ClCompile Include="player_esp.cpp">
-      <Filter>features\visuals\player_esp</Filter>
-    </ClCompile>
     <ClCompile Include="input.cpp">
       <Filter>sdk\input</Filter>
     </ClCompile>
@@ -364,6 +349,12 @@
     </ClCompile>
     <ClCompile Include="key_bind.cpp">
       <Filter>ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="player_esp.cpp">
+      <Filter>client\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals.cpp">
+      <Filter>client\feature</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -550,9 +541,6 @@
     <ClInclude Include="features.h">
       <Filter>client\feature</Filter>
     </ClInclude>
-    <ClInclude Include="visuals.h">
-      <Filter>features\visuals</Filter>
-    </ClInclude>
     <ClInclude Include="input.h">
       <Filter>sdk\input</Filter>
     </ClInclude>
@@ -652,6 +640,9 @@
     </ClInclude>
     <ClInclude Include="key_bind.h">
       <Filter>ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals.h">
+      <Filter>client\feature</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

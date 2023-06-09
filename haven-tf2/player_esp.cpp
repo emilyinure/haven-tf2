@@ -4,7 +4,7 @@
 void c_visuals::player_esp()
 {
 
-    for (auto i = 1; i < g_interfaces.m_global_vars->m_max_clients; i++)
+    for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
     {
         auto& player_esp = g_ui.m_controls.visuals.players;
 

@@ -24,7 +24,6 @@ class c_movement_simulate
 	void categorize_position( );
 	void check_velocity( void );
 	void start_gravity( void );
-	void finish_gravity( void );
 	void air_move( );
 	void walk_move( );
 	void air_acceletate( vector& wishdir, float wishspeed, float accel );
@@ -49,7 +48,9 @@ class c_movement_simulate
 		float sim_time = -1.f;
 		c_base_player* player;
 	};
+
 public:
+    void finish_gravity(void);
 	struct info {
 		vector m_velocity;
 		vector m_position;

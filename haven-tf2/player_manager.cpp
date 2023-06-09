@@ -2,6 +2,7 @@
 #include "player_manager.h"
 #include "sdk.h"
 #include "movement_simulate.h"
+#include "c_user_cmd.h"
 
 #define DIST_EPSILON (0.03125f)
 #define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
@@ -188,8 +189,17 @@ void c_player_manager::update_players()
                     const auto path = g_movement.path;
                     new_record.vel =
                         (new_record.origin - player->m_records[0]->origin) * (1.f / TICKS_TO_TIME(new_record.m_lag));
-
-                    if (new_record.vel.length() < 5.f || new_record.origin == player->pred_origin)
+                    g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
+                    if (!(player->player->flags() & FL_ONGROUND))
+                    {
+                        g_movement.finish_gravity();
+                    }
+                    if (new_record.origin == player->pred_origin)
+                    {
+                        new_record.dir = player->m_records[0]->dir;
+                        new_record.ground_dir = player->m_records[0]->ground_dir;
+                    }
+                    if (new_record.vel.length() < 5.f)
                     {
                         new_record.dir = 0;
                         new_record.ground_dir = 0;
@@ -212,7 +222,6 @@ void c_player_manager::update_players()
                         // else new_record.dir = turn;
 
                         // if ( new_record.on_ground && player->m_records.size() > 3 ) {
-                        g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                         new_record.move_data = g_movement.estimate_walking_dir(
                             new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
                         turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);

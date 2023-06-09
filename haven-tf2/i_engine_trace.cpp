@@ -117,7 +117,7 @@ bool CTraceFilterSimple::should_hit_entity(c_base_entity* pHandleEntity, int con
 
 bool CTraceFilterIgnorePlayers::should_hit_entity(c_base_entity* pServerEntity, int contentsMask)
 {
-    if (!(pServerEntity->entindex() == 0 || pServerEntity->entindex() >= g_interfaces.m_global_vars->m_max_clients))
+    if (!(pServerEntity->entindex() == 0 || pServerEntity->entindex() >= g_interfaces.m_engine->get_max_clients()))
         return false;
 
     return CTraceFilterSimple::should_hit_entity(pServerEntity, contentsMask);
@@ -125,7 +125,7 @@ bool CTraceFilterIgnorePlayers::should_hit_entity(c_base_entity* pServerEntity, 
 
 bool CTraceFilterIgnoreTeammates::should_hit_entity(c_base_entity* pServerEntity, int contentsMask)
 {
-    if (!(pServerEntity->entindex() == 0 || pServerEntity->entindex() >= g_interfaces.m_global_vars->m_max_clients))
+    if (!(pServerEntity->entindex() == 0 || pServerEntity->entindex() >= g_interfaces.m_engine->get_max_clients()))
     {
         if ((pServerEntity->m_i_team_num() == m_iIgnoreTeam))
         {

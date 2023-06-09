@@ -170,7 +170,7 @@ void c_backstab::run()
     if (slot != SLOT_MELEE)
         return;
 
-    for (auto i = 1; i < g_interfaces.m_global_vars->m_max_clients; i++)
+    for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
     {
         const auto base_player = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
         if (!base_player->is_valid(g_cl.m_local))

@@ -23,11 +23,18 @@ public:
 #define TICKS_TO_TIME(dt) (g_interfaces.m_global_vars->m_interval_per_tick * (float)(dt))
 void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
 {
-    if (local->m_class() != TF2_Scout && local->m_class() != TF2_Heavy)
-        return;
     auto* weapon = local->get_active_weapon();
-    if (!weapon || weapon->GetSlot() != EWeaponSlots::SLOT_PRIMARY ||
-        (TICKS_TO_TIME(local->m_tick_base() + 1) < weapon->m_next_primary_attack() && local->m_class() != TF2_Heavy))
+    if (!weapon)
+        return;
+    bool soldier = local->m_class() == TF2_Soldier;
+    if (local->m_class() != TF2_Scout && local->m_class() != TF2_Heavy && !soldier)
+        return;
+    int slot = weapon->GetSlot();
+    if (soldier && slot != EWeaponSlots::SLOT_SECONDARY)
+        return;
+    else if (slot != EWeaponSlots::SLOT_PRIMARY)
+        return;
+    if ((TICKS_TO_TIME(local->m_tick_base() + 1) < weapon->m_next_primary_attack()) && local->m_class() != TF2_Heavy)
         return;
 
     const vector eye_pos = local->m_vec_origin() + local->m_view_offset();
@@ -40,7 +47,16 @@ void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
         if (!player->is_valid(local))
             continue;
 
-        auto head = player->get_hitbox_pos(4);
+        auto target = g_player_manager.players[player->entindex() - 1];
+        if (target.player != player || target.m_records.empty())
+            continue;
+        auto record = target.m_records[0];
+        if (!record || !record->built)
+            continue;
+
+        record->cache();
+
+        auto head = player->get_hitbox_pos(4, record->bones);
         const auto cur_distance = fabsf((head - eye_pos).delta(cmd->m_viewangles));
         if (cur_distance > 100.f || distance <= cur_distance)
             continue;
@@ -64,6 +80,7 @@ void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
             distance = cur_distance;
         }
 
+        record->restore();
         player->mins() = backup_mins;
         player->maxs() = backup_maxs;
     }
@@ -72,14 +89,16 @@ void c_aimbot::run(c_base_player* local, usercmd_t* cmd)
 {
     if ((TICKS_TO_TIME(local->m_tick_base() + 1) < local->m_next_attack() && local->m_class() != TF2_Heavy))
         return;
-    if (local->m_class() != TF2_Sniper)
+    auto* weapon = local->get_active_weapon();
+    if (!weapon)
+        return;
+    if (local->m_class() != TF2_Sniper || weapon->GetSlot() == EWeaponSlots::SLOT_SECONDARY)
     {
         other(local, cmd);
         return;
     }
     vector eye_pos = local->m_vec_origin() + local->m_view_offset();
-    auto* weapon = local->get_active_weapon();
-    if (!weapon || weapon->GetSlot() != EWeaponSlots::SLOT_PRIMARY)
+    if (weapon->GetSlot() != EWeaponSlots::SLOT_PRIMARY)
         return;
     int item_idx = weapon->item_index();
     if (item_idx == WPN_Huntsman || item_idx == WPN_CompoundBow ||
@@ -118,7 +137,7 @@ void c_aimbot::run(c_base_player* local, usercmd_t* cmd)
 
         player->mins() *= 10.f;
         player->maxs() *= 10.f;
-
+        record->cache();
         auto head = player->get_hitbox_pos(0, record->bones);
         ray_t ray;
         ray.initialize(eye_pos, head);
@@ -133,6 +152,7 @@ void c_aimbot::run(c_base_player* local, usercmd_t* cmd)
             cmd->tick_count_ = TIME_TO_TICKS(target.m_sim_time + lerp);
             distance = cur_distance;
         }
+        record->restore();
 
         player->mins() = backup_mins;
         player->maxs() = backup_maxs;

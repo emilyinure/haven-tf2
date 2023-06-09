@@ -52,6 +52,7 @@ void c_client::on_move(usercmd_t* cmd)
             {
                 if (g_ui.m_controls.aim.players.enabled->m_value)
                 {
+                    g_aimbot.run(m_local, cmd);
                     g_proj.run();
                     g_backstab.run();
                     // g_aimbot.run( local, cmd );
