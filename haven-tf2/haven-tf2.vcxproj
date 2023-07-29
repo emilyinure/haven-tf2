@@ -117,11 +117,6 @@
     <ClCompile Include="i_engine_trace.cpp" />
     <ClCompile Include="key_bind.cpp" />
     <ClCompile Include="math.cpp" />
-    <ClCompile Include="minhook\buffer.cpp" />
-    <ClCompile Include="minhook\hde\hde32.cpp" />
-    <ClCompile Include="minhook\hde\hde64.cpp" />
-    <ClCompile Include="minhook\hook.cpp" />
-    <ClCompile Include="minhook\trampoline.cpp" />
     <ClCompile Include="modules.cpp" />
     <ClCompile Include="movement.cpp" />
     <ClCompile Include="movement_simulate.cpp" />
