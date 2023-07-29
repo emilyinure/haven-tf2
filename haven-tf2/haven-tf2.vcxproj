@@ -206,7 +206,7 @@
     <ClInclude Include="key_values.h" />
     <ClInclude Include="math.h" />
     <ClInclude Include="matrix_3x4.h" />
-    <ClInclude Include="minhook\minhook.h" >
+    <ClInclude Include="minhook\minhook.h" />
     <ClInclude Include="modes.h" />
     <ClInclude Include="modules.h" />
     <ClInclude Include="mouth_info.h" />
