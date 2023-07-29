@@ -44,19 +44,19 @@ jobs:
         delete_release: true # default: true
         delete_draft_release: true # default: false; only applicable if delete_release == true
         tag_name: v1.0.0 # tag name to delete
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-    - name: Delete old release
-      continue-on-error: true
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
-      with:
-        delete_release: true # default: true
-        delete_draft_release: true # default: false; only applicable if delete_release == true
-        tag_name: v1.0.0 # tag name to delete
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+    - name: Create release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: Latest
+        tag_name: v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
       
     - name: Upload release
       uses: actions/upload-release-asset@v1
