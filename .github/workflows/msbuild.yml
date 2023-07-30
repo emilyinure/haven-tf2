@@ -39,9 +39,7 @@ jobs:
       
     - uses: dev-drprasad/delete-older-releases@v0.2.1
       with:
-        repo: <owner>/<repoName> # defaults to current repo
-        keep_latest: 0
-        delete_tag_pattern: beta # defaults to ""
+        keep_latest: 2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
