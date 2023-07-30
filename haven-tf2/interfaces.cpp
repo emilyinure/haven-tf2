@@ -7,8 +7,6 @@ void c_interfaces::gather()
         this->m_client = client.get_interface("VClient0").as<i_base_client_dll>();
         this->m_prediction = client.get_interface("VClientPrediction001", true).as<c_prediction>();
         this->m_entity_list = client.get_interface("VClientEntityList0").as<i_client_entity_list>();
-        this->m_global_vars = **(c_global_vars_base***)((*(DWORD**)this->m_client)[11] + 0x5);
-        ;
         this->m_game_movement = client.get_interface("GameMovement001", true).as<c_game_movement>();
         ;
         this->m_game_rules = **client.get_sig("8B 0D ? ? ? ? 83 C4 10 C7 45").as<game_rules***>(0x2);
@@ -16,6 +14,7 @@ void c_interfaces::gather()
 
     const auto engine = g_modules.get("engine.dll");
     {
+        this->m_global_vars = *engine.get_sig("A1 ? ? ? ? 8B 11 68").as<c_global_vars_base**>(0x8);
         this->m_engine = engine.get_interface("VEngineClient0").as<iv_engine_client>();
         this->m_engine_sound = engine.get_interface("IEngineSoundClient0").as<i_engine_sound>();
         this->m_engine_vgui = engine.get_interface("VEngineVGui0").as<i_engine_vgui>();
