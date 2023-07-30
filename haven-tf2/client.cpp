@@ -11,7 +11,8 @@ void c_client::init()
 {
     while (!this->m_hwnd)
         this->m_hwnd = FindWindowA("Valve001", nullptr);
-
+    while (!GetModuleHandleA("serverbrowser.dll"))
+        ;
     g_utils.m_debug.open_console();
 
     g_modules.init();
