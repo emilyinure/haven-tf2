@@ -412,6 +412,12 @@ void c_movement_simulate::categorize_position(void)
         {
             mv.on_ground = pm.m_entity != nullptr;
         }
+        if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
+        {
+            vector right;
+            pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            mv.m_velocity += right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+        }
     }
     else
     {
@@ -430,6 +436,12 @@ void c_movement_simulate::categorize_position(void)
             }
         }
         mv.on_ground = pm.m_entity != nullptr;
+        if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
+        {
+            vector right;
+            pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            mv.m_velocity += right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+        }
     }
 }
 void c_movement_simulate::check_velocity(void)
@@ -971,7 +983,50 @@ float dir_turning1(vector vel, vector last_vel)
 
 vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fric_vel, vector eye_ang, vector origin)
 {
+    {
 
+        trace_t pm;
+
+        // Reset this each time we-recategorize, otherwise we have bogus friction when we jump into water and plunge
+        // downward really quickly
+        mv.m_surface_friction = 1.f;
+
+        const float zvel = velocity[2];
+
+        vector vecStartPos = origin;
+        vector vecEndPos(origin.m_x, origin.m_y, (origin.m_z - 2.0f));
+        bool bMoveToEndPos = false;
+        vecEndPos.m_z -= 18.f + DIST_EPSILON;
+        bMoveToEndPos = true;
+        try_touch_ground(vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
+                         COLLISION_GROUP_PLAYER_MOVEMENT, pm);
+        if (pm.m_plane.normal[2] < 0.7f)
+        {
+            // Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
+            try_touch_ground_in_quadrants(vecStartPos, vecEndPos, MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT,
+                                          pm);
+
+            mv.on_ground = pm.m_entity != nullptr;
+            if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
+            {
+                vector right;
+                pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+                last_fric_vel -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+                velocity -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+            }
+        }
+        else
+        {
+            mv.on_ground = pm.m_entity != nullptr;
+            if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
+            {
+                vector right;
+                pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+                last_fric_vel -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+                velocity -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+            }
+        }
+    }
     vector wishvel;
     vector forward, right, up;
 

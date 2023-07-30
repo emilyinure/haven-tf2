@@ -19,7 +19,7 @@ public:
         struct
         {
             uintptr_t m_vec_origin, m_vec_view_offset, m_i_team_num, m_i_health, m_life_state, m_owner_handle,
-                m_simulation_time, m_spawn_time, m_move_type, m_mins, m_maxs, m_max_speed;
+                m_simulation_time, m_spawn_time, m_move_type, m_mins, m_maxs, m_max_speed, m_ang_rot;
         } dt_base_entity;
 
         struct
@@ -43,7 +43,7 @@ public:
             uintptr_t m_i_health, m_life_state, m_ground_handle, m_velocity, m_eye_angles, m_taunt, m_flags,
                 m_active_weapon, m_next_attack, m_max_speed, m_tick_base, m_class, m_shared;
         } dt_base_player;
-
+        uint32_t m_fl_conveyor_speed;
     } m_offsets;
     void iterate_props(const unsigned int name, recv_table* table, int offset = 0);
 

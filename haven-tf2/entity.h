@@ -80,6 +80,7 @@ public:
     }
 
     vector& m_vec_origin();
+    vector& m_ang_rot();
     vector eye_pos();
     vector& m_view_offset();
     float sim_time();
@@ -100,6 +101,10 @@ public:
     bool compute_hitbox_surrounding_box(vector* world_mins, vector* world_maxs);
     vector& mins();
     vector& maxs();
+};
+class c_func_conveyor : c_base_entity     {
+public:
+    float conveyor_speed();
 };
 
 enum EWeaponSlots : int

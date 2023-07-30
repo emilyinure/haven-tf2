@@ -26,9 +26,13 @@ void c_netvars::init()
     {
         const auto table = cc->m_recv_table;
 
+
         // bad table.
         if (!table)
             continue;
+        const auto hashed_table = g_utils.fnv_hash(cc->m_network_name);
+        if (hashed_table == g_utils.fnv_hash("CFuncConveyor"))
+            printf_s("[>] found %i\n", cc->m_class_id);
 
         // go through all our props.
         for (int i = 0; i < table->m_num_of_props; i++)
@@ -82,6 +86,7 @@ void c_netvars::get_offsets()
     this->m_offsets.dt_base_entity.m_simulation_time = this->get("DT_BaseEntity", "m_flSimulationTime").m_offset;
     this->m_offsets.dt_base_entity.m_simulation_time = this->get("DT_BaseEntity", "m_flSimulationTime").m_offset;
     this->m_offsets.dt_base_entity.m_move_type = this->get("DT_BaseEntity", "movetype").m_offset;
+    this->m_offsets.dt_base_entity.m_ang_rot = this->get("DT_BaseEntity", "m_angRotation").m_offset;
 
     this->m_offsets.dt_base_entity.m_mins = this->get("DT_BaseEntity", "m_vecMins").m_offset;
     this->m_offsets.dt_base_entity.m_maxs = this->get("DT_BaseEntity", "m_vecMaxs").m_offset;
@@ -118,4 +123,5 @@ void c_netvars::get_offsets()
     this->m_offsets.dt_base_player.m_life_state = this->get("DT_BasePlayer", "m_lifeState").m_offset;
     this->m_offsets.dt_base_player.m_ground_handle = this->get("DT_TFPlayer", "m_hGroundEntity").m_offset;
     this->m_offsets.dt_base_player.m_flags = this->get("DT_BasePlayer", "m_fFlags").m_offset;
+    this->m_offsets.m_fl_conveyor_speed = this->get("DT_FuncConveyor", "m_flConveyorSpeed").m_offset;
 }

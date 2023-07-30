@@ -5,6 +5,11 @@ vector& c_base_entity::m_vec_origin()
     return this->get<vector>(g_netvars.m_offsets.dt_base_entity.m_vec_origin);
 }
 
+vector& c_base_entity::m_ang_rot()
+{
+    return this->get<vector>(g_netvars.m_offsets.dt_base_entity.m_ang_rot);
+}
+
 vector c_base_entity::eye_pos()
 {
     return m_vec_origin() + m_view_offset();
@@ -350,4 +355,9 @@ bool c_tf_player_shared::in_cond(e_tf_cond cond)
         return false;
 
     return in_cond(this, cond);
+}
+
+float c_func_conveyor::conveyor_speed()
+{
+    return this->get<float>(g_netvars.m_offsets.m_fl_conveyor_speed);
 }
