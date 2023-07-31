@@ -1344,8 +1344,6 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                 while (avg_delta < -360.f)
                     avg_delta += 360.f;
 
-                //const float flMaxDelta = (60.f / fmaxf((float)new_count / 2.f, 1.f));
-
                 mv.m_ground_dir = avg_delta;
                 //if (should_predict)
                 //{
