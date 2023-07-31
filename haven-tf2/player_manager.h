@@ -19,6 +19,7 @@ public:
     float dir = 0;
     float dir_decay = 0;
     float ground_dir = 0;
+    c_base_entity* last_ground = nullptr;
     vector origin = vector();
     vector eye_angle = vector();
     vector move_data = vector();
@@ -36,6 +37,9 @@ public:
     float m_sim_time = -1.f;
     vector pred_origin = vector(0, 0, 0);
     c_base_player* player;
+    c_base_entity* m_ground = nullptr;
+    vector m_base_velocity = vector();
+    void SetGroundEntity(trace_t* pm);
 };
 class c_player_manager
 {

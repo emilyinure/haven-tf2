@@ -24,30 +24,29 @@ void c_movement_simulate::trace_player_bbox(const vector& start, const vector& e
     CTraceFilterIgnorePlayers traceFilter(mv.m_player, collisionGroup);
     g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
 }
-void c_movement_simulate::try_touch_ground(const vector& start, const vector& end, const vector& mins,
+void c_movement_simulate::try_touch_ground(c_base_entity* player, const vector& start, const vector& end, const vector& mins,
                                            const vector& maxs, unsigned int fMask, int collisionGroup,
-                                           trace_t& pm) const
+                                           trace_t& pm)
 {
     ray_t ray;
     ray.initialize(start, end, mins, maxs);
-    CTraceFilterIgnorePlayers traceFilter(mv.m_player, collisionGroup);
+    CTraceFilterIgnorePlayers traceFilter(player, collisionGroup);
     g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
 }
 
-void c_movement_simulate::try_touch_ground_in_quadrants(const vector& start, const vector& end, unsigned int fMask,
+void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, const vector& start, const vector& end,
+                                                               const vector& minsSrc, const vector& maxsSrc,
+                                                               unsigned int fMask,
                                                         int collisionGroup, trace_t& pm)
 {
-    vector maxs;
-    const vector minsSrc = get_player_mins();
-    const vector maxsSrc = get_player_maxs();
-
     const float fraction = pm.m_fraction;
     const vector endpos = pm.m_end;
 
     // Check the -x, -y quadrant
+    vector maxs;
     vector mins = minsSrc;
     maxs.init(fminf(0, maxsSrc.m_x), fminf(0, maxsSrc.m_y), maxsSrc.m_z);
-    try_touch_ground(start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -58,7 +57,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(const vector& start, con
     // Check the +x, +y quadrant
     mins.init(fmaxf(0, minsSrc.m_x), fmaxf(0, minsSrc.m_y), minsSrc.m_z);
     maxs = maxsSrc;
-    try_touch_ground(start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -69,7 +68,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(const vector& start, con
     // Check the -x, +y quadrant
     mins.init(minsSrc.m_x, fmaxf(0, minsSrc.m_y), minsSrc.m_z);
     maxs.init(fminf(0, maxsSrc.m_x), maxsSrc.m_y, maxsSrc.m_z);
-    try_touch_ground(start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -80,7 +79,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(const vector& start, con
     // Check the +x, -y quadrant
     mins.init(fmaxf(0, minsSrc.m_x), minsSrc.m_y, minsSrc.m_z);
     maxs.init(maxsSrc.m_x, fminf(0, maxsSrc.m_y), maxsSrc.m_z);
-    try_touch_ground(start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -381,7 +380,7 @@ void c_movement_simulate::categorize_position(void)
     // Was on ground, but now suddenly am not.  If we hit a steep plane, we are not on ground
     if (zvel > 250.0f)
     {
-        mv.on_ground = false;
+        SetGroundEntity(nullptr);
         return;
     }
     vector vecStartPos = mv.m_position;
@@ -392,16 +391,17 @@ void c_movement_simulate::categorize_position(void)
         vecEndPos.m_z -= 18.f + DIST_EPSILON;
         bMoveToEndPos = true;
     }
-    try_touch_ground(vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
+    try_touch_ground(mv.m_player, vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
                      COLLISION_GROUP_PLAYER_MOVEMENT, pm);
     if (pm.m_plane.normal[2] < 0.7f)
     {
         // Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
-        try_touch_ground_in_quadrants(vecStartPos, vecEndPos, MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm);
+        try_touch_ground_in_quadrants(mv.m_player, vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
+                                      COLLISION_GROUP_PLAYER_MOVEMENT, pm);
 
         if (pm.m_entity == nullptr || pm.m_plane.normal[2] < 0.7f)
         {
-            mv.on_ground = false;
+            SetGroundEntity(nullptr);
             // probably want to add a check for a +z velocity too!
             if ((mv.m_velocity.m_z > 0.0f))
             {
@@ -410,13 +410,7 @@ void c_movement_simulate::categorize_position(void)
         }
         else
         {
-            mv.on_ground = pm.m_entity != nullptr;
-        }
-        if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
-        {
-            vector right;
-            pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
-            mv.m_velocity += right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
+            SetGroundEntity(&pm);
         }
     }
     else
@@ -435,13 +429,7 @@ void c_movement_simulate::categorize_position(void)
                 mv.m_position = org;
             }
         }
-        mv.on_ground = pm.m_entity != nullptr;
-        if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
-        {
-            vector right;
-            pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
-            mv.m_velocity += right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
-        }
+        SetGroundEntity(&pm);
     }
 }
 void c_movement_simulate::check_velocity(void)
@@ -483,11 +471,9 @@ void c_movement_simulate::start_gravity(void)
     // yes, this 0.5 looks wrong, but it's not.
     mv.m_velocity[2] -=
         (ent_gravity * sv_gravity->m_value.m_float_value * 0.5f * g_interfaces.m_global_vars->m_interval_per_tick);
-    // mv->m_vecVelocity[ 2 ] += player->GetBaseVelocity( )[ 2 ] * gpGlobals->frametime;
+    mv.m_velocity[2] += mv.m_base_velocity[2] * g_interfaces.m_global_vars->m_interval_per_tick;
 
-    // vector temp = player->GetBaseVelocity( );
-    // temp[ 2 ] = 0;
-    // player->SetBaseVelocity( temp );
+    mv.m_base_velocity[ 2 ] = 0;
 
     check_velocity();
 }
@@ -609,6 +595,7 @@ void c_movement_simulate::air_move()
 
     static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_airaccelerate");
     air_acceletate(wishdir, wishspeed, sv_accelerate->m_value.m_float_value);
+    //mv.m_velocity += mv.m_base_velocity;
     // vector look = vector( ).look( mv.m_velocity );
     // look.m_y += mv.m_dir;
     // mv.m_velocity = look.angle_vector() * mv.m_velocity.length();
@@ -845,6 +832,8 @@ void c_movement_simulate::walk_move()
         }
     }
 
+    mv.m_velocity += mv.m_base_velocity;
+
     // Add in any base velocity to the current velocity.
 
     // spd = mv.m_velocity.length( );
@@ -865,8 +854,8 @@ void c_movement_simulate::walk_move()
     if (pm.m_fraction == 1)
     {
         mv.m_position = pm.m_end;
-
         stay_on_ground();
+        mv.m_velocity -= mv.m_base_velocity;
         return;
     }
 
@@ -874,6 +863,7 @@ void c_movement_simulate::walk_move()
     {
         // Now pull the base velocity back out.   Base velocity is set if you are on a moving object, like a conveyor
         // (or maybe another monster?)
+        mv.m_velocity -= mv.m_base_velocity;
         return;
     }
 
@@ -881,6 +871,7 @@ void c_movement_simulate::walk_move()
     // try_player_move( );
 
     stay_on_ground();
+    mv.m_velocity -= mv.m_base_velocity;
 }
 
 void c_movement_simulate::full_walk_move()
@@ -946,7 +937,7 @@ void c_movement_simulate::player_move()
 {
     if (mv.m_velocity.m_z > 250.0f)
     {
-        mv.on_ground = false;
+        SetGroundEntity(nullptr);
     }
 
     full_walk_move();
@@ -981,52 +972,39 @@ float dir_turning1(vector vel, vector last_vel)
     return dir;
 }
 
-vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fric_vel, vector eye_ang, vector origin)
+void c_movement_simulate::SetGroundEntity(trace_t* pm)
 {
+    auto* oldGround = mv.m_ground;
+    auto* newGround = pm ? pm->m_entity : NULL;
+    if (oldGround)
     {
-
-        trace_t pm;
-
-        // Reset this each time we-recategorize, otherwise we have bogus friction when we jump into water and plunge
-        // downward really quickly
-        mv.m_surface_friction = 1.f;
-
-        const float zvel = velocity[2];
-
-        vector vecStartPos = origin;
-        vector vecEndPos(origin.m_x, origin.m_y, (origin.m_z - 2.0f));
-        bool bMoveToEndPos = false;
-        vecEndPos.m_z -= 18.f + DIST_EPSILON;
-        bMoveToEndPos = true;
-        try_touch_ground(vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
-                         COLLISION_GROUP_PLAYER_MOVEMENT, pm);
-        if (pm.m_plane.normal[2] < 0.7f)
+        if (oldGround->get_client_class()->m_class_id == CFuncConveyor)
         {
-            // Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
-            try_touch_ground_in_quadrants(vecStartPos, vecEndPos, MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT,
-                                          pm);
-
-            mv.on_ground = pm.m_entity != nullptr;
-            if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
-            {
-                vector right;
-                pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
-                last_fric_vel -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
-                velocity -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
-            }
-        }
-        else
-        {
-            mv.on_ground = pm.m_entity != nullptr;
-            if (mv.on_ground && pm.m_entity->get_client_class()->m_class_id == CFuncConveyor)
-            {
-                vector right;
-                pm.m_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
-                last_fric_vel -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
-                velocity -= right * ((c_func_conveyor*)pm.m_entity)->conveyor_speed();
-            }
+            vector right;
+            oldGround->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            right *= ((c_func_conveyor*)oldGround)->conveyor_speed();
+            mv.m_base_velocity -= right;
+            mv.m_base_velocity.m_z = right.m_z;
         }
     }
+    if (newGround)
+    {
+        if (newGround->get_client_class()->m_class_id == CFuncConveyor)
+        {
+            vector right;
+            newGround->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            right *= ((c_func_conveyor*)newGround)->conveyor_speed();
+            mv.m_base_velocity += right;
+            mv.m_base_velocity.m_z = right.m_z;
+        }
+    }
+    mv.m_ground = newGround;
+    mv.on_ground = mv.m_ground != nullptr;
+    //mv.m_velocity.m_z = 0.0f;
+}
+
+vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fric_vel, vector eye_ang, vector origin)
+{
     vector wishvel;
     vector forward, right, up;
 
@@ -1034,7 +1012,6 @@ vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fr
     velocity[2] = 0;
     forward[2] = 0;
     right[2] = 0;
-
     forward.normalize_in_place(); // Normalize remainder of vectors.
     right.normalize_in_place();   //
 
@@ -1164,7 +1141,6 @@ vector c_movement_simulate::estimate_air_dir(vector velocity, vector last_fric_v
 
     vector best;
     float best_dist = FLT_MAX;
-
     for (auto f = 0; f < 3; f++)
     {
         for (auto s = 0; s < 3; s++)
@@ -1270,7 +1246,9 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
         const auto& record = player_info.m_records[0];
         mv.m_player = player;
         // mv.m_dir = record->dir;
-        mv.on_ground = player->flags() & (1 << 0);
+        mv.on_ground = player_info.m_ground != nullptr;
+        mv.m_ground = player_info.m_ground;
+        mv.m_base_velocity = player_info.m_base_velocity;
         mv.m_eye_dir = record->eye_angle.m_y;
         mv.m_max_speed = max_speed(player);
         // mv.m_ground_dir = record->ground_dir;
@@ -1297,10 +1275,11 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
             if (mv.on_ground)
             {
                 mv.m_velocity = player_info.m_records[1]->vel;
+                mv.m_velocity -= mv.m_base_velocity;
                 for (auto i = 0; i < record->m_lag; i++)
                     friction();
                 vector last_fric_vel = mv.m_velocity;
-                auto dif = record->vel - last_fric_vel;
+                auto dif = (record->vel-mv.m_base_velocity) - last_fric_vel;
                 static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_accelerate");
                 const auto main_dif = dif;
                 const int count =
@@ -1312,7 +1291,8 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                     //	mv.m_walk_direction = dif.normalized( ) * 450.f;
                     // else
                     // if ( dir_turning1( record->vel, last_fric_vel ) > 0.1f )
-                    mv.m_walk_direction = estimate_walking_dir(record->vel, last_fric_vel, record->eye_angle,
+                    mv.m_walk_direction =
+                        estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
                                                                find_unstuck(player_info.m_records[1]->origin));
                 }
                 else
@@ -1386,7 +1366,8 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
             else
             {
                 mv.m_ground_dir = 0.f;
-                mv.m_air_dir = estimate_air_dir(record->vel, player_info.m_records[1]->vel, record->eye_angle,
+                mv.m_air_dir = estimate_air_dir(record->vel - mv.m_base_velocity, player_info.m_records[1]->vel,
+                                                record->eye_angle,
                                                 find_unstuck(player_info.m_records[1]->origin));
                 mv.m_decay = 0.f;
 
@@ -1395,7 +1376,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
             }
             // mv.m_decay = 1.f;
         }
-        mv.m_target_velocity = mv.m_velocity = record->vel;
+        mv.m_target_velocity = mv.m_velocity = record->vel - mv.m_base_velocity;
         if (mv.on_ground)
             mv.m_target_velocity.m_z = mv.m_velocity.m_z = 0;
         path.clear();

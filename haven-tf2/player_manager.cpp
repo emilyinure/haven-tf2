@@ -115,6 +115,35 @@ float dir_turning(vector vel, vector last_vel)
     return dir;
 }
 
+void player_t::SetGroundEntity(trace_t* pm)
+{
+    auto* oldGround = m_ground;
+    auto* newGround = pm ? pm->m_entity : NULL;
+    if (oldGround)
+    {
+        if (oldGround->get_client_class()->m_class_id == CFuncConveyor)
+        {
+            vector right;
+            oldGround->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            right *= ((c_func_conveyor*)oldGround)->conveyor_speed();
+            m_base_velocity -= right;
+            m_base_velocity.m_z = right.m_z;
+        }
+    }
+    if (newGround)
+    {
+        if (newGround->get_client_class()->m_class_id == CFuncConveyor)
+        {
+            vector right;
+            newGround->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            right *= ((c_func_conveyor*)newGround)->conveyor_speed();
+            m_base_velocity += right;
+            m_base_velocity.m_z = right.m_z;
+        }
+    }
+    m_ground = newGround;
+}
+
 void c_player_manager::update_players()
 {
 
@@ -163,7 +192,34 @@ void c_player_manager::update_players()
             // new_record.dir = 0;
             new_record.player = player;
             new_record.sim_time = new_time;
-            new_record.on_ground = target->flags() & (1 << 0);
+
+            {
+
+                trace_t pm;
+
+                vector vecStartPos = new_record.origin;
+                vector vecEndPos(new_record.origin.m_x, new_record.origin.m_y, (new_record.origin.m_z - 2.0f));
+                bool bMoveToEndPos = false;
+                vecEndPos.m_z -= 18.f + DIST_EPSILON;
+                bMoveToEndPos = true;
+                c_movement_simulate::try_touch_ground(target, vecStartPos, vecEndPos, target->mins(), target->maxs(),
+                                                      MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm);
+                if (pm.m_plane.normal[2] < 0.7f)
+                {
+                    // Test four sub-boxes, to see if any of them would have found shallower slope we could actually
+                    // stand on
+                    c_movement_simulate::try_touch_ground_in_quadrants(target, vecStartPos, vecEndPos, target->mins(),
+                                                                       target->maxs(), MASK_PLAYERSOLID,
+                                                                       COLLISION_GROUP_PLAYER_MOVEMENT, pm);
+                    player->SetGroundEntity(&pm);
+                }
+                else
+                {
+                    player->SetGroundEntity(&pm);
+                }
+            }
+
+            new_record.on_ground = player->m_ground != nullptr;
             new_record.mins = target->mins();
             new_record.maxs = target->maxs();
             if (new_record.on_ground)
@@ -180,6 +236,7 @@ void c_player_manager::update_players()
             bones_ac->UpdateBones(new_record.bones, 128, -1);
 
             new_record.built = target->setup_bones(new_record.bones, 128, 0x100, target->sim_time());
+
 
             target->set_abs_origin(backup_abs_origin);
             player_info_t info;

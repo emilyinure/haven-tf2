@@ -74,7 +74,8 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
 }
 bool c_backstab::check_player(c_base_player* base_player)
 {
-    auto [m_records, sim_time, pred_origin, player] = g_player_manager.players[base_player->entindex() - 1];
+    auto [m_records, sim_time, pred_origin, player, m_base_velocity, m_ground] =
+        g_player_manager.players[base_player->entindex() - 1];
     if (player != base_player || m_records.empty())
         return false;
 

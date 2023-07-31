@@ -597,7 +597,6 @@
     <ClInclude Include="i_engine_trace.h">
       <Filter>sdk\tf2\interfaces\classes\i_engine_trace</Filter>
     </ClInclude>
-    <ClInclude Include="movement_simulate.h" />
     <ClInclude Include="usercmd.h" />
     <ClInclude Include="i_localize.h">
       <Filter>sdk\tf2\interfaces\classes\i_localize</Filter>
@@ -606,6 +605,9 @@
       <Filter>ui\controls</Filter>
     </ClInclude>
     <ClInclude Include="visuals.h">
+      <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="movement_simulate.h">
       <Filter>client\feature</Filter>
     </ClInclude>
   </ItemGroup>

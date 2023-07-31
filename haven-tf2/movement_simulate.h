@@ -8,12 +8,10 @@ class c_movement_simulate
 
 	vector get_player_mins();
 	vector get_player_maxs();
-	unsigned int player_solid_mask();
+    unsigned int player_solid_mask();
 	int try_player_move( );
 	int clip_velocity(vector& in, vector& normal, vector& out, float overbounce);
-	void trace_player_bbox(const vector& start, const vector& end, unsigned int fMask, int collisionGroup, trace_t& pm);
-	void try_touch_ground( const vector& start, const vector& end, const vector& mins, const vector& maxs, unsigned int fMask, int collisionGroup, trace_t& pm ) const;
-	void try_touch_ground_in_quadrants( const vector& start, const vector& end, unsigned int fMask, int collisionGroup, trace_t& pm );
+    void trace_player_bbox(const vector& start, const vector& end, unsigned int fMask, int collisionGroup, trace_t& pm);
 
 	void step_move( const vector& vecDestination, trace_t& trace );
 	void accelerate( vector& wishdir, float wishspeed, float accel );
@@ -50,13 +48,21 @@ class c_movement_simulate
 	};
 
 public:
+    static void try_touch_ground(c_base_entity* player, const vector& start, const vector& end, const vector& mins,
+                                 const vector& maxs, unsigned int fMask, int collisionGroup, trace_t& pm);
+    static void try_touch_ground_in_quadrants(c_base_entity* player, const vector& start, const vector& end,
+                                              const vector& minsSrc, const vector& maxsSrc, unsigned int fMask,
+                                              int collisionGroup, trace_t& pm);
     void finish_gravity(void);
-	struct info {
-		vector m_velocity;
+    struct info
+    {
+        vector m_velocity;
+        vector m_base_velocity;
 		vector m_position;
 		vector m_walk_direction;
 		vector m_target_velocity;
 		c_base_player* m_player;
+        c_base_entity* m_ground;
 		bool on_ground;
 		float m_surface_friction;
 		float m_dir;

@@ -631,7 +631,56 @@ void proj_aim::run()
         ticks_since_shot = min(5, ticks_since_shot + 1);
     was_shoot = g_cl.m_cmd->buttons_ & attack;
 }
+void get_hull_size(vector& size)
+{
 
+    size = {3.8f, 3.8f, 3.8f};
+
+    switch (g_cl.m_weapon->item_index())
+    {
+        case CTFParticleCannon:
+        {
+            size = {1.f, 1.f, 1.f};
+            break;
+        }
+        case CTFCrossbow:
+        {
+            size = {3.f, 3.f, 3.f};
+            break;
+        }
+        case CTFRocketLauncher:
+        case CTFRocketLauncher_DirectHit:
+        case CTFFlareGun:
+        {
+            size = {0.f, 3.7f, 3.7f};
+            break;
+        }
+        case CTFSyringeGun:
+        {
+            size = {0.f, 1.f, 1.f};
+            break;
+        }
+        case CTFCompoundBow:
+        {
+            size = {1.f, 1.f, 1.f}; //	tf_projectile_arrow.cpp @L271
+            break;
+        }
+        case CTFRaygun:
+        {
+            size = {0.1f, 0.1f, 0.1f};
+            break;
+        }
+        case CTFGrenadeLauncher:
+        case CTFPipebombLauncher:
+        case CTFStickBomb:
+        {
+            size = {2.f, 2.f, 2.f};
+            break;
+        }
+        default:
+            break;
+    }
+}
 void proj_aim::find_shot(bool& was_shoot, int attack)
 {
     auto target = g_player_manager.players[this->m_target->entindex() - 1];
@@ -764,10 +813,12 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
         if (this->m_weapon_gravity < 1)
         {
             ray_t ray;
-            ray.initialize(found_holder.eye_pos, found_holder.pos);
+            vector hullsize = {};
+            get_hull_size(hullsize);
+            ray.initialize(found_holder.eye_pos, found_holder.pos, hullsize * -1.f, hullsize);
             CTraceFilterIgnorePlayers traceFilter(g_cl.m_local, TFCOLLISION_GROUP_ROCKETS);
             trace_t trace;
-            g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT, &traceFilter, &trace);
+            g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT_HULL, &traceFilter, &trace);
             if (!trace.did_hit())
             {
                 if (g_ui.m_controls.aim.players.fire_mode->m_selected_index != 0)
@@ -947,6 +998,9 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
 {
     vector eye_pos = g_cl.m_local->m_vec_origin() + g_cl.m_local->m_view_offset();
 
+    vector hullsize = {};
+    get_hull_size(hullsize);
+
     vector forward, up;
     if (!is_pipe())
     {
@@ -997,11 +1051,11 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
         velocity.m_z -= (this->m_weapon_gravity * g_interfaces.m_global_vars->m_interval_per_tick * 0.5f);
 
         ray_t ray;
-        ray.initialize(pos,
-                       pos + (velocity * g_interfaces.m_global_vars->m_interval_per_tick)); //, bounds*-1, bounds );
+        ray.initialize(pos, pos + (velocity * g_interfaces.m_global_vars->m_interval_per_tick), hullsize * -1.f,
+                       hullsize); //, bounds*-1, bounds );
         trace_t trace;
         CTraceFilterIgnorePlayers traceFilter(g_cl.m_local, TFCOLLISION_GROUP_COMBATOBJECT);
-        g_interfaces.m_engine_trace->trace_ray(ray, CONTENTS_SOLID, &traceFilter, &trace);
+        g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT_HULL, &traceFilter, &trace);
 
         if (trace.did_hit())
         {
