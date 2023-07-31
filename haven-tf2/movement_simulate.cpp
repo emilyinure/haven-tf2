@@ -721,15 +721,15 @@ void c_movement_simulate::walk_move()
     // look.m_y += mv.m_ground_dir;
     // mv.m_walk_direction = look.angle_vector( ) * mv.m_walk_direction.length( );
     vector temp = mv.m_walk_direction.angle_to();
-    if (fabsf(mv.target_ground_dir) > 360.f || fabsf(mv.target_ground_dir) > fabsf(mv.total_changed))
-    {
+    //if (fabsf(mv.target_ground_dir) > 360.f || fabsf(mv.target_ground_dir) > fabsf(mv.total_changed))
+    //{
         temp.m_y += mv.m_ground_dir;
-        mv.total_changed += mv.m_ground_dir;
-        while (temp.m_y > 180.f)
-            temp.m_y -= 360.f;
-        while (temp.m_y < -180.f)
-            temp.m_y += 360.f;
-    }
+    //    mv.total_changed += mv.m_ground_dir;
+    //    while (temp.m_y > 180.f)
+    //        temp.m_y -= 360.f;
+    //    while (temp.m_y < -180.f)
+    //        temp.m_y += 360.f;
+    //}
     mv.m_walk_direction = vector(0, temp.m_y, 0).angle_vector() * mv.m_walk_direction.length_2d();
     const vector new_vel = mv.m_walk_direction; // mv.m_velocity + mv.m_walk_direction;
 
@@ -1300,35 +1300,35 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                     mv.m_walk_direction.init();
                     // mv.m_decay = std::clamp<float>( mv.m_decay - 0.1f / record->m_lag, 0.7f, 1.f );
                 }
-                float change_over_sec = 0.f;
+                //float change_over_sec = 0.f;
+                //
+                //bool should_predict = true;
+                //bool should_recalc = true;
+                //for (auto i = 0; i < TIME_TO_TICKS(1.f); i++)
+                //{
+                //    if (i >= player_info.m_records.size())
+                //        break;
+                //    change_over_sec += player_info.m_records[i]->ground_dir;
+                //    new_count++;
+                //    if (fabsf(change_over_sec) > 300.f * 1.f)
+                //    {
+                //        if (fabsf(change_over_sec) > 400.f * 1.f)
+                //        {
+                //            mv.m_ground_dir = change_over_sec / new_count;
+                //            should_recalc = false;
+                //        }
+                //        mv.target_ground_dir = change_over_sec;
+                //        should_predict = false;
+                //    }
+                //}
 
-                bool should_predict = true;
-                bool should_recalc = true;
-                for (auto i = 0; i < TIME_TO_TICKS(1.f); i++)
-                {
-                    if (i >= player_info.m_records.size())
-                        break;
-                    change_over_sec += player_info.m_records[i]->ground_dir;
-                    new_count++;
-                    if (fabsf(change_over_sec) > 300.f * 1.f)
-                    {
-                        if (fabsf(change_over_sec) > 400.f * 1.f)
-                        {
-                            mv.m_ground_dir = change_over_sec / new_count;
-                            should_recalc = false;
-                        }
-                        mv.target_ground_dir = change_over_sec;
-                        should_predict = false;
-                    }
-                }
-
-                change_over_sec = 0.f;
+                //change_over_sec = 0.f;
                 float ground_dir = 0.f;
                 for (auto i = 0; i < TIME_TO_TICKS(1.f); i++)
                 {
                     if (i >= player_info.m_records.size())
                         break;
-                    change_over_sec += player_info.m_records[i]->ground_dir;
+                    //change_over_sec += player_info.m_records[i]->ground_dir;
                     if (i > TIME_TO_TICKS(0.4f))
                         continue;
                     // if ( fabsf( player_info.m_records[ i ]->ground_dir ) > 0.01f )
@@ -1338,24 +1338,31 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                     new_count++;
                 }
 
-                if (should_recalc)
-                    mv.m_ground_dir = ground_dir / static_cast<float>(new_count);
-                if (should_predict)
-                {
-                    if (fabsf(change_over_sec) >= 350.f)
-                        mv.target_ground_dir = 0.f;
-                    else if (fabsf(change_over_sec) >= 175.f)
-                        mv.target_ground_dir = 45.f;
-                    else if (fabsf(change_over_sec) >= 80.f)
-                        mv.target_ground_dir = 90.f;
-                    else if (fabsf(change_over_sec) >= 40.f)
-                    {
-                        mv.target_ground_dir = 45.f;
-                        mv.m_ground_dir = fmaxf(-1, fminf(mv.m_ground_dir, 1));
-                    }
-                    mv.target_ground_dir = std::copysignf(mv.target_ground_dir, change_over_sec);
-                    // mv.target_ground_dir = change_over_sec;
-                }
+                float avg_delta = ground_dir / static_cast<float>(new_count);
+                while (avg_delta > 360.f)
+                    avg_delta -= 360.f;
+                while (avg_delta < -360.f)
+                    avg_delta += 360.f;
+
+                //const float flMaxDelta = (60.f / fmaxf((float)new_count / 2.f, 1.f));
+
+                mv.m_ground_dir = avg_delta;
+                //if (should_predict)
+                //{
+                //    if (fabsf(change_over_sec) >= 350.f)
+                //        mv.target_ground_dir = 0.f;
+                //    else if (fabsf(change_over_sec) >= 175.f)
+                //        mv.target_ground_dir = 45.f;
+                //    else if (fabsf(change_over_sec) >= 80.f)
+                //        mv.target_ground_dir = 90.f;
+                //    else if (fabsf(change_over_sec) >= 40.f)
+                //    {
+                //        mv.target_ground_dir = 45.f;
+                //        mv.m_ground_dir = fmaxf(-1, fminf(mv.m_ground_dir, 1));
+                //    }
+                //    mv.target_ground_dir = std::copysignf(mv.target_ground_dir, change_over_sec);
+                //    // mv.target_ground_dir = change_over_sec;
+                //}
                 mv.total_changed = 0.f;
 
                 // mv.m_decay = 0.95f + ( 0.05f * ( mv.m_decay / static_cast< float >( new_count ) ) );
