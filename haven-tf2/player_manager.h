@@ -35,6 +35,7 @@ class player_t
 public:
     std::deque<std::shared_ptr<player_record_t>> m_records = {};
     float m_sim_time = -1.f;
+
     vector pred_origin = vector(0, 0, 0);
     c_base_player* player;
     c_base_entity* m_ground = nullptr;

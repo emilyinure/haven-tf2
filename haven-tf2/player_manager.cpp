@@ -243,7 +243,6 @@ void c_player_manager::update_players()
             if (g_interfaces.m_engine->get_player_info(target->entindex(), &info))
                 if (!player->m_records.empty())
                 {
-                    const auto path = g_movement.path;
                     new_record.vel =
                         (new_record.origin - player->m_records[0]->origin) * (1.f / TICKS_TO_TIME(new_record.m_lag));
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
@@ -311,8 +310,7 @@ void c_player_manager::update_players()
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                     g_movement.mv.m_ground_dir = 0.f;
                     g_movement.mv.m_dir = 0.f;
-                    player->pred_origin = g_movement.run();
-                    g_movement.path = path;
+                    player->pred_origin = g_movement.run(); 
                     // if ( fabsf( new_record.dir ) > 0.1f )
                     //	new_record.dir_decay = std::clamp<float>( new_record.dir_decay + 0.1f, 0.8f, 1.f );
                     // else

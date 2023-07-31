@@ -116,8 +116,6 @@ void c_visuals::player_esp()
     // predicted path
     if (g_cl.m_local->is_valid(g_cl.m_local, false))
     {
-        auto backup_path = g_movement.path;
-
         vector last_pos = g_cl.m_local->m_vec_origin();
         vector screen_1;
         vector screen_2;
@@ -128,8 +126,5 @@ void c_visuals::player_esp()
         {
             auto pos = g_movement.run();
         }
-
-        g_movement.draw();
-        g_movement.path = backup_path;
     }
 }

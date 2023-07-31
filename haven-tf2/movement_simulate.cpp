@@ -1384,6 +1384,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
         mv.m_target_velocity = mv.m_velocity = record->vel - mv.m_base_velocity;
         if (mv.on_ground)
             mv.m_target_velocity.m_z = mv.m_velocity.m_z = 0;
+        auto& log = m_logs[player->entindex()];
         path.clear();
         mv.m_position = find_unstuck(record->origin); // player->get_collideable( )->obb_mins( ).m_z );
         path.push_back(mv.m_position);
@@ -1412,36 +1413,58 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
 
 void c_movement_simulate::draw()
 {
-    if (path.empty())
-        return;
-
-    vector screen_1;
-    vector screen_2;
-    vector last = path[0];
-    for (auto i = 1; i < path.size(); i++)
+    for (auto& i : m_logs)
     {
-
-        if (g_interfaces.m_debug_overlay->screen_position(path[i - 1], screen_1) ||
-            g_interfaces.m_debug_overlay->screen_position(path[i], screen_2))
-        {
+        auto& log = i.second;
+        if (log.end_time < g_interfaces.m_global_vars->m_cur_time)
+            log.m_path.clear();
+        if (log.m_path.empty())
             continue;
-        }
-        g_ui.m_theme.m_a = 100;
-        c_render::line(screen_1, screen_2, g_ui.m_theme); // 0xAE, 0xBA, 0xF8
-        g_ui.m_theme.m_a = 255;
+        
+        float temp_time = log.end_time - g_interfaces.m_global_vars->m_cur_time;
+        int iter = 1;
+        vector screen_1, screen_2, screen_3, last = log.m_path.back();
+        for (auto i = log.m_path.end() - 2; i > log.m_path.begin(); --i)
+        {
 
-        // if ( (i % 4) == 0 ) {
-        //	vector dif = path[ i ] - last;
-        //	const auto difference.init.look(dif).m_y;
-        //
-        //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(), 15);
-        //
-        //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
-        //		c_render::line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
-        //	}
-        //
-        //	last = path[ i ];
-        // }
+            if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
+                g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
+            {
+                continue;
+            }
+            if (temp_time < 0.f)
+                break;
+            
+            g_ui.m_theme.m_a = 100 * fminf(temp_time / 0.3f, 1.f);
+            c_render::line(screen_1, screen_2, g_ui.m_theme); // 0xAE, 0xBA, 0xF8
+            if ((iter % 4) == 0)
+            {
+                const vector delta = (last - *i);
+                vector angle = delta.angle_to();
+                vector right;
+                angle.angle_vectors(nullptr, &right, nullptr);
+                right.m_z = 0.f;
+                g_interfaces.m_debug_overlay->screen_position(last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3);
+                g_interfaces.m_debug_overlay->screen_position(last, screen_1);
+                    c_render::line(screen_1, screen_3, g_ui.m_theme); // 0xAE, 0xBA, 0xF8
+                last = *i;
+            }
+            g_ui.m_theme.m_a = 255;
+            temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;
+            iter++;
+            // if ( (i % 4) == 0 ) {
+            //	vector dif = path[ i ] - last;
+            //	const auto difference.init.look(dif).m_y;
+            //
+            //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(), 15);
+            //
+            //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
+            //		c_render::line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
+            //	}
+            //
+            //	last = path[ i ];
+            // }
+        }
     }
 }
 
@@ -1459,6 +1482,7 @@ vector c_movement_simulate::run()
     player_move();
 
     path.push_back(mv.m_position);
+    end_time = g_interfaces.m_global_vars->m_cur_time + 3.f;
 
     return mv.m_position;
 }

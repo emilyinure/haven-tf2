@@ -822,7 +822,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
             if (!trace.did_hit())
             {
                 if (g_ui.m_controls.aim.players.fire_mode->m_selected_index != 0)
-                        g_cl.m_cmd->buttons_ |= attack;
+                    g_cl.m_cmd->buttons_ |= attack;
                 g_cl.m_cmd->m_viewangles = view;
                 shot = true;
             }
@@ -853,10 +853,14 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
         }
     }
 skip:
-    if (!shot)
+    if (shot)
     {
-        g_movement.path.clear();
-        m_path.clear();
+        auto& log = g_movement.m_logs[target.player->entindex()];
+        log.m_path = g_movement.path;
+        log.end_time = g_movement.end_time;
+        auto& log2 = m_logs[target.player->entindex()];
+        log2.m_path = m_path;
+        log2.end_time = end_time;
     }
 }
 
@@ -890,10 +894,10 @@ bool proj_aim::setup_projectile(vector& view, vector& pos, vector& new_eyepos)
         new_view.angle_vectors(&forward, &right, &up);
 
         vector new_eye_pos = g_cl.m_shoot_pos + forward * vecOffset.m_x + right * vecOffset.m_y + up * vecOffset.m_z;
-        //if ((last_eye - new_eye_pos).length_sqr() <= 0.001)
-        //    break;
+        // if ((last_eye - new_eye_pos).length_sqr() <= 0.001)
+        //     break;
         //
-        //last_eye = new_eye_pos;
+        // last_eye = new_eye_pos;
         new_view = new_eye_pos.look(pos);
 
         if (this->m_weapon_gravity > 1)
@@ -960,37 +964,46 @@ bool proj_aim::get_gravity_aim(vector difference, float* ret, bool lob)
     return true;
 }
 
-void proj_aim::draw() const
+void proj_aim::draw()
 {
-    if (m_path.empty())
-        return;
-
-    vector screen_1;
-    vector screen_2;
-    vector last = m_path[0];
-    for (auto i = 1; i < m_path.size(); i++)
+    for (auto& i : m_logs)
     {
-
-        if (g_interfaces.m_debug_overlay->screen_position(m_path[i - 1], screen_1) ||
-            g_interfaces.m_debug_overlay->screen_position(m_path[i], screen_2))
-        {
+        auto& log = i.second;
+        if (log.end_time < g_interfaces.m_global_vars->m_cur_time)
+            log.m_path.clear();
+        if (log.m_path.empty())
             continue;
-        }
-        c_render::line(screen_1, screen_2, color(0xAE, 0xBA, 0xF8)); // 0xAE, 0xBA, 0xF8
 
-        // if ( ( i % 4 ) == 0 ) {
-        //	vector dif = m_path[ i ] - last;
-        //	auto difference = vector( ).look( dif ).m_y;
-        //
-        //	vector new_dir = m_path[ i ] + vector( 0, difference + 90.f, 0 ).angle_vector( ) * fminf( dif.length( ), 15
-        //);
-        //
-        //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
-        //		g_render.line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
-        //	}
-        //
-        //	last = path[ i ];
-        // }
+        float temp_time = log.end_time - g_interfaces.m_global_vars->m_cur_time;
+        int iter = 1;
+        vector screen_1, screen_2, screen_3;
+        for (auto i = log.m_path.end() - 2; i > log.m_path.begin(); --i)
+        {
+
+            if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
+                g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
+            {
+                continue;
+            }
+            if (temp_time < 0.f)
+                break;
+
+            c_render::line(screen_1, screen_2,
+                           color(0xAE, 0xBA, 0xF8, 255 * fminf(temp_time / 0.3f, 1.f))); // 0xAE, 0xBA, 0xF8
+            temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;
+            // if ( (i % 4) == 0 ) {
+            //	vector dif = path[ i ] - last;
+            //	const auto difference.init.look(dif).m_y;
+            //
+            //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(), 15);
+            //
+            //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
+            //		c_render::line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
+            //	}
+            //
+            //	last = path[ i ];
+            // }
+        }
     }
 }
 
@@ -1042,7 +1055,10 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
     }
     float time = 0;
     if (record)
+    {
+        end_time = g_interfaces.m_global_vars->m_cur_time + 3.f;
         m_path.push_back(pos);
+    }
     while (time < goal_time - g_interfaces.m_global_vars->m_interval_per_tick)
     {
         // float height = pos.m_z;
@@ -1064,7 +1080,10 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
 
         pos += velocity * g_interfaces.m_global_vars->m_interval_per_tick;
         if (record)
+        {
+            end_time = g_interfaces.m_global_vars->m_cur_time + 3.f;
             m_path.push_back(pos);
+        }
 
         // velocity.m_x *= 0.8f;
         // velocity.m_y *= 0.8f;

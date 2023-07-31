@@ -30,24 +30,15 @@ class c_movement_simulate
 
 	void player_move( );
 
-	class player_record_t {
-	public:
-		player_record_t( ) {}
-		int m_lag = 0;
-		vector vel = vector( );
-		float dir = 0;
-		bool on_ground;
-		vector origin = vector( );
-		vector eye_angle = vector( );
-	};
-	class player_t {
-	public:
-		std::deque<player_record_t> m_records = {};
-		float sim_time = -1.f;
-		c_base_player* player;
+    struct player_log
+    {
+        std::vector<vector> m_path = {};
+        float end_time = 0.f;
 	};
 
 public:
+
+    std::unordered_map<int, player_log> m_logs = {};
     static void try_touch_ground(c_base_entity* player, const vector& start, const vector& end, const vector& mins,
                                  const vector& maxs, unsigned int fMask, int collisionGroup, trace_t& pm);
     static void try_touch_ground_in_quadrants(c_base_entity* player, const vector& start, const vector& end,
@@ -76,7 +67,8 @@ public:
 		std::deque< std::vector<double>> inputVals_;
 	};
 	info mv;
-	std::deque<vector> path;
+    std::vector<vector> path;
+    float end_time = 0.f;
 	void draw( );
 
 	vector estimate_walking_dir( vector velocity, vector last_fric_vel, vector eye_ang, vector origin );
