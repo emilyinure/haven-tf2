@@ -988,8 +988,9 @@ void proj_aim::draw()
             if (temp_time < 0.f)
                 break;
 
+            g_ui.m_theme.m_a = 255.f * fminf(temp_time / 0.3f, 1.f);
             c_render::line(screen_1, screen_2,
-                           color(0xAE, 0xBA, 0xF8, 255 * fminf(temp_time / 0.3f, 1.f))); // 0xAE, 0xBA, 0xF8
+                           g_ui.m_theme); // 0xAE, 0xBA, 0xF8
             temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;
             // if ( (i % 4) == 0 ) {
             //	vector dif = path[ i ] - last;
@@ -1005,6 +1006,7 @@ void proj_aim::draw()
             // }
         }
     }
+    g_ui.m_theme.m_a = 255;
 }
 
 bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time, vector weapon_pos, bool record)

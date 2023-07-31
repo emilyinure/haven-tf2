@@ -1435,8 +1435,8 @@ void c_movement_simulate::draw()
             if (temp_time < 0.f)
                 break;
             
-            g_ui.m_theme.m_a = 100 * fminf(temp_time / 0.3f, 1.f);
-            c_render::line(screen_1, screen_2, g_ui.m_theme); // 0xAE, 0xBA, 0xF8
+            c_render::line(screen_1, screen_2,
+                           color(0x60, 0xf3, 0x21, 100 * fminf(temp_time / 0.3f, 1.f))); // 0xAE, 0xBA, 0xF8
             if ((iter % 4) == 0)
             {
                 const vector delta = (last - *i);
@@ -1446,7 +1446,8 @@ void c_movement_simulate::draw()
                 right.m_z = 0.f;
                 g_interfaces.m_debug_overlay->screen_position(last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3);
                 g_interfaces.m_debug_overlay->screen_position(last, screen_1);
-                    c_render::line(screen_1, screen_3, g_ui.m_theme); // 0xAE, 0xBA, 0xF8
+                c_render::line(screen_1, screen_3,
+                               color(0x60, 0xf3, 0x21, 100 * fminf(temp_time / 0.3f, 1.f))); // 0xAE, 0xBA, 0xF8
                 last = *i;
             }
             g_ui.m_theme.m_a = 255;
