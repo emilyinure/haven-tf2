@@ -92,6 +92,18 @@ vector_2d c_render::get_text_size(const char* text, const unsigned long font)
     return {};
 }
 
+void c_render::render_verts(int count, Vertex_t* vertexes, color c)
+{
+    static int Texture = g_interfaces.m_surface->create_texture_id(true); // need to make a texture with procedural true
+    unsigned char buffer[4] = {255, 255, 255, 255};     // r,g,b,a
+
+     g_interfaces.m_surface->draw_set_texture_rgba(Texture, buffer, 1, 1, false, false); // Texture, char array of texture, width, height
+     g_interfaces.m_surface->draw_set_color(c);         // keep this full color and opacity use the RGBA @top to set values.
+     g_interfaces.m_surface->draw_set_texture(Texture); // bind texture
+
+     g_interfaces.m_surface->draw_textured_polygon(count, vertexes);
+}
+
 int c_render::create_font(const char* name, const int size, const int weight, const int flags)
 {
     const auto font = g_interfaces.m_surface->create_font();

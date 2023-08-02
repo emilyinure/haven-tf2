@@ -989,6 +989,7 @@ void proj_aim::draw()
                 break;
 
             g_ui.m_theme.m_a = 255.f * fminf(temp_time / 0.3f, 1.f);
+            
             c_render::line(screen_1, screen_2,
                            g_ui.m_theme); // 0xAE, 0xBA, 0xF8
             temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;

@@ -1,4 +1,23 @@
 #pragma once
+struct Vertex_t
+{
+    Vertex_t()
+    {
+    }
+    Vertex_t(const vector_2d& pos, const vector_2d& coord = vector_2d(0, 0))
+    {
+        m_Position = pos;
+        m_TexCoord = coord;
+    }
+    void Init(const vector_2d& pos, const vector_2d& coord = vector_2d(0, 0))
+    {
+        m_Position = pos;
+        m_TexCoord = coord;
+    }
+
+    vector_2d m_Position;
+    vector_2d m_TexCoord;
+};
 
 enum e_font_flags
 {
@@ -32,10 +51,14 @@ class i_surface
         DRAW_SET_TEXT_COLOR = 19,
         DRAW_SET_TEXT_POS = 20,
         DRAW_PRINT_TEXT = 22,
+        DRAW_SET_TEXTURE_RGBA = 31,
+        DRAW_SET_TEXTURE = 32,
+        TEXTURE_ID = 37,
         UNLOCK_CURSOR = 61,
         CREATE_FONT = 66,
         SET_FONT_GLYPH_SET = 67,
-        GET_TEXT_SIZE = 75
+        GET_TEXT_SIZE = 75,
+        DRAW_TEXTURED_POLYGON = 102
     };
 
 public:
@@ -60,6 +83,16 @@ public:
     __VFUNC(get_text_size(unsigned long font, const wchar_t* text, int& wide, int& tall), e_indexes::GET_TEXT_SIZE,
             void(__thiscall*)(void*, unsigned long, const wchar_t*, int&, int&), font, text, wide, tall);
     __VFUNC(unlock_cursor(), e_indexes::UNLOCK_CURSOR, void(__thiscall*)(void*));
+    __VFUNC(draw_set_texture_rgba(int id, const unsigned char* rgba, int wide, int tall, int hardwareFilter,
+                                  bool forceReload),
+            e_indexes::DRAW_SET_TEXTURE_RGBA, void(__thiscall*)(void*, int, const unsigned char*, int, int, int, bool),
+            id, rgba, wide, tall, hardwareFilter, forceReload);
+    __VFUNC(draw_set_texture(int id), e_indexes::DRAW_SET_TEXTURE, void(__thiscall*)(void*, int), id);
+    __VFUNC(create_texture_id(bool procedural = false), e_indexes::TEXTURE_ID, int(__thiscall*)(void*, bool),
+            procedural);
+    __VFUNC(draw_textured_polygon(int id, Vertex_t* verts, bool bClipVertices = true), e_indexes::DRAW_TEXTURED_POLYGON,
+            void(__thiscall*)(void*, int, Vertex_t*, bool), id, verts, bClipVertices);
+
 
     void start_drawing();
     void finish_drawing();

@@ -25,7 +25,41 @@ void c_visuals::player_esp()
         auto bounding_box = player->get_bounding_box();
 
         if (bounding_box.is_zero())
+        {
+            vector vec_delta = player->m_vec_origin();
+            vec_delta -= g_cl.m_local->m_vec_origin();
+
+            const auto yaw = rad_to_deg(atan2f(vec_delta.m_y, vec_delta.m_x));
+            vector angles;
+            g_interfaces.m_engine->get_view_angles(angles);
+            const auto yaw_delta = deg_to_rad((angles.m_y - yaw) - 90.f);
+
+            const auto clr = color{0x81, 0xFF, 0x21};
+            auto r_x = 0.5f, r_y = 0.5f;
+            int width, height;
+            g_interfaces.m_engine->get_screen_size(width, height);
+            r_x *= width / 2.f;
+            r_y *= height / 2.f;
+
+            constexpr auto triangle_size = 15.f;
+
+            Vertex_t triag[3] = {
+                {{width / 2.f + cos(yaw_delta) * (r_x), height / 2.f + sin(yaw_delta) * (r_y)}, vector_2d(1,1)},
+                {{width / 2.f + (cos(yaw_delta) * (r_x - triangle_size)) +
+                      (cos(yaw_delta + deg_to_rad(90)) * triangle_size),
+                  height / 2.f +
+                      (sin(yaw_delta) * (r_y - triangle_size) + (sin(yaw_delta + deg_to_rad(90)) * triangle_size))},
+                 vector_2d(1, 1)},
+                {{width / 2.f + (cos(yaw_delta) * (r_x - triangle_size)) +
+                      (cos(yaw_delta + deg_to_rad(90)) * -triangle_size),
+                  height / 2.f +
+                      (sin(yaw_delta) * (r_y - triangle_size) + (sin(yaw_delta + deg_to_rad(90)) * -triangle_size))},
+                 vector_2d(1, 1)},
+            };
+
+            g_render.render_verts(3, triag, g_ui.m_theme);
             continue;
+        }
 
         const auto health = player->m_i_health();
         const auto max_health = player->get_max_health();
@@ -124,7 +158,9 @@ void c_visuals::player_esp()
 
         for (auto i = 0; i < 100; i++)
         {
-            auto pos = g_movement.run();
+            g_movement.run();
         }
+        g_movement.m_logs[g_cl.m_local->entindex()].m_path = g_movement.path;
+        g_movement.m_logs[g_cl.m_local->entindex()].end_time = g_movement.end_time;
     }
 }

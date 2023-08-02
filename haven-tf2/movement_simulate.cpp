@@ -1270,8 +1270,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                 new_count++;
             }
             mv.m_dir /= static_cast<float>(new_count);
-            mv.m_decay = 1.f - (mv.m_decay / static_cast<float>(new_count));
-            mv.m_decay = 0.1f;
+            mv.m_decay = 0;
             if (mv.on_ground)
             {
                 mv.m_velocity = player_info.m_records[1]->vel;
@@ -1284,22 +1283,10 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                 const auto main_dif = dif;
                 const int count =
                     min(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
-                int new_count = 0;
-                if (dif.length_2d() > DIST_EPSILON)
-                {
-                    // if ( record->vel.length_2d( ) >= mv.m_max_speed )
-                    //	mv.m_walk_direction = dif.normalized( ) * 450.f;
-                    // else
-                    // if ( dir_turning1( record->vel, last_fric_vel ) > 0.1f )
-                    mv.m_walk_direction =
-                        estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
-                                                               find_unstuck(player_info.m_records[1]->origin));
-                }
-                else
-                {
-                    mv.m_walk_direction.init();
-                    // mv.m_decay = std::clamp<float>( mv.m_decay - 0.1f / record->m_lag, 0.7f, 1.f );
-                }
+                mv.m_walk_direction =
+                    estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
+                                                            find_unstuck(player_info.m_records[1]->origin));
+
                 //float change_over_sec = 0.f;
                 //
                 //bool should_predict = true;
@@ -1324,20 +1311,22 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
 
                 //change_over_sec = 0.f;
                 float ground_dir = 0.f;
-                for (auto i = 0; i < TIME_TO_TICKS(1.f); i++)
+                float decay_amount = 0.f;
+                for (auto i = 0; i < TIME_TO_TICKS(0.5f); i++)
                 {
                     if (i >= player_info.m_records.size())
                         break;
                     //change_over_sec += player_info.m_records[i]->ground_dir;
-                    if (i > TIME_TO_TICKS(0.4f))
-                        continue;
                     // if ( fabsf( player_info.m_records[ i ]->ground_dir ) > 0.01f )
                     //	mv.m_decay += 1.f; //std::clamp<float>( mv.m_decay + 0.1f / record->m_lag, 0.7f, 1.f );
                     if (fabsf(player_info.m_records[i]->ground_dir) > 0.01f)
+                    {
+                        decay_amount += 1.f;
                         ground_dir += player_info.m_records[i]->ground_dir;
+                    }
                     new_count++;
                 }
-
+                //mv.m_decay = std::clamp<float>((decay_amount / new_count), 0.f, 1.f);
                 float avg_delta = ground_dir / static_cast<float>(new_count);
                 while (avg_delta > 360.f)
                     avg_delta -= 360.f;

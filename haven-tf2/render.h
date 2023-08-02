@@ -6,7 +6,7 @@ enum e_text_alignment
     text_align_center,
     text_align_right,
 };
-
+class Vertex_t;
 class c_render
 {
     static int create_font(const char* name, int size, int weight, int flags = e_font_flags::font_flag_none);
@@ -40,5 +40,7 @@ public:
     static void text(unsigned long font, vector_2d pos, const char* text, color col,
                      e_text_alignment alignment = e_text_alignment::text_align_left);
     static vector_2d get_text_size(const char* text, unsigned long font);
+
+    static void render_verts(int count, Vertex_t* vertexes, color c);
 };
 inline c_render g_render;
