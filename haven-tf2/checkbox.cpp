@@ -12,7 +12,7 @@ void c_checkbox::paint()
 {
     // background.
     g_ui.m_theme.m_a = 100 * g_ui.m_fade;
-    g_ui.m_draw.filled_rect(this->m_area, this->m_value ? g_ui.m_theme : color(35, 35, 35, 40 * g_ui.m_fade));
+    g_ui.m_draw.filled_rect(this->m_area, this->m_value ? g_ui.m_theme : color(100, 100, 100, 40 * g_ui.m_fade));
     g_ui.m_draw.outlined_rect(this->m_area, color(35, 35, 35, 40 * g_ui.m_fade));
 
     // title.
