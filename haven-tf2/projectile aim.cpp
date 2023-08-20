@@ -698,12 +698,9 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
 
     float lerp = std::fmaxf(cl_interp->m_value.m_float_value,
                             cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
-    auto latency = nci->GetLatency(1);
-
     auto mindelta = FLT_MAX;
     auto maxsteps = 5000;
-    float cur_time = 0.f;
-    -(latency + (fmaxf(0.f, TICKS_TO_TIME(g_cl.m_local->m_tick_base()) - this->m_target->sim_time())));
+    float cur_time = -nci->GetLatency(2);
     vector last;
     struct target_holder
     {
