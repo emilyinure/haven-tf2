@@ -563,7 +563,7 @@ void proj_aim::run()
             if (g_cl.m_cmd->buttons_ & attack)
                 ticks_since_shot = 0;
             else
-                ticks_since_shot = min(5, ticks_since_shot + 1);
+                ticks_since_shot = fmin(5, ticks_since_shot + 1);
             was_shoot = false;
             return;
         }
@@ -573,7 +573,7 @@ void proj_aim::run()
         if (g_cl.m_cmd->buttons_ & attack)
             ticks_since_shot = 0;
         else
-            ticks_since_shot = min(5, ticks_since_shot + 1);
+            ticks_since_shot = fmin(5, ticks_since_shot + 1);
         was_shoot = false;
         return;
     }
@@ -583,7 +583,7 @@ void proj_aim::run()
         if (g_cl.m_cmd->buttons_ & attack)
             ticks_since_shot = 0;
         else
-            ticks_since_shot = min(5, ticks_since_shot + 1);
+            ticks_since_shot = fmin(5, ticks_since_shot + 1);
         was_shoot = g_cl.m_cmd->buttons_ & attack;
         return;
     }
@@ -593,7 +593,7 @@ void proj_aim::run()
         if (g_cl.m_cmd->buttons_ & attack)
             ticks_since_shot = 0;
         else
-            ticks_since_shot = min(5, ticks_since_shot + 1);
+            ticks_since_shot = fmin(5, ticks_since_shot + 1);
         was_shoot = g_cl.m_cmd->buttons_ & attack;
         return;
     }
@@ -628,7 +628,7 @@ void proj_aim::run()
     if (g_cl.m_cmd->buttons_ & attack)
         ticks_since_shot = 0;
     else
-        ticks_since_shot = min(5, ticks_since_shot + 1);
+        ticks_since_shot = fmin(5, ticks_since_shot + 1);
     was_shoot = g_cl.m_cmd->buttons_ & attack;
 }
 void get_hull_size(vector& size)
@@ -662,7 +662,7 @@ void get_hull_size(vector& size)
         }
         case CTFCompoundBow:
         {
-            size = {1.f, 1.f, 1.f}; //	tf_projectile_arrow.cpp @L271
+            size = {1.f, 1.f, 1.f};
             break;
         }
         case CTFRaygun:

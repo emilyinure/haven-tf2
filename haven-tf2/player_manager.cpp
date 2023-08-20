@@ -264,7 +264,7 @@ void c_player_manager::update_players()
                         turn += 360.f;
                     turn /= new_record.m_lag;
 
-                    float max_turn = 720.f * g_interfaces.m_global_vars->m_interval_per_tick;
+                    float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
                     new_record.dir = ApproachAngle(turn, player->m_records[0]->dir,
                                                    max_turn);
 

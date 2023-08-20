@@ -388,7 +388,7 @@ void c_movement_simulate::categorize_position(void)
     bool bMoveToEndPos = false;
     if (mv.on_ground)
     {
-        vecEndPos.m_z -= 18.f + DIST_EPSILON;
+        vecEndPos.m_z -= 16.f + DIST_EPSILON;
         bMoveToEndPos = true;
     }
     try_touch_ground(mv.m_player, vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
@@ -503,7 +503,7 @@ void c_movement_simulate::stay_on_ground(void)
     vector start = mv.m_position;
     vector end = mv.m_position;
     start.m_z += 2;
-    end.m_z -= 18.f; // player->GetStepSize( );
+    end.m_z -= 16.f + DIST_EPSILON; // player->GetStepSize( );
 
     // See how far up we can go without getting stuck
 
@@ -648,7 +648,7 @@ void c_movement_simulate::step_move(const vector& vecDestination, trace_t& trace
 
     // Move up a stair height.
     vector vec_end_pos = mv.m_position;
-    vec_end_pos.m_z += 18.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
+    vec_end_pos.m_z += 16.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
 
     trace_player_bbox(mv.m_position, vec_end_pos, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace);
     if (!trace.m_start_solid && !trace.m_allsolid)
@@ -661,7 +661,7 @@ void c_movement_simulate::step_move(const vector& vecDestination, trace_t& trace
 
     // Move down a stair (attempt to).
     vec_end_pos = mv.m_position;
-    vec_end_pos.m_z -= 18.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
+    vec_end_pos.m_z -= 16.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
 
     trace_player_bbox(mv.m_position, vec_end_pos, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace);
 
@@ -1260,7 +1260,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
             int new_count = 0;
             mv.m_dir += record->dir;
             new_count++;
-            const int count = min(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
+            const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
             float last_dir = record->dir;
             for (auto i = 1; i < count - 1; i++)
             {
@@ -1282,8 +1282,8 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                 static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_accelerate");
                 const auto main_dif = dif;
                 const int count =
-                    min(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
-                mv.m_walk_direction =
+                    fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
+                mv.m_air_dir = mv.m_walk_direction =
                     estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
                                                             find_unstuck(player_info.m_records[1]->origin));
 
@@ -1312,22 +1312,26 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                 //change_over_sec = 0.f;
                 float ground_dir = 0.f;
                 float decay_amount = 0.f;
-                for (auto i = 0; i < TIME_TO_TICKS(0.5f); i++)
+                float dividen = 0.f;
+                const int max_tick = TIME_TO_TICKS(1.5f);
+                for (auto i = 0; i < max_tick; i++)
                 {
                     if (i >= player_info.m_records.size())
                         break;
                     //change_over_sec += player_info.m_records[i]->ground_dir;
                     // if ( fabsf( player_info.m_records[ i ]->ground_dir ) > 0.01f )
                     //	mv.m_decay += 1.f; //std::clamp<float>( mv.m_decay + 0.1f / record->m_lag, 0.7f, 1.f );
+                    float new_frac = max_tick / (i + 1);
                     if (fabsf(player_info.m_records[i]->ground_dir) > 0.01f)
                     {
                         decay_amount += 1.f;
-                        ground_dir += player_info.m_records[i]->ground_dir;
+                        ground_dir += player_info.m_records[i]->ground_dir * new_frac;
                     }
-                    new_count++;
+                    
+                    dividen += new_frac;
                 }
                 //mv.m_decay = std::clamp<float>((decay_amount / new_count), 0.f, 1.f);
-                float avg_delta = ground_dir / static_cast<float>(new_count);
+                float avg_delta = ground_dir / static_cast<float>(dividen);
                 while (avg_delta > 360.f)
                     avg_delta -= 360.f;
                 while (avg_delta < -360.f)
