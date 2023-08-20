@@ -1237,6 +1237,8 @@ vector c_movement_simulate::find_unstuck(vector origin)
 
 bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int index)
 {
+    mv.m_time = 0;
+    
     mv.inputVals_.clear();
     if (!sv_gravity)
         sv_gravity = g_interfaces.m_cvar->find_var("sv_gravity");
@@ -1313,7 +1315,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                 float ground_dir = 0.f;
                 float decay_amount = 0.f;
                 float dividen = 0.f;
-                const int max_tick = TIME_TO_TICKS(1.5f);
+                const int max_tick = TIME_TO_TICKS(3.6f);
                 for (auto i = 0; i < max_tick; i++)
                 {
                     if (i >= player_info.m_records.size())
@@ -1381,6 +1383,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
         path.clear();
         mv.m_position = find_unstuck(record->origin); // player->get_collideable( )->obb_mins( ).m_z );
         path.push_back(mv.m_position);
+        mv.m_time = 0;
         return true;
     }
     return false;
@@ -1409,12 +1412,12 @@ void c_movement_simulate::draw()
     for (auto& i : m_logs)
     {
         auto& log = i.second;
-        if (log.end_time < g_interfaces.m_global_vars->m_cur_time)
+        if (log.end_time <= 0)
             log.m_path.clear();
         if (log.m_path.empty())
             continue;
         
-        float temp_time = log.end_time - g_interfaces.m_global_vars->m_cur_time;
+        float temp_time = log.end_time;
         int iter = 1;
         vector screen_1, screen_2, screen_3, last = log.m_path.back();
         for (auto i = log.m_path.end() - 2; i > log.m_path.begin(); --i)
@@ -1429,7 +1432,7 @@ void c_movement_simulate::draw()
                 break;
             
             c_render::line(screen_1, screen_2,
-                           color(0x60, 0xf3, 0x21, 100 * fminf(temp_time / 0.3f, 1.f))); // 0xAE, 0xBA, 0xF8
+                           color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
             if ((iter % 4) == 0)
             {
                 const vector delta = (last - *i);
@@ -1440,7 +1443,7 @@ void c_movement_simulate::draw()
                 g_interfaces.m_debug_overlay->screen_position(last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3);
                 g_interfaces.m_debug_overlay->screen_position(last, screen_1);
                 c_render::line(screen_1, screen_3,
-                               color(0x60, 0xf3, 0x21, 100 * fminf(temp_time / 0.3f, 1.f))); // 0xAE, 0xBA, 0xF8
+                               color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
                 last = *i;
             }
             g_ui.m_theme.m_a = 255;
@@ -1459,6 +1462,7 @@ void c_movement_simulate::draw()
             //	last = path[ i ];
             // }
         }
+        log.end_time -= g_interfaces.m_global_vars->m_frame_time;
     }
 }
 
@@ -1476,7 +1480,8 @@ vector c_movement_simulate::run()
     player_move();
 
     path.push_back(mv.m_position);
-    end_time = g_interfaces.m_global_vars->m_cur_time + 3.f;
+    mv.m_time += g_interfaces.m_global_vars->m_interval_per_tick;
+    end_time = mv.m_time + 10.f;
 
     return mv.m_position;
 }

@@ -62,6 +62,7 @@ public:
 		float total_changed = 0.f;
 		float m_eye_dir;
 		float m_max_speed;
+        float m_time = 0;
 		float m_decay = 1;
 		vector m_air_dir = vector( );
 		std::deque< std::vector<double>> inputVals_;

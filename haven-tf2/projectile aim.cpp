@@ -698,11 +698,12 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
 
     float lerp = std::fmaxf(cl_interp->m_value.m_float_value,
                             cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
-    auto latency = nci->GetLatency(2);
+    auto latency = nci->GetLatency(1);
 
     auto mindelta = FLT_MAX;
     auto maxsteps = 5000;
-    float cur_time = -(latency);
+    float cur_time = 0.f;
+    -(latency + (fmaxf(0.f, TICKS_TO_TIME(g_cl.m_local->m_tick_base()) - this->m_target->sim_time())));
     vector last;
     struct target_holder
     {
@@ -968,12 +969,12 @@ void proj_aim::draw()
     for (auto& i : m_logs)
     {
         auto& log = i.second;
-        if (log.end_time < g_interfaces.m_global_vars->m_cur_time)
+        if (log.end_time <= 0)
             log.m_path.clear();
         if (log.m_path.empty())
             continue;
 
-        float temp_time = log.end_time - g_interfaces.m_global_vars->m_cur_time;
+        float temp_time = log.end_time;
         int iter = 1;
         vector screen_1, screen_2, screen_3;
         for (auto i = log.m_path.end() - 2; i > log.m_path.begin(); --i)
@@ -987,7 +988,7 @@ void proj_aim::draw()
             if (temp_time < 0.f)
                 break;
 
-            g_ui.m_theme.m_a = 255.f * fminf(temp_time / 0.3f, 1.f);
+            g_ui.m_theme.m_a = 255.f * fminf(temp_time, 1.f);
             
             c_render::line(screen_1, screen_2,
                            g_ui.m_theme); // 0xAE, 0xBA, 0xF8
@@ -1005,6 +1006,7 @@ void proj_aim::draw()
             //	last = path[ i ];
             // }
         }
+        log.end_time -= g_interfaces.m_global_vars->m_frame_time;
     }
     g_ui.m_theme.m_a = 255;
 }
@@ -1058,18 +1060,20 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
     float time = 0;
     if (record)
     {
-        end_time = g_interfaces.m_global_vars->m_cur_time + 3.f;
+        end_time = time + 10.f;
         m_path.push_back(pos);
     }
-    while (time < goal_time - g_interfaces.m_global_vars->m_interval_per_tick)
+    while (time < goal_time)
     {
+        float frac = goal_time - time;
+        float interval = fminf(frac, g_interfaces.m_global_vars->m_interval_per_tick);
         // float height = pos.m_z;
         // velocity.m_z -= ( gravity * g_interfaces.m_global_vars->m_interval_per_tick * 0.5f );
 
         velocity.m_z -= (this->m_weapon_gravity * g_interfaces.m_global_vars->m_interval_per_tick * 0.5f);
 
         ray_t ray;
-        ray.initialize(pos, pos + (velocity * g_interfaces.m_global_vars->m_interval_per_tick), hullsize * -1.f,
+        ray.initialize(pos, pos + (velocity * interval), hullsize * -1.f,
                        hullsize); //, bounds*-1, bounds );
         trace_t trace;
         CTraceFilterIgnorePlayers traceFilter(g_cl.m_local, TFCOLLISION_GROUP_COMBATOBJECT);
@@ -1080,10 +1084,10 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
             return false;
         }
 
-        pos += velocity * g_interfaces.m_global_vars->m_interval_per_tick;
+        pos += velocity * interval;
         if (record)
         {
-            end_time = g_interfaces.m_global_vars->m_cur_time + 3.f;
+            end_time = time + 10.f;
             m_path.push_back(pos);
         }
 
