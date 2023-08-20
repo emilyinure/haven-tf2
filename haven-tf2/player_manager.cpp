@@ -181,12 +181,12 @@ void c_player_manager::update_players()
                                          ->m_interval_per_tick); // TIME_TO_TICKS( ( new_time - player->sim_time ) );
             player->m_sim_time = new_time;
             new_record.origin = target->m_vec_origin();
-            const vector dif = new_record.origin - player->pred_origin;
-            if (fabsf(dif.m_x) <= 0.03125f)
+            const vector dif = (new_record.origin - player->pred_origin);
+            if (fabs(dif.m_x) <= 0.03125f + FLT_EPSILON)
                 new_record.origin.m_x = player->pred_origin.m_x;
-            if (fabsf(dif.m_y) <= 0.03125f)
+            if (fabs(dif.m_y) <= 0.03125f + FLT_EPSILON)
                 new_record.origin.m_y = player->pred_origin.m_y;
-            if (fabsf(dif.m_z) <= 0.03125f)
+            if (fabs(dif.m_z) <= 0.03125f + FLT_EPSILON)
                 new_record.origin.m_z = player->pred_origin.m_z;
             new_record.vel = target->m_velocity();
             // new_record.dir = 0;
@@ -200,7 +200,7 @@ void c_player_manager::update_players()
                 vector vecStartPos = new_record.origin;
                 vector vecEndPos(new_record.origin.m_x, new_record.origin.m_y, (new_record.origin.m_z - 2.0f));
                 bool bMoveToEndPos = false;
-                vecEndPos.m_z -= 18.f + DIST_EPSILON;
+                vecEndPos.m_z -= 16.f + DIST_EPSILON;
                 bMoveToEndPos = true;
                 c_movement_simulate::try_touch_ground(target, vecStartPos, vecEndPos, target->mins(), target->maxs(),
                                                       MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm);
@@ -248,68 +248,40 @@ void c_player_manager::update_players()
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                     if (!(player->player->flags() & FL_ONGROUND))
                     {
+                        g_movement.mv.m_velocity = new_record.vel;
                         g_movement.finish_gravity();
+                        new_record.vel = g_movement.mv.m_velocity;
+                        //new_record.vel = g_movement.mv.m_velocity;
                     }
                     if (new_record.origin == player->pred_origin)
                     {
                         new_record.dir = player->m_records[0]->dir;
                         new_record.ground_dir = player->m_records[0]->ground_dir;
                     }
-                    new_record.move_data = g_movement.estimate_walking_dir(new_record.vel, player->m_records[0]->vel,
-                                                                           new_record.eye_angle, new_record.origin);
-                    float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
-                    while (turn > 180.f)
-                        turn -= 360.f;
-                    while (turn < -180.f)
-                        turn += 360.f;
-                    turn /= new_record.m_lag;
-
-                    float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
-                    new_record.dir = ApproachAngle(turn, player->m_records[0]->dir,
-                                                   max_turn);
-
-                    if (new_record.move_data.length_2d() > 0.01)
+                    else
                     {
-
-                        turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
+                        new_record.move_data = g_movement.estimate_walking_dir(
+                            new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
+                        float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
                         while (turn > 180.f)
                             turn -= 360.f;
                         while (turn < -180.f)
                             turn += 360.f;
-                        new_record.ground_dir = turn / new_record.m_lag;
-                    }
-                    if (new_record.vel.length() > 0.1f)
-                    {
-                        //}
-                        // else new_record.dir = turn;
+                        turn /= new_record.m_lag;
 
-                        // if ( new_record.on_ground && player->m_records.size() > 3 ) {
-                        //	auto count = 1;
-                        //	for ( auto i = 0; i < 4; i++ ) {
-                        //		new_record.ground_dir += player->m_records[ i ]->ground_dir;
-                        //		count++;
-                        //	}
-                        //	//turn = fminf( max_turn, fmaxf( -max_turn, turn) );
-                        //	//if ( ( turn > 0 && turn > player->m_records[ 0 ]->ground_dir ) || ( turn < 0 && turn <
-                        // player->m_records[ 0 ]->ground_dir ) ) { 	new_record.ground_dir = new_record.ground_dir /
-                        // count;
-                        //}
-                        // else
-                        //	new_record.ground_dir = 0.f;
-                        //}
-                        // else new_record.ground_dir = turn;
+                        float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
+                        new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
 
-                        // new_record.ground_dir = ApproachAngle( dir_turning( new_record.vel, player->m_records[ 0
-                        // ]->vel ) / new_record.m_lag, 	player->m_records[ 0 ]->ground_dir, 	( fmaxf( fabsf( dir )
-                        // *
-                        // g_interfaces.m_global_vars->m_interval_per_tick, 720.f * (
-                        // g_interfaces.m_global_vars->m_interval_per_tick *
-                        // g_interfaces.m_global_vars->m_interval_per_tick ))) );
-                    }
-                    else
-                    {
-                        new_record.dir = 0;
-                        new_record.ground_dir = 0;
+                        if (new_record.move_data.length_2d() > 0.01)
+                        {
+
+                            turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
+                            while (turn > 180.f)
+                                turn -= 360.f;
+                            while (turn < -180.f)
+                                turn += 360.f;
+                            new_record.ground_dir = turn / new_record.m_lag;
+                        }
                     }
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                     g_movement.mv.m_ground_dir = 0.f;
