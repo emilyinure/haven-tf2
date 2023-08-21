@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "player_manager.h"
 #include "sdk.h"
 #include "movement_simulate.h"
@@ -144,6 +143,50 @@ void player_t::SetGroundEntity(trace_t* pm)
     m_ground = newGround;
 }
 
+#define GAMEMOVEMENT_JUMP_TIME 510.f
+ 
+vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, float jump_time_delta) // TODO: implement the rest of these cases
+{
+    if (!(flags & FL_ONGROUND))
+    {
+        if (GAMEMOVEMENT_JUMP_TIME < jump_time_delta)
+        {
+            if (!(flags & FL_DUCKING))
+            {
+                vector  hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
+                vector  hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
+                vector  viewDelta = (hullSizeNormal - hullSizeCrouch);
+                vector  out;
+                origin_diff -= viewDelta;
+            }
+            else
+            {
+                vector hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
+                vector hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
+                vector viewDelta = (hullSizeNormal - hullSizeCrouch);
+
+                float flDeltaZ = viewDelta.m_z;
+                flDeltaZ -= viewDelta.m_z;
+
+                origin_diff -= viewDelta;
+            
+            }
+        }
+        else
+        {
+            if ((flags & FL_DUCKING) && !(last_flags & FL_DUCKING))
+            {
+                origin_diff += (vector(-24, -24, 0) - vector(-24, -24, 0));
+            }
+            else if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
+            {
+                origin_diff -= (vector(-24, -24, 0) - vector(-24, -24, 0));
+            }
+        }
+    }
+    return (origin_diff) * (1.f / TICKS_TO_TIME(lag));
+}
+
 void c_player_manager::update_players()
 {
 
@@ -171,6 +214,7 @@ void c_player_manager::update_players()
         if (player->m_sim_time < target->sim_time())
         {
             player_record_t new_record;
+            new_record.flags = target->flags();
             new_record.eye_angle = target->m_eye_angles();
             new_record.m_lag =
                 (player->m_sim_time == -1.f)
@@ -243,9 +287,9 @@ void c_player_manager::update_players()
             if (g_interfaces.m_engine->get_player_info(target->entindex(), &info))
                 if (!player->m_records.empty())
                 {
-                    new_record.vel =
-                        (new_record.origin - player->m_records[0]->origin) * (1.f / TICKS_TO_TIME(new_record.m_lag));
-                    g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
+                    new_record.vel = get_velocity(new_record.origin - player->m_records[0]->origin, new_record.m_lag,
+                                     new_record.flags, player->m_records[0]->flags, new_record.sim_time - player->m_last_time_jumped);
+                    g_movement.mv.m_player = target;
                     if (!(player->player->flags() & FL_ONGROUND))
                     {
                         g_movement.mv.m_velocity = new_record.vel;
@@ -253,35 +297,28 @@ void c_player_manager::update_players()
                         new_record.vel = g_movement.mv.m_velocity;
                         //new_record.vel = g_movement.mv.m_velocity;
                     }
-                    if (new_record.origin == player->pred_origin)
+                    g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
+                    new_record.move_data = g_movement.estimate_walking_dir(
+                        new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
+                    float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
+                    while (turn > 180.f)
+                        turn -= 360.f;
+                    while (turn < -180.f)
+                        turn += 360.f;
+                    turn /= new_record.m_lag;
+
+                    float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
+                    new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
+
+                    if (new_record.move_data.length_2d() > 0.01)
                     {
-                        new_record.dir = player->m_records[0]->dir;
-                        new_record.ground_dir = player->m_records[0]->ground_dir;
-                    }
-                    else
-                    {
-                        new_record.move_data = g_movement.estimate_walking_dir(
-                            new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
-                        float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
+
+                        turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
                         while (turn > 180.f)
                             turn -= 360.f;
                         while (turn < -180.f)
                             turn += 360.f;
-                        turn /= new_record.m_lag;
-
-                        float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
-                        new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
-
-                        if (new_record.move_data.length_2d() > 0.01)
-                        {
-
-                            turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
-                            while (turn > 180.f)
-                                turn -= 360.f;
-                            while (turn < -180.f)
-                                turn += 360.f;
-                            new_record.ground_dir = turn / new_record.m_lag;
-                        }
+                        new_record.ground_dir = turn / new_record.m_lag;
                     }
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                     g_movement.mv.m_ground_dir = 0.f;
@@ -291,6 +328,9 @@ void c_player_manager::update_players()
                     //	new_record.dir_decay = std::clamp<float>( new_record.dir_decay + 0.1f, 0.8f, 1.f );
                     // else
                     //	new_record.dir_decay = std::clamp<float>( new_record.dir_decay - 0.1f, 0.8f, 1.f );
+                    if (!(new_record.flags & FL_ONGROUND) && (player->m_records[0]->flags & FL_ONGROUND) &&
+                        new_record.vel.m_z > 100.f)
+                        player->m_last_time_jumped = new_record.sim_time;
                 }
 
             player->m_records.push_front(std::make_shared<player_record_t>(new_record));

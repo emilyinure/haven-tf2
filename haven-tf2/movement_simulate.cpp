@@ -1323,7 +1323,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
                     //change_over_sec += player_info.m_records[i]->ground_dir;
                     // if ( fabsf( player_info.m_records[ i ]->ground_dir ) > 0.01f )
                     //	mv.m_decay += 1.f; //std::clamp<float>( mv.m_decay + 0.1f / record->m_lag, 0.7f, 1.f );
-                    float new_frac = max_tick / (i + 1);
+                    float new_frac = max_tick / (abs(i - 3) + 1);
                     if (fabsf(player_info.m_records[i]->ground_dir) > 0.01f)
                     {
                         decay_amount += 1.f;

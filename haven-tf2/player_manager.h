@@ -19,6 +19,7 @@ public:
     float dir = 0;
     float dir_decay = 0;
     float ground_dir = 0;
+    int flags = 0;
     c_base_entity* last_ground = nullptr;
     vector origin = vector();
     vector eye_angle = vector();
@@ -40,6 +41,7 @@ public:
     c_base_player* player;
     c_base_entity* m_ground = nullptr;
     vector m_base_velocity = vector();
+    float m_last_time_jumped = -1.f;
     void SetGroundEntity(trace_t* pm);
 };
 class c_player_manager

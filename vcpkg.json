@@ -1,0 +1,10 @@
+{
+  "$schema" : "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name" : "haven-tf2",
+  "builtin-baseline" : "ad46340bfce415333d6a2139592c22a499fb0df0",
+  "version" : "0",
+  "dependencies" : [ "minhook", {
+    "name" : "minhook",
+    "version>=" : "1.3.3#3"
+  } ]
+}

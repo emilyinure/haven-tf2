@@ -56,6 +56,9 @@
     <IntDir>..\intermediates\$(Configuration)\</IntDir>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
