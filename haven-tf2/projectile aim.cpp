@@ -980,6 +980,7 @@ std::vector<vector> proj_aim::path_pred(vector view, float goal_time, vector wea
     if (!sv_gravity)
         sv_gravity = g_interfaces.m_cvar->find_var("sv_gravity");
     this->m_weapon_gravity = get_gravity();
+    this->m_weapon_speed = get_speed();
     if (!is_pipe())
     {
         this->m_weapon_gravity *= sv_gravity->m_value.m_float_value;
@@ -989,7 +990,7 @@ std::vector<vector> proj_aim::path_pred(vector view, float goal_time, vector wea
         this->m_weapon_speed = sqrt(pipe_vel_change[0] * pipe_vel_change[0] + pipe_vel_change[1] * pipe_vel_change[1]);
         this->m_weapon_gravity *= 800.f;
     }
-    if (this->m_weapon_gravity < 1)
+    if (this->m_weapon_gravity < 1 || this->m_weapon_speed < 1)
         return {};
     std::vector<vector> path = {};
     vector eye_pos = g_cl.m_local->m_vec_origin() + g_cl.m_local->m_view_offset();
