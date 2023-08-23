@@ -253,7 +253,7 @@ float get_gravity()
     return weapon_gravity;
 };
 
-vector iter_arrow_hitspot(player_t* player)
+vector iter_arrow_hitspot(player_t* player, vector hitbox)
 {
     const auto target = player->player;
     const vector dir = vector(0, g_movement.mv.m_ground_dir, 0).angle_vector();
@@ -262,14 +262,15 @@ vector iter_arrow_hitspot(player_t* player)
     vector cur = (target->maxs() + target->mins()) * 0.5f;
     cur.m_z = target->maxs().m_z;
     const vector start = cur;
+    float last_last_dist = FLT_MAX;
     while (true)
     {
-        if (vector next = cur + dir; next >= mins && next <= maxs)
+        if (vector next = cur + dir; (hitbox - cur).length_sqr() > (hitbox - next).length_sqr())
         {
             cur = next;
         }
         else
-            return start + ((cur - start) * 0.5);
+            return cur;
     }
 }
 
@@ -282,6 +283,7 @@ vector aim_offset(player_t* player)
     vector forward, up;
     dir.angle_vectors(&forward, nullptr, &up);
     vector temp;
+
     switch (g_cl.m_weapon->item_index())
     {
         case WPN_RescueRanger:
@@ -291,7 +293,7 @@ vector aim_offset(player_t* player)
         case WPN_CompoundBow:
             offset = target->get_hitbox_pos(0) -
                      (target->get_abs_origin()); // -vector( 0, 0, target->get_collideable( )->obb_mins( ).m_z ));
-            // temp = iter_arrow_hitspot( player );
+            //offset = iter_arrow_hitspot(player, offset);
             // offset.m_x = temp.m_x;
             // offset.m_y = temp.m_y;
             // offset.m_z = fmaxf( offset.m_z + ( ( temp.m_z - offset.m_z ) * 0.5f ), offset.m_z );
@@ -1146,8 +1148,8 @@ void proj_aim::draw()
             get_hull_size(hull_size);
             c_render::box(end - hull_size, hull_size + end, g_ui.m_theme);
             g_ui.m_theme.m_a = backup;
-            log.end_time -= g_interfaces.m_global_vars->m_frame_time;
         }
+        log.end_time -= g_interfaces.m_global_vars->m_frame_time;
     }
     g_ui.m_theme.m_a = 255;
 }
