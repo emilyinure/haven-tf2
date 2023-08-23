@@ -37,6 +37,7 @@ public:
     static void outlined_rect(box_t box, color col);
     static void outlined_rect(vector_2d pos, vector_2d size, color col);
     static void line(vector_2d from, vector_2d to, color col);
+    static void box(const vector from, const vector to, const color col);
     static void text(unsigned long font, vector_2d pos, const char* text, color col,
                      e_text_alignment alignment = e_text_alignment::text_align_left);
     static vector_2d get_text_size(const char* text, unsigned long font);

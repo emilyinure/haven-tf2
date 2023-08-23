@@ -24,9 +24,9 @@ void c_movement_simulate::trace_player_bbox(const vector& start, const vector& e
     CTraceFilterIgnorePlayers traceFilter(mv.m_player, collisionGroup);
     g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
 }
-void c_movement_simulate::try_touch_ground(c_base_entity* player, const vector& start, const vector& end, const vector& mins,
-                                           const vector& maxs, unsigned int fMask, int collisionGroup,
-                                           trace_t& pm)
+void c_movement_simulate::try_touch_ground(c_base_entity* player, const vector& start, const vector& end,
+                                           const vector& mins, const vector& maxs, unsigned int fMask,
+                                           int collisionGroup, trace_t& pm)
 {
     ray_t ray;
     ray.initialize(start, end, mins, maxs);
@@ -35,9 +35,8 @@ void c_movement_simulate::try_touch_ground(c_base_entity* player, const vector& 
 }
 
 void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, const vector& start, const vector& end,
-                                                               const vector& minsSrc, const vector& maxsSrc,
-                                                               unsigned int fMask,
-                                                        int collisionGroup, trace_t& pm)
+                                                        const vector& minsSrc, const vector& maxsSrc,
+                                                        unsigned int fMask, int collisionGroup, trace_t& pm)
 {
     const float fraction = pm.m_fraction;
     const vector endpos = pm.m_end;
@@ -46,7 +45,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, c
     vector maxs;
     vector mins = minsSrc;
     maxs.init(fminf(0, maxsSrc.m_x), fminf(0, maxsSrc.m_y), maxsSrc.m_z);
-    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player, start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -57,7 +56,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, c
     // Check the +x, +y quadrant
     mins.init(fmaxf(0, minsSrc.m_x), fmaxf(0, minsSrc.m_y), minsSrc.m_z);
     maxs = maxsSrc;
-    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player, start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -68,7 +67,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, c
     // Check the -x, +y quadrant
     mins.init(minsSrc.m_x, fmaxf(0, minsSrc.m_y), minsSrc.m_z);
     maxs.init(fminf(0, maxsSrc.m_x), maxsSrc.m_y, maxsSrc.m_z);
-    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player, start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -79,7 +78,7 @@ void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, c
     // Check the +x, -y quadrant
     mins.init(fmaxf(0, minsSrc.m_x), minsSrc.m_y, minsSrc.m_z);
     maxs.init(maxsSrc.m_x, fminf(0, maxsSrc.m_y), maxsSrc.m_z);
-    try_touch_ground(player,start, end, mins, maxs, fMask, collisionGroup, pm);
+    try_touch_ground(player, start, end, mins, maxs, fMask, collisionGroup, pm);
     if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
     {
         pm.m_fraction = fraction;
@@ -396,8 +395,8 @@ void c_movement_simulate::categorize_position(void)
     if (pm.m_plane.normal[2] < 0.7f)
     {
         // Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
-        try_touch_ground_in_quadrants(mv.m_player, vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(), MASK_PLAYERSOLID,
-                                      COLLISION_GROUP_PLAYER_MOVEMENT, pm);
+        try_touch_ground_in_quadrants(mv.m_player, vecStartPos, vecEndPos, get_player_mins(), get_player_maxs(),
+                                      MASK_PLAYERSOLID, COLLISION_GROUP_PLAYER_MOVEMENT, pm);
 
         if (pm.m_entity == nullptr || pm.m_plane.normal[2] < 0.7f)
         {
@@ -473,7 +472,7 @@ void c_movement_simulate::start_gravity(void)
         (ent_gravity * sv_gravity->m_value.m_float_value * 0.5f * g_interfaces.m_global_vars->m_interval_per_tick);
     mv.m_velocity[2] += mv.m_base_velocity[2] * g_interfaces.m_global_vars->m_interval_per_tick;
 
-    mv.m_base_velocity[ 2 ] = 0;
+    mv.m_base_velocity[2] = 0;
 
     check_velocity();
 }
@@ -595,10 +594,10 @@ void c_movement_simulate::air_move()
 
     static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_airaccelerate");
     air_acceletate(wishdir, wishspeed, sv_accelerate->m_value.m_float_value);
-    //mv.m_velocity += mv.m_base_velocity;
-    // vector look = vector( ).look( mv.m_velocity );
-    // look.m_y += mv.m_dir;
-    // mv.m_velocity = look.angle_vector() * mv.m_velocity.length();
+    // mv.m_velocity += mv.m_base_velocity;
+    //  vector look = vector( ).look( mv.m_velocity );
+    //  look.m_y += mv.m_dir;
+    //  mv.m_velocity = look.angle_vector() * mv.m_velocity.length();
     try_player_move();
 }
 
@@ -721,9 +720,9 @@ void c_movement_simulate::walk_move()
     // look.m_y += mv.m_ground_dir;
     // mv.m_walk_direction = look.angle_vector( ) * mv.m_walk_direction.length( );
     vector temp = mv.m_walk_direction.angle_to();
-    //if (fabsf(mv.target_ground_dir) > 360.f || fabsf(mv.target_ground_dir) > fabsf(mv.total_changed))
+    // if (fabsf(mv.target_ground_dir) > 360.f || fabsf(mv.target_ground_dir) > fabsf(mv.total_changed))
     //{
-        temp.m_y += mv.m_ground_dir;
+    temp.m_y += mv.m_ground_dir;
     //    mv.total_changed += mv.m_ground_dir;
     //    while (temp.m_y > 180.f)
     //        temp.m_y -= 360.f;
@@ -1000,7 +999,7 @@ void c_movement_simulate::SetGroundEntity(trace_t* pm)
     }
     mv.m_ground = newGround;
     mv.on_ground = mv.m_ground != nullptr;
-    //mv.m_velocity.m_z = 0.0f;
+    // mv.m_velocity.m_z = 0.0f;
 }
 
 vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fric_vel, vector eye_ang, vector origin)
@@ -1238,7 +1237,7 @@ vector c_movement_simulate::find_unstuck(vector origin)
 bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int index)
 {
     mv.m_time = 0;
-    
+
     mv.inputVals_.clear();
     if (!sv_gravity)
         sv_gravity = g_interfaces.m_cvar->find_var("sv_gravity");
@@ -1247,164 +1246,97 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
     {
         const auto& record = player_info.m_records[0];
         mv.m_player = player;
-        // mv.m_dir = record->dir;
         mv.on_ground = player_info.m_ground != nullptr;
         mv.m_ground = player_info.m_ground;
         mv.m_base_velocity = player_info.m_base_velocity;
         mv.m_eye_dir = record->eye_angle.m_y;
         mv.m_max_speed = max_speed(player);
-        // mv.m_ground_dir = record->ground_dir;
         mv.m_walk_direction.init();
+        mv.m_decay = 0;
         if (player_info.m_records.size() > 1 && record->vel.length() > 5.f)
         {
-            mv.m_surface_friction = 1.f;
-
-            int new_count = 0;
-            mv.m_dir += record->dir;
-            new_count++;
-            const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
-            float last_dir = record->dir;
-            for (auto i = 1; i < count - 1; i++)
-            {
-                mv.m_dir += player_info.m_records[i]->dir;
-                if (fabsf(last_dir) < fabsf(player_info.m_records[i]->dir))
-                    mv.m_decay += 1.f; // td::clamp<float>( mv.m_decay + ( 0.1f / record->m_lag ), 0.7f, 1.f );
-                new_count++;
-            }
-            mv.m_dir /= static_cast<float>(new_count);
-            mv.m_decay = 0;
+            do_angle_prediction(record, player_info);
             if (mv.on_ground)
-            {
-                mv.m_velocity = player_info.m_records[1]->vel;
-                mv.m_velocity -= mv.m_base_velocity;
-                for (auto i = 0; i < record->m_lag; i++)
-                    friction();
-                vector last_fric_vel = mv.m_velocity;
-                auto dif = (record->vel-mv.m_base_velocity) - last_fric_vel;
-                static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_accelerate");
-                const auto main_dif = dif;
-                const int count =
-                    fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
-                mv.m_air_dir = mv.m_walk_direction =
-                    estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
-                                                            find_unstuck(player_info.m_records[1]->origin));
-
-                //float change_over_sec = 0.f;
-                //
-                //bool should_predict = true;
-                //bool should_recalc = true;
-                //for (auto i = 0; i < TIME_TO_TICKS(1.f); i++)
-                //{
-                //    if (i >= player_info.m_records.size())
-                //        break;
-                //    change_over_sec += player_info.m_records[i]->ground_dir;
-                //    new_count++;
-                //    if (fabsf(change_over_sec) > 300.f * 1.f)
-                //    {
-                //        if (fabsf(change_over_sec) > 400.f * 1.f)
-                //        {
-                //            mv.m_ground_dir = change_over_sec / new_count;
-                //            should_recalc = false;
-                //        }
-                //        mv.target_ground_dir = change_over_sec;
-                //        should_predict = false;
-                //    }
-                //}
-
-                //change_over_sec = 0.f;
-                float ground_dir = 0.f;
-                float decay_amount = 0.f;
-                float dividen = 0.f;
-                const int max_tick = TIME_TO_TICKS(3.6f);
-                for (auto i = 0; i < max_tick; i++)
-                {
-                    if (i >= player_info.m_records.size())
-                        break;
-                    //change_over_sec += player_info.m_records[i]->ground_dir;
-                    // if ( fabsf( player_info.m_records[ i ]->ground_dir ) > 0.01f )
-                    //	mv.m_decay += 1.f; //std::clamp<float>( mv.m_decay + 0.1f / record->m_lag, 0.7f, 1.f );
-                    float new_frac = max_tick / (abs(i - 3) + 1);
-                    if (fabsf(player_info.m_records[i]->ground_dir) > 0.01f)
-                    {
-                        decay_amount += 1.f;
-                        ground_dir += player_info.m_records[i]->ground_dir * new_frac;
-                    }
-                    
-                    dividen += new_frac;
-                }
-                //mv.m_decay = std::clamp<float>((decay_amount / new_count), 0.f, 1.f);
-                float avg_delta = ground_dir / static_cast<float>(dividen);
-                while (avg_delta > 360.f)
-                    avg_delta -= 360.f;
-                while (avg_delta < -360.f)
-                    avg_delta += 360.f;
-
-                mv.m_ground_dir = avg_delta;
-                //if (should_predict)
-                //{
-                //    if (fabsf(change_over_sec) >= 350.f)
-                //        mv.target_ground_dir = 0.f;
-                //    else if (fabsf(change_over_sec) >= 175.f)
-                //        mv.target_ground_dir = 45.f;
-                //    else if (fabsf(change_over_sec) >= 80.f)
-                //        mv.target_ground_dir = 90.f;
-                //    else if (fabsf(change_over_sec) >= 40.f)
-                //    {
-                //        mv.target_ground_dir = 45.f;
-                //        mv.m_ground_dir = fmaxf(-1, fminf(mv.m_ground_dir, 1));
-                //    }
-                //    mv.target_ground_dir = std::copysignf(mv.target_ground_dir, change_over_sec);
-                //    // mv.target_ground_dir = change_over_sec;
-                //}
-                mv.total_changed = 0.f;
-
-                // mv.m_decay = 0.95f + ( 0.05f * ( mv.m_decay / static_cast< float >( new_count ) ) );
-                // mv.m_walk_direction /= new_count;
-                // mv.m_walk_direction += record->vel;
-                mv.m_air_dir = mv.m_walk_direction;
-            }
+                ground_input_prediction(player_info, record);
             else
-            {
-                mv.m_ground_dir = 0.f;
-                mv.m_air_dir = estimate_air_dir(record->vel - mv.m_base_velocity, player_info.m_records[1]->vel,
-                                                record->eye_angle,
-                                                find_unstuck(player_info.m_records[1]->origin));
-                mv.m_decay = 0.f;
-
-                if (mv.m_air_dir.length_2d() > 0.1f)
-                    mv.m_walk_direction = vector(450.f, 0, 0);
-            }
-            // mv.m_decay = 1.f;
+                air_input_prediction(record, player_info);
         }
-        mv.m_target_velocity = mv.m_velocity = record->vel - mv.m_base_velocity;
-        if (mv.on_ground)
-            mv.m_target_velocity.m_z = mv.m_velocity.m_z = 0;
+        mv.m_velocity = record->vel - mv.m_base_velocity;
         auto& log = m_logs[player->entindex()];
         path.clear();
-        mv.m_position = find_unstuck(record->origin); // player->get_collideable( )->obb_mins( ).m_z );
+        mv.m_position = find_unstuck(record->origin);
         path.push_back(mv.m_position);
         mv.m_time = 0;
         return true;
     }
     return false;
-    // mv.m_velocity = player->m_velocity();// ( player->m_vec_origin( ) - origins[ index ] ) /
-    // g_interfaces.m_global_vars->m_interval_per_tick; if ( velocity[ index - 1 ] != mv.m_velocity ) { 	auto dir =
-    // std::atan2( mv.m_velocity.m_y, mv.m_velocity.m_x ); 	dir = rad_to_deg( dir - std::atan2( velocity[ index - 1
-    // ].m_y, velocity[ index - 1 ].m_x ) ); 	dirs[ index - 1 ] = dir;
-    // }
-    // mv.m_dir = dirs[ index - 1 ];
-    // velocity[ index - 1 ] = mv.m_velocity;
-    ////origins[ index ] = player->m_vec_origin( );
-    // mv.m_position = player->m_vec_origin( ) + vector( 0, 0, 1 );
-    ////auto dir = std::atan2( mv.m_velocity.m_y, mv.m_velocity.m_x );
-    ////auto difference = std::atan2( mv.m_velocity.m_y, mv.m_velocity.m_x ) - std::atan2( last_vel.m_y, last_vel.m_x );
-    ////auto hyp = mv.m_velocity.length( );
-    // mv.m_target_velocity = mv.m_velocity;
-    ////mv.m_target_velocity.m_x = std::cos( difference + dir ) * hyp;
-    ////mv.m_target_velocity.m_y = std::sin( difference + dir ) * hyp;
-    //
-    // mv.m_player = player;
-    // mv.on_ground = player->flags( ) & ( 1 << 0 );
+}
+
+void c_movement_simulate::air_input_prediction(const std::shared_ptr<player_record_t>& record,
+                                               const player_t& player_info)
+{
+    mv.m_ground_dir = 0.f;
+    mv.m_air_dir = estimate_air_dir(record->vel - mv.m_base_velocity, player_info.m_records[1]->vel, record->eye_angle,
+                                    find_unstuck(player_info.m_records[1]->origin));
+    mv.m_decay = 0.f;
+
+    if (mv.m_air_dir.length_2d() > 0.1f)
+        mv.m_walk_direction = vector(450.f, 0, 0);
+}
+
+void c_movement_simulate::ground_input_prediction(const player_t& player_info,
+                                                  const std::shared_ptr<player_record_t>& record)
+{
+    mv.m_velocity = player_info.m_records[1]->vel;
+    mv.m_velocity -= mv.m_base_velocity;
+    mv.m_surface_friction = 1.f;
+    for (auto i = 0; i < record->m_lag; i++)
+        friction();
+    vector last_fric_vel = mv.m_velocity;
+    auto dif = (record->vel - mv.m_base_velocity) - last_fric_vel;
+    static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_accelerate");
+    const auto main_dif = dif;
+    const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
+    mv.m_air_dir = mv.m_walk_direction =
+        estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
+                             find_unstuck(player_info.m_records[1]->origin));
+
+    float ground_dir = 0.f;
+    float decay_amount = 0.f;
+    float dividen = 0.f;
+    const int max_tick = TIME_TO_TICKS(2.0f);
+    for (auto i = 0; i < max_tick; i++)
+    {
+        if (i >= player_info.m_records.size())
+            break;
+        float new_frac = max_tick / (abs(i - 3) + 1);
+        ground_dir += player_info.m_records[i]->ground_dir * new_frac;
+        dividen += new_frac;
+    }
+
+    float avg_delta = ground_dir / static_cast<float>(dividen);
+    while (avg_delta > 360.f)
+        avg_delta -= 360.f;
+    while (avg_delta < -360.f)
+        avg_delta += 360.f;
+
+    mv.m_ground_dir = avg_delta;
+    mv.total_changed = 0.f;
+}
+
+void c_movement_simulate::do_angle_prediction(const std::shared_ptr<player_record_t>& record,
+                                              const player_t& player_info)
+{
+    mv.m_dir += record->dir;
+    int new_count = 1;
+    const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
+    float last_dir = record->dir;
+    for (auto i = 1; i < count - 1; i++)
+    {
+        mv.m_dir += player_info.m_records[i]->dir;
+        new_count++;
+    }
+    mv.m_dir /= static_cast<float>(new_count);
 }
 
 void c_movement_simulate::draw()
@@ -1414,15 +1346,18 @@ void c_movement_simulate::draw()
         auto& log = i.second;
         if (log.end_time <= 0)
             log.m_path.clear();
-        if (log.m_path.empty())
+
+        if (log.m_path.size() < 2u)
             continue;
-        
+
         float temp_time = log.end_time;
         int iter = 1;
-        vector screen_1, screen_2, screen_3, last = log.m_path.back();
-        for (auto i = log.m_path.end() - 2; i > log.m_path.begin(); --i)
+        vector screen_1, screen_2, screen_3;
+        float backup = g_ui.m_theme.m_a;
+        g_ui.m_theme.m_a = 255;
+        for (auto i = log.m_path.end() - 2; i != log.m_path.begin(); --i)
         {
-
+            auto last = *(i + 1);
             if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
                 g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
             {
@@ -1430,7 +1365,7 @@ void c_movement_simulate::draw()
             }
             if (temp_time < 0.f)
                 break;
-            
+
             c_render::line(screen_1, screen_2,
                            color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
             if ((iter % 4) == 0)
@@ -1440,28 +1375,17 @@ void c_movement_simulate::draw()
                 vector right;
                 angle.angle_vectors(nullptr, &right, nullptr);
                 right.m_z = 0.f;
-                g_interfaces.m_debug_overlay->screen_position(last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3);
+                g_interfaces.m_debug_overlay->screen_position(
+                    last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3);
                 g_interfaces.m_debug_overlay->screen_position(last, screen_1);
                 c_render::line(screen_1, screen_3,
                                color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
                 last = *i;
             }
-            g_ui.m_theme.m_a = 255;
             temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;
             iter++;
-            // if ( (i % 4) == 0 ) {
-            //	vector dif = path[ i ] - last;
-            //	const auto difference.init.look(dif).m_y;
-            //
-            //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(), 15);
-            //
-            //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
-            //		c_render::line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
-            //	}
-            //
-            //	last = path[ i ];
-            // }
         }
+        g_ui.m_theme.m_a = backup;
         log.end_time -= g_interfaces.m_global_vars->m_frame_time;
     }
 }

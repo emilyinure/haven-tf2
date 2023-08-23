@@ -75,7 +75,13 @@ public:
 	vector estimate_walking_dir( vector velocity, vector last_fric_vel, vector eye_ang, vector origin );
 	vector estimate_air_dir ( vector velocity, vector last_fric_vel, vector eye_ang, vector origin );
 	vector find_unstuck ( vector origin );
-	bool setup_mv( vector last_vel, c_base_player* player, int index );
+    bool setup_mv(vector last_vel, c_base_player* player, int index);
+
+    void air_input_prediction(const std::shared_ptr<player_record_t>& record, const player_t& player_info);
+
+    void ground_input_prediction(const player_t& player_info, const std::shared_ptr<player_record_t>& record);
+
+    void do_angle_prediction(const std::shared_ptr<player_record_t>& record, const player_t& player_info);
 
 	vector run( );
 } inline g_movement;

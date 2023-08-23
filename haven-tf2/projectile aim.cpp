@@ -97,12 +97,6 @@ float proj_aim::travel_time(c_base_player* target, vector weapon_pos, vector pos
         traceFilter.skip = g_cl.m_local;
         trace_t trace;
 
-        auto backup_mins = target->mins();
-        auto backup_maxs = target->maxs();
-
-        target->mins() *= 10.f;
-        target->maxs() *= 10.f;
-
         vector forward, right, up;
 
         angle.angle_vectors(&forward, &right, &up);
@@ -111,15 +105,12 @@ float proj_aim::travel_time(c_base_player* target, vector weapon_pos, vector pos
 
         ray_t ray;
         ray.initialize(eye_pos, endPos);
-        g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT, &traceFilter, &trace);
+        g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT_HULL, &traceFilter, &trace);
 
         if (trace.m_fraction > 0.1f)
             angle = weapon_pos.look(trace.m_end);
         else
             angle = weapon_pos.look(endPos);
-
-        target->mins() = backup_mins;
-        target->maxs() = backup_maxs;
     }
     const vector new_dir = angle.angle_vector() * this->m_weapon_speed;
     const float desired_dist = (pos - weapon_pos).length_2d();
@@ -484,26 +475,18 @@ void proj_aim::select_target()
 
         if (this->m_weapon_gravity < 1.f)
         {
-            auto backup_mins = player->mins();
-            auto backup_maxs = player->maxs();
-
-            player->mins() *= 10.f;
-            player->maxs() *= 10.f;
 
             ray_t ray;
             ray.initialize(g_cl.m_shoot_pos, vis_pos);
             CTraceFilterIgnorePlayers traceFilter(g_cl.m_local, TFCOLLISION_GROUP_ROCKETS);
             trace_t trace;
-            g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT, &traceFilter, &trace);
+            g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT_HULL, &traceFilter, &trace);
             if (trace.m_entity == player || !trace.did_hit())
             {
                 this->m_target = player;
                 distance = cur_distance;
                 found_vis = true;
             }
-
-            player->mins() = backup_mins;
-            player->maxs() = backup_maxs;
         }
         else
         {
@@ -861,6 +844,45 @@ skip:
     }
 }
 
+void GetProjectileFireSetup(vector vecOffset, vector* vecSrc, vector* angForward, float flEndDist = 2000)
+{
+    // @todo third person code!!
+    static convar* cl_flipviewmodels = g_interfaces.m_cvar->find_var("cl_flipviewmodels");
+    if (cl_flipviewmodels->m_value.m_int_value)
+    {
+        vecOffset.m_y *= -1;
+    }
+
+    vector forward, right, up;
+    angForward->angle_vectors(&forward, &right, &up);
+
+    vector vecShootPos = *vecSrc;
+    vector endPos = vecShootPos + forward * flEndDist;
+
+    trace_t tr;
+    ray_t ray;
+    ray.initialize(vecShootPos, endPos);
+
+    // Trace forward and find what's in front of us, and aim at that
+    CTraceFilterIgnoreTeammates traceFilter(g_cl.m_local, COLLISION_GROUP_NONE, g_cl.m_local->m_i_team_num());
+    g_interfaces.m_engine_trace->trace_ray(ray, MASK_SOLID, &traceFilter, &tr);
+
+    // Offset actual start point
+    *vecSrc += vecShootPos + (forward * vecOffset.m_x) + (right * vecOffset.m_y) + (up * vecOffset.m_z);
+
+    // Find angles that will get us to our desired end point
+    // Only use the trace end if it wasn't too close, which results
+    // in visually bizarre forward angles
+    if (tr.m_fraction > 0.1)
+    {
+        angForward->look(tr.m_end - *vecSrc);
+    }
+    else
+    {
+        angForward->look(endPos - *vecSrc);
+    }
+}
+
 bool proj_aim::setup_projectile(vector& view, vector& pos, vector& new_eyepos)
 {
     bool should_continue = false;
@@ -877,13 +899,8 @@ bool proj_aim::setup_projectile(vector& view, vector& pos, vector& new_eyepos)
     CTraceFilterIgnoreTeammates traceFilter(g_cl.m_local, COLLISION_GROUP_NONE, g_cl.m_local->m_i_team_num());
     trace_t trace;
 
-    auto backup_mins = this->m_target->mins();
-    auto backup_maxs = this->m_target->maxs();
-
     vector last_eye{};
 
-    this->m_target->mins() *= 10.f;
-    this->m_target->maxs() *= 10.f;
     for (auto i = 0; i < 5; i++)
     {
         vector new_view = view;
@@ -924,16 +941,13 @@ bool proj_aim::setup_projectile(vector& view, vector& pos, vector& new_eyepos)
             ray_t ray;
             ray.initialize(new_eye_pos, (delta + new_eye_pos));
             // ray.initialize( new_eyepos, ( delta + new_eyepos ), vector( -8, -8, -8 ), vector( 8, 8, 8 ) );
-            g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT, &traceFilter, &trace);
+            g_interfaces.m_engine_trace->trace_ray(ray, MASK_SOLID, &traceFilter, &trace);
             if (trace.m_fraction > 0.1f)
                 view = g_cl.m_shoot_pos.look(trace.m_end);
             else
                 view = g_cl.m_shoot_pos.look((delta + new_eye_pos));
         }
     }
-
-    this->m_target->mins() = backup_mins;
-    this->m_target->maxs() = backup_maxs;
 
     view.angle_vectors(&forward, &right, &up);
     new_eyepos = g_cl.m_shoot_pos + forward * vecOffset.m_x + right * vecOffset.m_y + up * vecOffset.m_z;
@@ -961,20 +975,138 @@ bool proj_aim::get_gravity_aim(vector difference, float* ret, bool lob)
     return true;
 }
 
+std::vector<vector> proj_aim::path_pred(vector view, float goal_time, vector weapon_pos)
+{
+    if (!sv_gravity)
+        sv_gravity = g_interfaces.m_cvar->find_var("sv_gravity");
+    this->m_weapon_gravity = get_gravity();
+    if (!is_pipe())
+    {
+        this->m_weapon_gravity *= sv_gravity->m_value.m_float_value;
+    }
+    else
+    {
+        this->m_weapon_speed = sqrt(pipe_vel_change[0] * pipe_vel_change[0] + pipe_vel_change[1] * pipe_vel_change[1]);
+        this->m_weapon_gravity *= 800.f;
+    }
+    if (this->m_weapon_gravity < 1)
+        return {};
+    std::vector<vector> path = {};
+    vector eye_pos = g_cl.m_local->m_vec_origin() + g_cl.m_local->m_view_offset();
+
+    vector hullsize = {};
+    get_hull_size(hullsize);
+
+    vector forward, right, up;
+    view.angle_vectors(&forward, &right, &up);
+    vector view_offset = get_aim_offset();
+    weapon_pos += forward * view_offset.m_x + right * view_offset.m_y + up * view_offset.m_z;
+    if (!is_pipe())
+    {
+        CTraceFilterIgnoreTeammates traceFilter(g_cl.m_local, COLLISION_GROUP_NONE, g_cl.m_local->m_i_team_num());
+        trace_t trace;
+
+
+        vector endPos = eye_pos + forward * 2000.f;
+
+        ray_t ray;
+        ray.initialize(eye_pos, endPos);
+        g_interfaces.m_engine_trace->trace_ray(ray, MASK_SOLID, &traceFilter, &trace);
+
+        if (trace.m_fraction > 0.1f)
+            view = weapon_pos.look(trace.m_end);
+        else
+            view = weapon_pos.look(endPos);
+    }
+
+    vector pos = weapon_pos;
+    vector dir = view.angle_vector();
+    vector velocity = (dir * this->m_weapon_speed);
+    if (is_pipe())
+    {
+        view.angle_vectors(&forward, nullptr, &up);
+        velocity = ((forward * get_speed()) + (up * 200.));
+    }
+    float time = 0;
+
+    path.push_back(pos);
+    while (time < goal_time)
+    {
+        float frac = goal_time - time;
+        float interval = fminf(frac, g_interfaces.m_global_vars->m_interval_per_tick);
+        // float height = pos.m_z;
+        // velocity.m_z -= ( gravity * g_interfaces.m_global_vars->m_interval_per_tick * 0.5f );
+
+        velocity.m_z -= (this->m_weapon_gravity * g_interfaces.m_global_vars->m_interval_per_tick * 0.5f);
+
+        ray_t ray;
+        ray.initialize(pos, pos + (velocity * interval), hullsize * -1.f,
+                       hullsize); //, bounds*-1, bounds );
+        trace_t trace;
+        CTraceFilterIgnorePlayers traceFilter(g_cl.m_local, TFCOLLISION_GROUP_COMBATOBJECT);
+        g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT_HULL, &traceFilter, &trace);
+
+        if (trace.did_hit())
+        {
+            path.push_back(trace.m_end);
+            break;
+        }
+
+        pos += velocity * interval;
+
+        path.push_back(pos);
+
+        velocity.m_z -= (this->m_weapon_gravity * g_interfaces.m_global_vars->m_interval_per_tick * 0.5f);
+
+        time += g_interfaces.m_global_vars->m_interval_per_tick;
+    }
+    return path;
+}
+
 void proj_aim::draw()
 {
+    if (g_cl.m_weapon && g_cl.m_local && g_cl.m_local->is_alive())
+    {
+        vector view;
+        g_interfaces.m_engine->get_view_angles(view);
+        auto path = path_pred(view, 2000.f, g_cl.m_local->eye_pos());
+        vector screen_1, screen_2;
+        if (path.size() > 1u)
+        {
+            auto backup = g_ui.m_theme.m_a;
+            g_ui.m_theme.m_a = 100.f;
+            for (auto i = path.end() - 2; i != path.begin(); --i)
+            {
+
+                if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
+                    g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
+                {
+                    continue;
+                }
+
+                c_render::line(screen_1, screen_2,
+                               g_ui.m_theme); // 0xAE, 0xBA, 0xF8
+            }
+            vector end = path.back();
+            vector hull_size;
+            get_hull_size(hull_size);
+            c_render::box(end - hull_size, hull_size + end, g_ui.m_theme);
+            g_ui.m_theme.m_a = backup;
+        }
+    }
     for (auto& i : m_logs)
     {
         auto& log = i.second;
         if (log.end_time <= 0)
             log.m_path.clear();
-        if (log.m_path.empty())
+        if (log.m_path.size() <= 1u)
             continue;
 
         float temp_time = log.end_time;
         int iter = 1;
         vector screen_1, screen_2, screen_3;
-        for (auto i = log.m_path.end() - 2; i > log.m_path.begin(); --i)
+        float backup = g_ui.m_theme.m_a;
+        for (auto i = log.m_path.end() - 2; i != log.m_path.begin(); --i)
         {
 
             if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
@@ -982,11 +1114,12 @@ void proj_aim::draw()
             {
                 continue;
             }
+
             if (temp_time < 0.f)
                 break;
 
             g_ui.m_theme.m_a = 255.f * fminf(temp_time, 1.f);
-            
+
             c_render::line(screen_1, screen_2,
                            g_ui.m_theme); // 0xAE, 0xBA, 0xF8
             temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;
@@ -994,7 +1127,8 @@ void proj_aim::draw()
             //	vector dif = path[ i ] - last;
             //	const auto difference.init.look(dif).m_y;
             //
-            //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(), 15);
+            //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(),
+            // 15);
             //
             //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
             //		c_render::line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
@@ -1003,6 +1137,12 @@ void proj_aim::draw()
             //	last = path[ i ];
             // }
         }
+        g_ui.m_theme.m_a = 255.f * fminf(log.end_time, 1.f);
+        vector end = log.m_path.back();
+        vector hull_size;
+        get_hull_size(hull_size);
+        c_render::box(end - hull_size, hull_size + end, g_ui.m_theme);
+        g_ui.m_theme.m_a = backup;
         log.end_time -= g_interfaces.m_global_vars->m_frame_time;
     }
     g_ui.m_theme.m_a = 255;
@@ -1021,12 +1161,6 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
         CTraceFilterIgnoreTeammates traceFilter(g_cl.m_local, COLLISION_GROUP_NONE, g_cl.m_local->m_i_team_num());
         trace_t trace;
 
-        auto backup_mins = target->mins();
-        auto backup_maxs = target->maxs();
-
-        target->mins() *= 10.f;
-        target->maxs() *= 10.f;
-
         view.angle_vectors(&forward, nullptr, &up);
 
         vector endPos = eye_pos + forward * 2000.f;
@@ -1039,9 +1173,6 @@ bool proj_aim::proj_can_hit(c_base_player* target, vector view, float goal_time,
             view = weapon_pos.look(trace.m_end);
         else
             view = weapon_pos.look(endPos);
-
-        target->mins() = backup_mins;
-        target->maxs() = backup_maxs;
     }
 
     if (record)

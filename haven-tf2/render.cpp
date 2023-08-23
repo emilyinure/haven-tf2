@@ -1,4 +1,5 @@
 #include "sdk.h"
+#include "math.h"
 
 void c_render::init()
 {
@@ -39,6 +40,56 @@ void c_render::line(const vector_2d from, const vector_2d to, const color col)
 {
     g_interfaces.m_surface->draw_set_color(col);
     g_interfaces.m_surface->draw_line(from.m_x, from.m_y, to.m_x, to.m_y);
+}
+
+void c_render::box(const vector from, const vector to, const color col)
+{
+    vector from_right = from, from_forward = from, from_up = from;
+    vector to_forward = to, to_right = to, to_down = to;
+    to_down.m_z = from.m_z;
+    from_up.m_z = to.m_z;
+
+    from_forward.m_x = to.m_x;
+    to_forward.m_y = from.m_y;
+
+    from_right.m_y = to.m_y;
+    to_right.m_x = from.m_x;
+
+    vector from_screen, to_screen, from_right_screen, from_forward_screen, from_up_screen, to_forward_screen, to_right_screen, to_down_screen;
+
+    if (g_interfaces.m_debug_overlay->screen_position(from, from_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(to, to_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(from_right, from_right_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(from_forward, from_forward_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(from_up, from_up_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(to_right, to_right_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(to_forward, to_forward_screen) ||
+        g_interfaces.m_debug_overlay->screen_position(to_down, to_down_screen))
+        return;
+
+    g_interfaces.m_surface->draw_set_color(col);
+    g_interfaces.m_surface->draw_line(from_screen.m_x, from_screen.m_y, from_right_screen.m_x, from_right_screen.m_y);
+    g_interfaces.m_surface->draw_line(from_screen.m_x, from_screen.m_y, from_forward_screen.m_x, from_forward_screen.m_y);
+    g_interfaces.m_surface->draw_line(from_screen.m_x, from_screen.m_y, from_up_screen.m_x, from_up_screen.m_y);
+
+    g_interfaces.m_surface->draw_line(to_screen.m_x, to_screen.m_y, to_right_screen.m_x, to_right_screen.m_y);
+    g_interfaces.m_surface->draw_line(to_screen.m_x, to_screen.m_y, to_forward_screen.m_x, to_forward_screen.m_y);
+    g_interfaces.m_surface->draw_line(to_screen.m_x, to_screen.m_y, to_down_screen.m_x, to_down_screen.m_y);
+
+    g_interfaces.m_surface->draw_line(to_down_screen.m_x, to_down_screen.m_y, from_right_screen.m_x,
+                                      from_right_screen.m_y);
+    g_interfaces.m_surface->draw_line(to_down_screen.m_x, to_down_screen.m_y, from_forward_screen.m_x,
+                                      from_forward_screen.m_y);
+
+    g_interfaces.m_surface->draw_line(from_up_screen.m_x, from_up_screen.m_y, to_right_screen.m_x, to_right_screen.m_y);
+    g_interfaces.m_surface->draw_line(from_up_screen.m_x, from_up_screen.m_y, to_forward_screen.m_x,
+                                      to_forward_screen.m_y);
+
+    g_interfaces.m_surface->draw_line(from_forward_screen.m_x, from_forward_screen.m_y, to_forward_screen.m_x,
+                                      to_forward_screen.m_y);
+    g_interfaces.m_surface->draw_line(from_right_screen.m_x, from_right_screen.m_y, to_right_screen.m_x,
+                                      to_right_screen.m_y);
+
 }
 
 void c_render::text(const unsigned long font, vector_2d pos, const char* text, const color col,
@@ -95,13 +146,14 @@ vector_2d c_render::get_text_size(const char* text, const unsigned long font)
 void c_render::render_verts(int count, Vertex_t* vertexes, color c)
 {
     static int Texture = g_interfaces.m_surface->create_texture_id(true); // need to make a texture with procedural true
-    unsigned char buffer[4] = {255, 255, 255, 255};     // r,g,b,a
+    unsigned char buffer[4] = {255, 255, 255, 255};                       // r,g,b,a
 
-     g_interfaces.m_surface->draw_set_texture_rgba(Texture, buffer, 1, 1, false, false); // Texture, char array of texture, width, height
-     g_interfaces.m_surface->draw_set_color(c);         // keep this full color and opacity use the RGBA @top to set values.
-     g_interfaces.m_surface->draw_set_texture(Texture); // bind texture
+    g_interfaces.m_surface->draw_set_texture_rgba(Texture, buffer, 1, 1, false,
+                                                  false); // Texture, char array of texture, width, height
+    g_interfaces.m_surface->draw_set_color(c); // keep this full color and opacity use the RGBA @top to set values.
+    g_interfaces.m_surface->draw_set_texture(Texture); // bind texture
 
-     g_interfaces.m_surface->draw_textured_polygon(count, vertexes);
+    g_interfaces.m_surface->draw_textured_polygon(count, vertexes);
 }
 
 int c_render::create_font(const char* name, const int size, const int weight, const int flags)

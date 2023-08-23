@@ -22,6 +22,7 @@ public:
     void find_shot(bool& was_shoot, int attack);
     bool setup_projectile(vector& view, vector& pos, vector& new_eyepos);
     bool get_gravity_aim(vector difference, float* ret, bool lob);
+    std::vector<vector> path_pred(vector view, float goal_time, vector weapon_pos);
     void draw();
     bool record(vector view, bool record);
     bool proj_can_hit(c_base_player* target, vector view, float goal_time, vector weapon_pos, bool record = false);

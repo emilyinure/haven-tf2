@@ -151,7 +151,7 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
     {
         if (GAMEMOVEMENT_JUMP_TIME < jump_time_delta)
         {
-            if (!(flags & FL_DUCKING))
+            if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
             {
                 vector  hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
                 vector  hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
@@ -159,8 +159,9 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
                 vector  out;
                 origin_diff -= viewDelta;
             }
-            else
+            else if (last_flags & FL_DUCKING)
             {
+
                 vector hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
                 vector hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
                 vector viewDelta = (hullSizeNormal - hullSizeCrouch);
@@ -172,16 +173,13 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
             
             }
         }
-        else
+        if ((flags & FL_DUCKING) && !(last_flags & FL_DUCKING))
         {
-            if ((flags & FL_DUCKING) && !(last_flags & FL_DUCKING))
-            {
-                origin_diff += (vector(-24, -24, 0) - vector(-24, -24, 0));
-            }
-            else if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
-            {
-                origin_diff -= (vector(-24, -24, 0) - vector(-24, -24, 0));
-            }
+            origin_diff += (vector(-24, -24, 0) - vector(-24, -24, 0));
+        }
+        else if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
+        {
+            origin_diff -= (vector(-24, -24, 0) - vector(-24, -24, 0));
         }
     }
     return (origin_diff) * (1.f / TICKS_TO_TIME(lag));
@@ -290,14 +288,6 @@ void c_player_manager::update_players()
                     new_record.vel = get_velocity(new_record.origin - player->m_records[0]->origin, new_record.m_lag,
                                      new_record.flags, player->m_records[0]->flags, new_record.sim_time - player->m_last_time_jumped);
                     g_movement.mv.m_player = target;
-                    if (!(player->player->flags() & FL_ONGROUND))
-                    {
-                        g_movement.mv.m_velocity = new_record.vel;
-                        g_movement.finish_gravity();
-                        new_record.vel = g_movement.mv.m_velocity;
-                        //new_record.vel = g_movement.mv.m_velocity;
-                    }
-                    g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                     new_record.move_data = g_movement.estimate_walking_dir(
                         new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
                     float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
