@@ -1138,13 +1138,16 @@ void proj_aim::draw()
             //	last = path[ i ];
             // }
         }
-        g_ui.m_theme.m_a = 255.f * fminf(log.end_time, 1.f);
-        vector end = log.m_path.back();
-        vector hull_size;
-        get_hull_size(hull_size);
-        c_render::box(end - hull_size, hull_size + end, g_ui.m_theme);
-        g_ui.m_theme.m_a = backup;
-        log.end_time -= g_interfaces.m_global_vars->m_frame_time;
+        if (g_cl.m_weapon)
+        {
+            g_ui.m_theme.m_a = 255.f * fminf(log.end_time, 1.f);
+            vector end = log.m_path.back();
+            vector hull_size;
+            get_hull_size(hull_size);
+            c_render::box(end - hull_size, hull_size + end, g_ui.m_theme);
+            g_ui.m_theme.m_a = backup;
+            log.end_time -= g_interfaces.m_global_vars->m_frame_time;
+        }
     }
     g_ui.m_theme.m_a = 255;
 }
