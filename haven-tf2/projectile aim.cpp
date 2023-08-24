@@ -779,7 +779,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
     bool shot = false;
     if (found_holder.valid)
     {
-        float needed_hit_chance = g_ui.m_controls.aim.players.hitchance->m_value;
+        /*float needed_hit_chance = g_ui.m_controls.aim.players.hitchance->m_value;
         if (needed_hit_chance > 0.f)
         {
             float cur_hitchance = (1.f - (fminf(TICKS_TO_TIME(found_holder.step), 1.f))) * 100.f;
@@ -788,7 +788,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
 
             if (needed_hit_chance > cur_hitchance)
                 goto skip;
-        }
+        }*/
 
         m_path.clear();
         vector view = found_holder.view;
