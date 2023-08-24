@@ -1304,23 +1304,27 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
     float ground_dir = 0.f;
     float decay_amount = 0.f;
     float dividen = 0.f;
-    const int max_tick = TIME_TO_TICKS(2.0f);
+    const int max_tick = TIME_TO_TICKS(0.4f);
     for (auto i = 0; i < max_tick; i++)
     {
         if (i >= player_info.m_records.size())
             break;
-        float new_frac = max_tick / (abs(i - 3) + 1);
+        float new_frac = fabs(player_info.m_records[i]->ground_dir) > 1.f ? 1.f : 0.2f;
         ground_dir += player_info.m_records[i]->ground_dir * new_frac;
         dividen += new_frac;
     }
 
-    float avg_delta = ground_dir / static_cast<float>(dividen);
-    while (avg_delta > 360.f)
-        avg_delta -= 360.f;
-    while (avg_delta < -360.f)
-        avg_delta += 360.f;
+    mv.m_ground_dir = 0;
+    if (dividen > 0)
+    {
+        float avg_delta = ground_dir / static_cast<float>(dividen);
+        while (avg_delta > 360.f)
+            avg_delta -= 360.f;
+        while (avg_delta < -360.f)
+            avg_delta += 360.f;
 
-    mv.m_ground_dir = avg_delta;
+        mv.m_ground_dir = avg_delta;
+    }
     mv.total_changed = 0.f;
 }
 

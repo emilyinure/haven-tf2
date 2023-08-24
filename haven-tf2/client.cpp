@@ -44,7 +44,8 @@ void c_client::on_move(usercmd_t* cmd)
     {
         this->m_shoot_pos = this->m_local->m_vec_origin() + this->m_local->m_view_offset();
 
-        g_local_move.auto_strafe(&original_view.m_y);
+        if (g_ui.m_controls.misc.auto_strafer->m_value)
+            g_local_move.auto_strafe(&original_view.m_y);
         g_local_move.bhop();
 
         g_prediction.start();

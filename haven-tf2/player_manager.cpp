@@ -300,16 +300,13 @@ void c_player_manager::update_players()
                     float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
                     new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
 
-                    if (new_record.move_data.length_2d() > 0.01)
-                    {
-
-                        turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
-                        while (turn > 180.f)
-                            turn -= 360.f;
-                        while (turn < -180.f)
-                            turn += 360.f;
-                        new_record.ground_dir = turn / new_record.m_lag;
-                    }
+                    turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
+                    while (turn > 180.f)
+                        turn -= 360.f;
+                    while (turn < -180.f)
+                        turn += 360.f;
+                    max_turn = 560.f * g_interfaces.m_global_vars->m_interval_per_tick;
+                    new_record.ground_dir = ApproachAngle(turn, player->m_records[0]->ground_dir, max_turn);
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
                     g_movement.mv.m_ground_dir = 0.f;
                     g_movement.mv.m_dir = 0.f;

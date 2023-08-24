@@ -214,6 +214,37 @@ private:
     ShouldHitFunc_t m_pExtraShouldHitCheckFunction;
 };
 
+//class CTraceFilterIgnoreFriendlyCombatItems : public CTraceFilterSimple
+//{
+//public:
+//    DECLARE_CLASS(CTraceFilterIgnoreFriendlyCombatItems, CTraceFilterSimple);
+//
+//    CTraceFilterIgnoreFriendlyCombatItems(const c_base_entity* passentity, int collisionGroup, int iIgnoreTeam,
+//                                          bool bIsProjectile = false)
+//        : CTraceFilterSimple(passentity, collisionGroup), m_iIgnoreTeam(iIgnoreTeam)
+//    {
+//        m_bCallerIsProjectile = bIsProjectile;
+//    }
+//
+//    virtual bool ShouldHitEntity(c_base_entity* pServerEntity, int contentsMask)
+//    {
+//        if (pServerEntity->())
+//        {
+//            if (pServerEntity->GetTeamNumber() == m_iIgnoreTeam)
+//                return false;
+//
+//            // If source is a enemy projectile, be explicit, otherwise we fail a "IsTransparent" test downstream
+//            if (m_bCallerIsProjectile)
+//                return true;
+//        }
+//
+//        return BaseClass::ShouldHitEntity(pServerEntity, contentsMask);
+//    }
+//
+//    int m_iIgnoreTeam;
+//    bool m_bCallerIsProjectile;
+//};
+
 class CTraceFilterIgnoreTeammates : public CTraceFilterSimple
 {
 public:

@@ -95,6 +95,10 @@ public:
                 std::shared_ptr<c_slider> hitchance;
             } players;
         } aim;
+        struct
+        {
+            std::shared_ptr<c_checkbox> auto_strafer;
+        } misc;
     } m_controls;
 
     void init();

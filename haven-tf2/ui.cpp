@@ -77,6 +77,13 @@ void c_ui::init()
                 this->m_controls.visuals.players.weapon = players->add_checkbox("Weapon");
             }
         }
+        const auto misc = main_window->add_tab("Misc");
+        {
+            const auto misc2 = misc->add_groupbox("Misc", {0, 5, 210, 250});
+            {
+                this->m_controls.misc.auto_strafer = misc2->add_checkbox("Auto Strafer");
+            }
+        }
     }
 
     const auto config_window = this->add_window("Config", {15, 50, 270, 128});
