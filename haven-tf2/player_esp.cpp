@@ -26,7 +26,7 @@ void c_visuals::player_esp()
 
         if (bounding_box.is_zero())
         {
-            if (!g_ui.m_controls.visuals.players.offscreen)
+            if (!g_ui.m_controls.visuals.players.offscreen->m_value)
                 continue;
             vector vec_delta = player->m_vec_origin();
             vec_delta -= g_cl.m_local->m_vec_origin();
