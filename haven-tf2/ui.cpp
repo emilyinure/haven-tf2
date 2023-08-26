@@ -42,18 +42,18 @@ void c_ui::init()
     // initialize our draw functions.
     this->m_draw.init();
 
-    const auto main_window = this->add_window("haven", {290, 50, 300, 350});
+    const auto main_window = this->add_window("haven", {290, 50, 548, 350});
     {
         const auto aim = main_window->add_tab("Aim");
         {
-            const auto players = aim->add_groupbox("Players", {0, 5, 215, 250});
+            const auto players = aim->add_groupbox("Players", {0, 5, 473, 322});
             {
                 this->m_controls.aim.players.enabled = players->add_checkbox("Enabled");
                 this->m_controls.aim.players.key = players->add_keybind("Key", "Aimbot key", 0);
                 this->m_controls.aim.players.interp =
                     players->add_slider("Interp", 1, 10, "Interpolation On Player Prediction");
-                //this->m_controls.aim.players.hitchance =
-                //    players->add_slider("Hitchance", 0, 100, "Hitchance For Player Prediction");
+                // this->m_controls.aim.players.hitchance =
+                //     players->add_slider("Hitchance", 0, 100, "Hitchance For Player Prediction");
                 this->m_controls.aim.players.fire_mode = players->add_combobox("Fire Mode");
                 {
                     this->m_controls.aim.players.fire_mode->add_item("Default");
@@ -64,7 +64,7 @@ void c_ui::init()
         }
         const auto visuals = main_window->add_tab("Visuals");
         {
-            const auto players = visuals->add_groupbox("Players", {0, 5, 210, 250});
+            const auto players = visuals->add_groupbox("Players", {0, 5, 234, 322});
             {
                 this->m_controls.visuals.players.enabled = players->add_checkbox("Enabled");
                 this->m_controls.visuals.players.name = players->add_checkbox("Name");
@@ -75,11 +75,19 @@ void c_ui::init()
                 this->m_controls.visuals.players.health->add_item("Text");
                 this->m_controls.visuals.players.flags = players->add_checkbox("Flags");
                 this->m_controls.visuals.players.weapon = players->add_checkbox("Weapon");
+                this->m_controls.visuals.players.offscreen = players->add_checkbox("Off Screen Arrows");
+            }
+            const auto viewmodel = visuals->add_groupbox("Viewmodel", {239, 5, 234, 322});
+            {
+                this->m_controls.visuals.view_model.x_offset = viewmodel->add_slider("X Offset", -10, 10);
+                this->m_controls.visuals.view_model.y_offset = viewmodel->add_slider("Y Offset", -10, 10);
+                this->m_controls.visuals.view_model.z_offset = viewmodel->add_slider("Z Offset", -10, 10);
+                this->m_controls.visuals.view_model.roll = viewmodel->add_slider("Roll", -180, 180);
             }
         }
         const auto misc = main_window->add_tab("Misc");
         {
-            const auto misc2 = misc->add_groupbox("Misc", {0, 5, 210, 250});
+            const auto misc2 = misc->add_groupbox("Misc", {0, 5, 473, 322});
             {
                 this->m_controls.misc.auto_strafer = misc2->add_checkbox("Auto Strafer");
             }

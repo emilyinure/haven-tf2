@@ -82,7 +82,15 @@ public:
                 std::shared_ptr<c_combobox> health;
                 std::shared_ptr<c_checkbox> flags;
                 std::shared_ptr<c_checkbox> weapon;
+                std::shared_ptr<c_checkbox> offscreen;
             } players;
+            struct
+            {
+                std::shared_ptr<c_slider> x_offset;
+                std::shared_ptr<c_slider> y_offset;
+                std::shared_ptr<c_slider> z_offset;
+                std::shared_ptr<c_slider> roll;
+            } view_model;
         } visuals;
         struct
         {

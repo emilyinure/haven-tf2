@@ -1081,8 +1081,8 @@ void proj_aim::draw()
             for (auto i = path.end() - 2; i != path.begin(); --i)
             {
 
-                if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
-                    g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
+                if (!math::world_to_screen(*(i + 1), screen_1) ||
+                    !math::world_to_screen(*i, screen_2))
                 {
                     continue;
                 }
@@ -1112,8 +1112,8 @@ void proj_aim::draw()
         for (auto i = log.m_path.end() - 2; i != log.m_path.begin(); --i)
         {
 
-            if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
-                g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
+            if (!math::world_to_screen(*(i + 1), screen_1) ||
+                !math::world_to_screen(*i, screen_2))
             {
                 continue;
             }
@@ -1133,7 +1133,7 @@ void proj_aim::draw()
             //	vector new_dir = path[ i ] + vector( 0, difference + 90.f, 0).angle_vector() * fminf(dif.length(),
             // 15);
             //
-            //	if ( !g_interfaces.m_debug_overlay->screen_position( new_dir, screen_1 ) ) {
+            //	if ( !math::world_to_screen( new_dir, screen_1 ) ) {
             //		c_render::line( screen_1, screen_2, color( 0xAE, 0xBA, 0xF8, 100 ) );
             //	}
             //

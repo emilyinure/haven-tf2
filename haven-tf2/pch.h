@@ -77,6 +77,7 @@
 #include "game_rules.h"
 #include "i_engine_trace.h"
 #include "i_localize.h"
+#include "render_view.h"
 
 #include "render.h"
 

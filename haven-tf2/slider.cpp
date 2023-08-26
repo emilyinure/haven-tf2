@@ -17,7 +17,7 @@ void c_slider::paint()
                        this->m_area.m_w * 0.5f, 10};
 
     // update our filling.
-    this->filling_ = this->bar_area_.m_w * c_math::get_fraction(this->m_value, this->m_max, this->m_min);
+    this->filling_ = this->bar_area_.m_w * math::get_fraction(this->m_value, this->m_max, this->m_min);
 
     // background.
     g_ui.m_draw.filled_rect(this->bar_area_, color(35, 35, 35, 40 * g_ui.m_fade));

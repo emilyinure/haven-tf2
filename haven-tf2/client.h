@@ -10,6 +10,7 @@ public:
     vector m_shoot_pos;
     bool m_unloading = false, m_debug_build = true;
     HWND m_hwnd = nullptr;
+    view_matrix m_view_matrix;
 
     void init();
     void unload();

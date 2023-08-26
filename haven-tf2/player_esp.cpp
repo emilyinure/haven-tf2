@@ -26,6 +26,8 @@ void c_visuals::player_esp()
 
         if (bounding_box.is_zero())
         {
+            if (!g_ui.m_controls.visuals.players.offscreen)
+                continue;
             vector vec_delta = player->m_vec_origin();
             vec_delta -= g_cl.m_local->m_vec_origin();
 
@@ -88,7 +90,7 @@ void c_visuals::player_esp()
             const box_t health_bar_area = {bounding_box.m_x - 6, bounding_box.m_y, 4, bounding_box.m_h};
 
             // get our healthbar height.
-            const auto healthbar_height = health_bar_area.m_h * c_math::get_fraction(health, max_health, 0);
+            const auto healthbar_height = health_bar_area.m_h * math::get_fraction(health, max_health, 0);
 
             g_render.filled_rect(health_bar_area, {35, 35, 35});
             g_render.filled_rect({health_bar_area.m_x, health_bar_area.m_y + (health_bar_area.m_h - healthbar_height),

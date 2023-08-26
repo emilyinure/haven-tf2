@@ -16,14 +16,29 @@ void __fastcall paint(uintptr_t ecx, uintptr_t edx, paint_mode_t mode)
 
     g_cl.m_local = g_interfaces.m_entity_list->get_entity<c_base_player>(g_interfaces.m_engine->get_local_player());
 
-    g_interfaces.m_surface->start_drawing();
+    if (mode & PAINT_UIPANELS)
     {
-        g_input.poll();
-        g_visuals.on_paint();
-        g_proj.draw();
-        g_ui.on_paint();
+        c_view_setup setup;
+        if (g_interfaces.m_client->get_player_view(setup))
+        {
+            view_matrix u0{}, u1{}, u2{};
+            g_interfaces.m_render_view->GetMatricesForView(setup, &u0, &u1, &g_cl.m_view_matrix, &u2);
+        }
+
+        g_interfaces.m_surface->start_drawing();
+        {
+            g_input.poll();
+            g_visuals.on_paint();
+            g_proj.draw();
+            g_ui.on_paint();
+        }
+        g_interfaces.m_surface->finish_drawing();
     }
-    g_interfaces.m_surface->finish_drawing();
+}
+
+void __fastcall override_view(uintptr_t ecx, uintptr_t edx, c_view_setup* view)
+{
+    g_hooks.m_original.override_view(ecx, edx, view);
 }
 
 bool __stdcall create_move(float sample, usercmd_t* cmd)
@@ -55,7 +70,7 @@ void __fastcall run_command(c_prediction* _this, uintptr_t, c_base_entity* playe
         g_interfaces.m_move_helper = move_helper;
 }
 
-void __stdcall frame_stage(client_frame_stage_t stage)
+    void __stdcall frame_stage(client_frame_stage_t stage)
 {
     g_cl.m_local = g_interfaces.m_entity_list->get_entity<c_base_player>(g_interfaces.m_engine->get_local_player());
     if (stage == FRAME_RENDER_START)
@@ -92,6 +107,21 @@ void __fastcall lock_cursor(uintptr_t ecx, uintptr_t edx)
     return g_ui.m_open ? g_interfaces.m_surface->unlock_cursor() : g_hooks.m_original.lock_cursor(ecx, edx);
 }
 
+void __fastcall calc_view_model(uintptr_t ecx, uintptr_t edx, c_base_player* owner, const vector& eye_position,
+                                vector& eye_angles)
+{
+
+    vector forward, right, up;
+    eye_angles.angle_vectors(&forward, &right, &up);
+
+    vector eye_pos = eye_position + ((right * g_ui.m_controls.visuals.view_model.x_offset->m_value) +
+                                             (forward * g_ui.m_controls.visuals.view_model.y_offset->m_value) +
+                                             (up * g_ui.m_controls.visuals.view_model.z_offset->m_value));
+    
+    eye_angles.m_z += g_ui.m_controls.visuals.view_model.roll->m_value; // VM Roll
+    g_hooks.m_original.calc_view_model(ecx, edx, owner, eye_pos, eye_angles);
+}
+
 void c_hooks::init()
 {
     MH_Initialize();
@@ -109,6 +139,13 @@ void c_hooks::init()
                   lock_cursor, reinterpret_cast<void**>(&this->m_original.lock_cursor));
     MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_client, 35), frame_stage,
                   reinterpret_cast<void**>(&this->m_original.frame_stage));
+    MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_client_mode, 16), override_view,
+                  reinterpret_cast<void**>(&this->m_original.override_view));
+    MH_CreateHook(g_modules.get("client.dll")
+                      .get_sig("55 8B EC 83 EC 70 8B 55 0C 53 8B 5D 08 89 4D FC 8B 02 89 45 E8 8B 42 04 89 45 EC 8B 42 "
+                               "08 89 45 F0 56 57")
+                      .as<void*>(),
+                  calc_view_model, reinterpret_cast<void**>(&this->m_original.calc_view_model));
 
     MH_EnableHook(MH_ALL_HOOKS);
 }

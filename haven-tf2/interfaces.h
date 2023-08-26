@@ -23,5 +23,7 @@ public:
     i_model_info* m_model_info;
     mem_alloc_t* m_mem_alloc;
     i_localize* m_localize;
+    void* m_client_mode;
+    c_render_view* m_render_view;
 };
 inline c_interfaces g_interfaces;

@@ -223,6 +223,7 @@
     <ClInclude Include="projectile aim.h" />
     <ClInclude Include="renamed_recv_table_info.h" />
     <ClInclude Include="render.h" />
+    <ClInclude Include="render_view.h" />
     <ClInclude Include="sdk.h" />
     <ClInclude Include="slider.h" />
     <ClInclude Include="snd_info.h" />

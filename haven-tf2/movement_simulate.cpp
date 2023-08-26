@@ -1,6 +1,7 @@
 #include "movement_simulate.h"
 #include "player_manager.h"
 #include "movement.h"
+#include "math.h"
 
 #define COORD_FRACTIONAL_BITS 5
 #define COORD_DENOMINATOR (1 << (COORD_FRACTIONAL_BITS))
@@ -1362,16 +1363,14 @@ void c_movement_simulate::draw()
         for (auto i = log.m_path.end() - 2; i != log.m_path.begin(); --i)
         {
             auto last = *(i + 1);
-            if (g_interfaces.m_debug_overlay->screen_position(*(i + 1), screen_1) ||
-                g_interfaces.m_debug_overlay->screen_position(*i, screen_2))
-            {
-                continue;
-            }
             if (temp_time < 0.f)
                 break;
 
-            c_render::line(screen_1, screen_2,
-                           color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
+            if (math::world_to_screen(*(i + 1), screen_1) && math::world_to_screen(*i, screen_2))
+            {
+                c_render::line(screen_1, screen_2,
+                               color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
+            }
             if ((iter % 4) == 0)
             {
                 const vector delta = (last - *i);
@@ -1379,11 +1378,13 @@ void c_movement_simulate::draw()
                 vector right;
                 angle.angle_vectors(nullptr, &right, nullptr);
                 right.m_z = 0.f;
-                g_interfaces.m_debug_overlay->screen_position(
-                    last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3);
-                g_interfaces.m_debug_overlay->screen_position(last, screen_1);
-                c_render::line(screen_1, screen_3,
-                               color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
+                if (math::world_to_screen(last + right * fminf(200, 200 * (delta.length_2d()) / 300.f), screen_3) &&
+                    math::world_to_screen(last, screen_1))
+                {
+
+                    c_render::line(screen_1, screen_3,
+                                   color(0x60, 0xf3, 0x21, 100 * fminf(temp_time, 1.f))); // 0xAE, 0xBA, 0xF8
+                }
                 last = *i;
             }
             temp_time -= g_interfaces.m_global_vars->m_interval_per_tick;

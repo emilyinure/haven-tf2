@@ -47,9 +47,9 @@ box_t c_base_entity::get_bounding_box()
 
     this->compute_hitbox_surrounding_box(&mins, &maxs);
 
-    if (g_interfaces.m_debug_overlay->screen_position(mins, mins_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(maxs, maxs_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(this->get_abs_origin(), origin_screen))
+    if (!math::world_to_screen(mins, mins_screen) ||
+        !math::world_to_screen(maxs, maxs_screen) ||
+        !math::world_to_screen(this->get_abs_origin(), origin_screen))
         return {};
 
     box_t return_box;

@@ -14,6 +14,12 @@ public:
         typedef void(__fastcall* paint_fn)(uintptr_t, uintptr_t, paint_mode_t);
         paint_fn paint;
 
+        typedef void(__fastcall* override_view_fn)(uintptr_t, uintptr_t, c_view_setup*);
+        override_view_fn override_view;
+
+        typedef void(__fastcall* calc_view_model_fn)(uintptr_t, uintptr_t, c_base_player*, const vector&, vector& );
+        calc_view_model_fn calc_view_model;
+
         typedef bool(__stdcall* create_move_fn)(float, usercmd_t*);
         create_move_fn create_move;
 

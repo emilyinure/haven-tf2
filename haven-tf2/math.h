@@ -1,6 +1,7 @@
 #pragma once
 
-class c_math {
-public:
-	static float get_fraction( float val, float max, float min = 0 );
+namespace math {
+	float get_fraction( float val, float max, float min = 0 );
+
+    bool world_to_screen(const vector& origin, vector& screen);
 };

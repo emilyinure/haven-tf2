@@ -232,6 +232,9 @@
     <Filter Include="sdk\tf2\interfaces\classes\i_localize">
       <UniqueIdentifier>{c10ff6f9-03ed-4c22-a163-67bddf54de32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\tf2\classes\render_view">
+      <UniqueIdentifier>{fc9670ea-ef07-434b-814a-73ada493d5bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry_point.cpp" />
@@ -609,6 +612,9 @@
     </ClInclude>
     <ClInclude Include="movement_simulate.h">
       <Filter>client\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="render_view.h">
+      <Filter>sdk\tf2\classes\render_view</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ void c_window::paint()
     this->title_area_ = {this->m_area.m_x, this->m_area.m_y, this->m_area.m_w, 17};
 
     // align with left side.
-    this->tab_area_ = {this->m_area.m_x, this->title_area_.m_y + (this->title_area_.m_h), this->m_area.m_w * .2f,
+    this->tab_area_ = {this->m_area.m_x, this->title_area_.m_y + (this->title_area_.m_h), 70,
                        this->m_area.m_h - (this->title_area_.m_h)};
 
     // align with tab area.

@@ -57,14 +57,14 @@ void c_render::box(const vector from, const vector to, const color col)
 
     vector from_screen, to_screen, from_right_screen, from_forward_screen, from_up_screen, to_forward_screen, to_right_screen, to_down_screen;
 
-    if (g_interfaces.m_debug_overlay->screen_position(from, from_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(to, to_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(from_right, from_right_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(from_forward, from_forward_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(from_up, from_up_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(to_right, to_right_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(to_forward, to_forward_screen) ||
-        g_interfaces.m_debug_overlay->screen_position(to_down, to_down_screen))
+    if (!math::world_to_screen(from, from_screen) ||
+        !math::world_to_screen(to, to_screen) ||
+        !math::world_to_screen(from_right, from_right_screen) ||
+        !math::world_to_screen(from_forward, from_forward_screen) ||
+        !math::world_to_screen(from_up, from_up_screen) ||
+        !math::world_to_screen(to_right, to_right_screen) ||
+        !math::world_to_screen(to_forward, to_forward_screen) ||
+        !math::world_to_screen(to_down, to_down_screen))
         return;
 
     g_interfaces.m_surface->draw_set_color(col);

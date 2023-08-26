@@ -8,8 +8,8 @@ void c_interfaces::gather()
         this->m_prediction = client.get_interface("VClientPrediction001", true).as<c_prediction>();
         this->m_entity_list = client.get_interface("VClientEntityList0").as<i_client_entity_list>();
         this->m_game_movement = client.get_interface("GameMovement001", true).as<c_game_movement>();
-        ;
         this->m_game_rules = **client.get_sig("8B 0D ? ? ? ? 83 C4 10 C7 45").as<game_rules***>(0x2);
+        this->m_client_mode = **reinterpret_cast<void***>(client.get_sig("8B 0D ? ? ? ? 8B 02 D9 05").add(2));
     }
 
     const auto engine = g_modules.get("engine.dll");
@@ -21,6 +21,7 @@ void c_interfaces::gather()
         this->m_debug_overlay = engine.get_interface("VDebugOverlay0").as<iv_debug_overlay>();
         this->m_engine_trace = engine.get_interface("EngineTraceClient003", true).as<i_engine_trace>();
         this->m_model_info = engine.get_interface("VModelInfoClient006", true).as<i_model_info>();
+        this->m_render_view = engine.get_interface("VEngineRenderView014", true).as<c_render_view>();
     }
 
     const auto vgui_mat_surface = g_modules.get("vguimatsurface.dll");
