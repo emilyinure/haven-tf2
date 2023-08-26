@@ -1254,7 +1254,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
         mv.m_max_speed = max_speed(player);
         mv.m_walk_direction.init();
         mv.m_decay = 0;
-        if (player_info.m_records.size() > 1 && record->vel.length() > 5.f)
+        if (player_info.m_records.size() > 1)
         {
             do_angle_prediction(record, player_info);
             if (mv.on_ground)
@@ -1281,6 +1281,35 @@ void c_movement_simulate::air_input_prediction(const std::shared_ptr<player_reco
                                     find_unstuck(player_info.m_records[1]->origin));
     mv.m_decay = 0.f;
 
+    if (mv.m_air_dir.length_sqr_2d() < 1 && fabs(mv.m_dir) > 0.5f)
+    {
+
+        float wishspd = 400.f;
+        vector right;
+        float sy, cy;
+
+        vector::sin_cos(deg_to_rad(mv.m_eye_dir), &sy, &cy);
+        right.m_x = -1 * -sy;
+        right.m_y = -1 * cy;
+
+
+        // Cap speed
+        if (wishspd > 30.f)
+            wishspd = 30.f;
+        if (mv.m_dir > 0)
+            wishspd *= -1;
+        // Determine veer amount
+        const float currentspeed = mv.m_velocity.dot(right * wishspd);
+
+        // See how much to add
+        const float addspeed = wishspd - currentspeed;
+
+        // If not adding any, done.
+        if (addspeed <= 0)
+        {
+            mv.m_air_dir.m_y = wishspd;
+        }
+    }
     if (mv.m_air_dir.length_2d() > 0.1f)
         mv.m_walk_direction = vector(450.f, 0, 0);
 }
