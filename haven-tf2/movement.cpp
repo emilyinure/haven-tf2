@@ -3,12 +3,34 @@
 
 void c_movement::bhop()
 {
-    if (g_cl.m_local->get_ground() && (g_cl.m_cmd->buttons_ & IN_JUMP))
-    {
+    const auto MoveType = g_cl.m_local->move_type();
+   if (MoveType == MOVETYPE_NOCLIP || MoveType == MOVETYPE_LADDER || MoveType == MOVETYPE_OBSERVER)
         return;
-    }
 
-    g_cl.m_cmd->buttons_ &= ~IN_JUMP;
+   const bool JumpHeld = g_cl.m_cmd->buttons_ & IN_JUMP;
+   const bool CurrentJump = JumpHeld && g_cl.m_local->get_ground();
+   static bool Jumping = CurrentJump;
+
+   if (CurrentJump)
+   {
+        Jumping = true;
+        return;
+   }
+
+   if (Jumping && !g_cl.m_local->get_ground() && JumpHeld)
+   {
+        g_cl.m_cmd->buttons_ &= ~IN_JUMP;
+        return;
+   }
+
+   if (Jumping && !JumpHeld)
+   {
+        Jumping = false;
+        return;
+   }
+
+   if (!Jumping && JumpHeld)
+        Jumping = true;
 }
 void c_movement::auto_strafe(float* view)
 {
