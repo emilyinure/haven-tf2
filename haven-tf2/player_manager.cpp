@@ -97,9 +97,9 @@ float turn_epsilon(vector orig_vel)
 
 float dir_turning(vector vel, vector last_vel)
 {
-    if (vel.length() < 1.f)
+    if (vel.length_sqr_2d() < 1.f)
         return 0;
-    if (last_vel.length() < 1.f)
+    if (last_vel.length_sqr_2d() < 1.f)
         return 0;
 
     float dir = rad_to_deg(std::atan2(vel.m_y, vel.m_x) - std::atan2(last_vel.m_y, last_vel.m_x));
@@ -107,9 +107,9 @@ float dir_turning(vector vel, vector last_vel)
         dir -= 360.f;
     while (dir < -180.f)
         dir += 360.f;
-    if (fabsf(dir) > 165.f || fabsf(dir) < 1.f)
+    if (fabsf(dir) > 175.f || fabsf(dir) < 1.f)
         return 0;
-    if (fabsf(dir) <= fabsf(turn_epsilon(vel)))
+    if(fabs(dir) < 0.5f)
         return 0;
     return dir;
 }
@@ -118,7 +118,7 @@ void player_t::SetGroundEntity(trace_t* pm)
 {
     auto* oldGround = m_ground;
     auto* newGround = pm ? pm->m_entity : NULL;
-    if (oldGround)
+    if (oldGround && newGround != oldGround)
     {
         if (oldGround->get_client_class()->m_class_id == CFuncConveyor)
         {
@@ -129,7 +129,7 @@ void player_t::SetGroundEntity(trace_t* pm)
             m_base_velocity.m_z = right.m_z;
         }
     }
-    if (newGround)
+    if (newGround && oldGround != newGround)
     {
         if (newGround->get_client_class()->m_class_id == CFuncConveyor)
         {
@@ -224,21 +224,21 @@ void c_player_manager::update_players()
             player->m_sim_time = new_time;
             new_record.origin = target->m_vec_origin();
             const vector dif = (new_record.origin - player->pred_origin);
-            if (fabs(dif.m_x) <= 0.03125f + FLT_EPSILON)
+            if (fabs(dif.m_x) <= 0.03125f)
                 new_record.origin.m_x = player->pred_origin.m_x;
-            if (fabs(dif.m_y) <= 0.03125f + FLT_EPSILON)
+            if (fabs(dif.m_y) <= 0.03125f)
                 new_record.origin.m_y = player->pred_origin.m_y;
-            if (fabs(dif.m_z) <= 0.03125f + FLT_EPSILON)
+            if (fabs(dif.m_z) <= 0.03125f)
                 new_record.origin.m_z = player->pred_origin.m_z;
             new_record.vel = target->m_velocity();
             // new_record.dir = 0;
             new_record.player = player;
             new_record.sim_time = new_time;
 
+            if (new_record.flags & FL_ONGROUND)
             {
-
                 trace_t pm;
-
+            
                 vector vecStartPos = new_record.origin;
                 vector vecEndPos(new_record.origin.m_x, new_record.origin.m_y, (new_record.origin.m_z - 2.0f));
                 bool bMoveToEndPos = false;
@@ -291,6 +291,8 @@ void c_player_manager::update_players()
                     new_record.move_data = g_movement.estimate_walking_dir(
                         new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
                     float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
+                    if (!new_record.on_ground)
+                        turn = dir_turning(new_record.vel, player->m_records[0]->vel);
                     while (turn > 180.f)
                         turn -= 360.f;
                     while (turn < -180.f)
@@ -299,17 +301,33 @@ void c_player_manager::update_players()
 
                     float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
                     new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
+                    new_record.ground_dir = 0.f; 
+                    if (new_record.move_data.length_sqr_2d())
+                    {
 
-                    turn = dir_turning(new_record.move_data, player->m_records[0]->move_data);
-                    while (turn > 180.f)
-                        turn -= 360.f;
-                    while (turn < -180.f)
-                        turn += 360.f;
-                    max_turn = 560.f * g_interfaces.m_global_vars->m_interval_per_tick;
-                    new_record.ground_dir = ApproachAngle(turn, player->m_records[0]->ground_dir, max_turn);
+                        const int count = fmin(player->m_records.size(), TIME_TO_TICKS(0.4));
+                        vector last_move_dir;
+                        for (auto i = 0; i < count; i++)
+                        {
+                            if (i >= player->m_records.size())
+                                break;
+                            if (player->m_records[i]->move_data.length_sqr_2d() > 1.f)
+                            {
+                                last_move_dir = player->m_records[i]->move_data;
+                                break;
+                            }
+                        }
+
+                        turn = dir_turning(new_record.move_data, last_move_dir);
+                        while (turn > 180.f)
+                            turn -= 360.f;
+                        while (turn < -180.f)
+                            turn += 360.f;
+                        max_turn = 315 * g_interfaces.m_global_vars->m_interval_per_tick;
+                        new_record.ground_dir = turn;
+                        ApproachAngle(turn, player->m_records[0]->ground_dir, max_turn);
+                    }
                     g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
-                    g_movement.mv.m_ground_dir = 0.f;
-                    g_movement.mv.m_dir = 0.f;
                     player->pred_origin = g_movement.run(); 
                     // if ( fabsf( new_record.dir ) > 0.1f )
                     //	new_record.dir_decay = std::clamp<float>( new_record.dir_decay + 0.1f, 0.8f, 1.f );

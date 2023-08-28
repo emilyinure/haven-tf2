@@ -705,6 +705,8 @@ static float CalcWishSpeedThreshold()
     return 100.0f * sv_friction->m_value.m_float_value / (sv_accelerate->m_value.m_float_value);
 }
 
+#define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
+
 void c_movement_simulate::walk_move()
 {
 
@@ -721,15 +723,28 @@ void c_movement_simulate::walk_move()
     // look.m_y += mv.m_ground_dir;
     // mv.m_walk_direction = look.angle_vector( ) * mv.m_walk_direction.length( );
     vector temp = mv.m_walk_direction.angle_to();
-    // if (fabsf(mv.target_ground_dir) > 360.f || fabsf(mv.target_ground_dir) > fabsf(mv.total_changed))
-    //{
+    //mv.m_accumulated_ground += mv.m_ground_dir;
+
+    
     temp.m_y += mv.m_ground_dir;
-    //    mv.total_changed += mv.m_ground_dir;
-    //    while (temp.m_y > 180.f)
-    //        temp.m_y -= 360.f;
-    //    while (temp.m_y < -180.f)
-    //        temp.m_y += 360.f;
-    //}
+    /*
+    if (mv.m_ground_dir > 0)
+    {
+        if (mv.m_accumulated_ground > 45.f)
+        {
+            temp.m_y += 45.f;
+            mv.m_accumulated_ground -= 45.f;
+        }
+    }
+    else
+    {
+        if (mv.m_accumulated_ground < -45.f)
+        {
+            temp.m_y -= 45.f;
+            mv.m_accumulated_ground += 45.f;
+        }
+    }
+    */
     mv.m_walk_direction = vector(0, temp.m_y, 0).angle_vector() * mv.m_walk_direction.length_2d();
     const vector new_vel = mv.m_walk_direction; // mv.m_velocity + mv.m_walk_direction;
 
@@ -976,7 +991,7 @@ void c_movement_simulate::SetGroundEntity(trace_t* pm)
 {
     auto* oldGround = mv.m_ground;
     auto* newGround = pm ? pm->m_entity : NULL;
-    if (oldGround)
+    if (oldGround && newGround != oldGround)
     {
         if (oldGround->get_client_class()->m_class_id == CFuncConveyor)
         {
@@ -987,7 +1002,7 @@ void c_movement_simulate::SetGroundEntity(trace_t* pm)
             mv.m_base_velocity.m_z = right.m_z;
         }
     }
-    if (newGround)
+    if (newGround && oldGround != newGround)
     {
         if (newGround->get_client_class()->m_class_id == CFuncConveyor)
         {
@@ -1245,6 +1260,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player, int i
     const auto& player_info = g_player_manager.players[player->entindex() - 1];
     if (!player_info.m_records.empty())
     {
+        mv.m_accumulated_ground = 0.f;
         const auto& record = player_info.m_records[0];
         mv.m_player = player;
         mv.on_ground = player_info.m_ground != nullptr;
@@ -1326,28 +1342,29 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
     auto dif = (record->vel - mv.m_base_velocity) - last_fric_vel;
     static auto sv_accelerate = g_interfaces.m_cvar->find_var("sv_accelerate");
     const auto main_dif = dif;
-    const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
     mv.m_air_dir = mv.m_walk_direction =
         estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
                              find_unstuck(player_info.m_records[1]->origin));
-
+    mv.m_dir /= 2.f;
     float ground_dir = 0.f;
     float decay_amount = 0.f;
     float dividen = 0.f;
-    const int max_tick = TIME_TO_TICKS(0.4f);
-    for (auto i = 0; i < max_tick; i++)
+    const int count =
+        fmin(player_info.m_records.size(), TIME_TO_TICKS(0.5f)); // i think im going to settle on this for now :/
+    for (auto i = 0; i < count; i++)
     {
         if (i >= player_info.m_records.size())
             break;
-        float new_frac = fabs(player_info.m_records[i]->ground_dir) > 1.f ? 1.f : 0.2f;
-        ground_dir += player_info.m_records[i]->ground_dir * new_frac;
-        dividen += new_frac;
+        float frac =
+            (fabs(player_info.m_records[i]->ground_dir) > 1.f) ? 1.f : 2.f; // might change frac calculation but thats it
+        ground_dir += player_info.m_records[i]->ground_dir * frac;
+        dividen += frac;
     }
 
     mv.m_ground_dir = 0;
     if (dividen > 0)
     {
-        float avg_delta = ground_dir / static_cast<float>(dividen);
+        float avg_delta = ground_dir / dividen;
         while (avg_delta > 360.f)
             avg_delta -= 360.f;
         while (avg_delta < -360.f)
@@ -1365,7 +1382,7 @@ void c_movement_simulate::do_angle_prediction(const std::shared_ptr<player_recor
     int new_count = 1;
     const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
     float last_dir = record->dir;
-    for (auto i = 1; i < count - 1; i++)
+    for (auto i = 1; i < count; i++)
     {
         mv.m_dir += player_info.m_records[i]->dir;
         new_count++;

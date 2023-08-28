@@ -422,6 +422,9 @@ vector proj_aim::get_aim_offset()
         case WPN_Overdose:
             vec_offset.init(16, 6, -8);
             break;
+        case WPN_Original:
+            vec_offset.m_y = 0;
+            break;
         default:
             break;
     }

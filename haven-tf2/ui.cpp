@@ -51,7 +51,7 @@ void c_ui::init()
                 this->m_controls.aim.players.enabled = players->add_checkbox("Enabled");
                 this->m_controls.aim.players.key = players->add_keybind("Key", "Aimbot key", 0);
                 this->m_controls.aim.players.interp =
-                    players->add_slider("Interp", 1, 10, "Interpolation On Player Prediction");
+                    players->add_slider("Interp", 4, 10, "Interpolation On Player Prediction");
                 // this->m_controls.aim.players.hitchance =
                 //     players->add_slider("Hitchance", 0, 100, "Hitchance For Player Prediction");
                 this->m_controls.aim.players.fire_mode = players->add_combobox("Fire Mode");

@@ -2,6 +2,9 @@
 #include "sdk.h"
 #include "player_manager.h"
 
+#define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
+#define TICKS_TO_TIME(dt) (g_interfaces.m_global_vars->m_interval_per_tick * (float)(dt))
+
 class trace_filter_one_player : public i_trace_filter
 {
 public:
@@ -19,8 +22,6 @@ public:
     c_base_entity* pHit;
 };
 
-#define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
-#define TICKS_TO_TIME(dt) (g_interfaces.m_global_vars->m_interval_per_tick * (float)(dt))
 void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
 {
     auto* weapon = local->get_active_weapon();
