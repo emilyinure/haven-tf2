@@ -132,6 +132,15 @@ void c_visuals::player_esp()
 
             if (shared->in_cond(e_tf_cond::TF_COND_STEALTHED))
                 draw_flag("Cloaked", color(255, 255, 255));
+
+            if (shared->in_cond(e_tf_cond::TF_COND_PHASE))
+                draw_flag("Bonked", color(255, 255, 255));
+
+            if (shared->in_cond(e_tf_cond::TF_COND_INVULNERABLE))
+                draw_flag("Invulnerable", color(255, 255, 255));
+
+            if (shared->in_cond(e_tf_cond::TF_COND_TAUNTING))
+                draw_flag("Taunting", color(255, 255, 255));
         }
 
         if (player_esp.weapon->m_value)
