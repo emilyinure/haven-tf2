@@ -15,6 +15,7 @@ public:
     struct
     {
         unsigned long main;
+        unsigned long secondary;
 
         struct
         {

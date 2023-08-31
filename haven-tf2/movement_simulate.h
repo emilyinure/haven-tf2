@@ -28,7 +28,11 @@ class c_movement_simulate
 	void full_walk_move( );
 	void SetGroundEntity ( trace_t *pm );
 
-	void player_move( );
+	void player_move();
+
+    bool ChargeMove();
+
+    void process_movment();
 
     struct player_log
     {

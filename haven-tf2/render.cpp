@@ -4,7 +4,8 @@
 void c_render::init()
 {
     this->m_fonts.main = create_font("Tahoma", 12, 300, e_font_flags::font_flag_dropshadow);
-
+    this->m_fonts.secondary = create_font("Tahoma", 11, 300, e_font_flags::font_flag_dropshadow);
+    
     // menu.
     this->m_fonts.menu.main = create_font("Tahoma", 12, 200, e_font_flags::font_flag_antialias);
     this->m_fonts.menu.title = create_font("Segoe UI", 13, 200, e_font_flags::font_flag_antialias);

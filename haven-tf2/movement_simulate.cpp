@@ -91,9 +91,34 @@ void c_movement_simulate::try_touch_ground_in_quadrants(c_base_entity* player, c
     pm.m_end = endpos;
 }
 
+#define CONTENTS_REDTEAM CONTENTS_TEAM1
+#define CONTENTS_BLUETEAM CONTENTS_TEAM2
+
 unsigned int c_movement_simulate::player_solid_mask()
 {
-    return MASK_PLAYERSOLID;
+    unsigned int uMask = 0;
+
+    if (mv.m_player)
+    {
+        // Ghost players dont collide with anything but the world
+        if (mv.m_player && mv.m_player->in_cond(TF_COND_HALLOWEEN_GHOST_MODE))
+        {
+            return MASK_PLAYERSOLID_BRUSHONLY;
+        }
+
+        switch (mv.m_player->m_i_team_num())
+        {
+            case 2:
+                uMask = CONTENTS_BLUETEAM;
+                break;
+
+            case 3:
+                uMask = CONTENTS_REDTEAM;
+                break;
+        }
+    }
+
+    return (uMask | MASK_PLAYERSOLID);
 }
 
 int c_movement_simulate::clip_velocity(vector& in, vector& normal, vector& out, float overbounce)
@@ -958,6 +983,40 @@ void c_movement_simulate::player_move()
     full_walk_move();
 }
 
+bool c_movement_simulate::ChargeMove()
+{
+    if (!mv.m_player->in_cond(TF_COND_SHIELD_CHARGE))
+    {
+        return false;
+        // Check for Quick Fix Medic healing a charging player
+        if (mv.m_player->m_class() != TF2_Medic)
+            return false;
+
+        auto* weapon = mv.m_player->get_active_weapon();
+        if (!weapon)
+            return false;
+
+        if (weapon->item_index() != medicweapons::WPN_QuickFix)
+            return false;
+
+        //auto* target = ;
+        //if (!pHealTarget || !pHealTarget->m_Shared.InCond(TF_COND_SHIELD_CHARGE))
+        //    return false;
+    }
+    static auto tf_max_charge_speed = g_interfaces.m_cvar->find_var("tf_max_charge_speed");
+    mv.m_max_speed = tf_max_charge_speed->m_value.m_float_value;
+
+    // Handle demoman shield charge.
+    mv.m_air_dir = mv.m_walk_direction = vector(tf_max_charge_speed->m_value.m_float_value, 0.0f, 0.0f);
+
+    return true;
+}
+
+void c_movement_simulate::process_movment()
+{
+    ChargeMove();
+}
+
 float c_movement_simulate::max_speed(c_base_player* player)
 {
     float base_speed = player->m_max_speed();
@@ -1297,35 +1356,35 @@ void c_movement_simulate::air_input_prediction(const std::shared_ptr<player_reco
                                     find_unstuck(player_info.m_records[1]->origin));
     mv.m_decay = 0.f;
 
-    if (mv.m_air_dir.length_sqr_2d() < 1 && fabs(mv.m_dir) > 0.5f)
-    {
-
-        float wishspd = 400.f;
-        vector right;
-        float sy, cy;
-
-        vector::sin_cos(deg_to_rad(mv.m_eye_dir), &sy, &cy);
-        right.m_x = -1 * -sy;
-        right.m_y = -1 * cy;
-
-
-        // Cap speed
-        if (wishspd > 30.f)
-            wishspd = 30.f;
-        if (mv.m_dir > 0)
-            wishspd *= -1;
-        // Determine veer amount
-        const float currentspeed = mv.m_velocity.dot(right * wishspd);
-
-        // See how much to add
-        const float addspeed = wishspd - currentspeed;
-
-        // If not adding any, done.
-        if (addspeed <= 0)
-        {
-            mv.m_air_dir.m_y = wishspd;
-        }
-    }
+    //if (mv.m_air_dir.length_sqr_2d() < 1 && fabs(mv.m_dir) > 0.5f)
+    //{
+    //
+    //    float wishspd = 400.f;
+    //    vector right;
+    //    float sy, cy;
+    //
+    //    vector::sin_cos(deg_to_rad(mv.m_eye_dir), &sy, &cy);
+    //    right.m_x = -1 * -sy;
+    //    right.m_y = -1 * cy;
+    //
+    //
+    //    // Cap speed
+    //    if (wishspd > 30.f)
+    //        wishspd = 30.f;
+    //    if (mv.m_dir > 0)
+    //        wishspd *= -1;
+    //    // Determine veer amount
+    //    const float currentspeed = mv.m_velocity.dot(right * wishspd);
+    //
+    //    // See how much to add
+    //    const float addspeed = wishspd - currentspeed;
+    //
+    //    // If not adding any, done.
+    //    if (addspeed <= 0)
+    //    {
+    //        mv.m_air_dir.m_y = wishspd;
+    //    }
+    //}
     if (mv.m_air_dir.length_2d() > 0.1f)
         mv.m_walk_direction = vector(450.f, 0, 0);
 }

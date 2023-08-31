@@ -133,7 +133,7 @@ void player_t::SetGroundEntity(trace_t* pm)
     {
         if (newGround->get_client_class()->m_class_id == CFuncConveyor)
         {
-            vector right;
+             vector right;
             newGround->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
             right *= ((c_func_conveyor*)newGround)->conveyor_speed();
             m_base_velocity += right;
@@ -238,7 +238,7 @@ void c_player_manager::update_players()
             if (new_record.flags & FL_ONGROUND)
             {
                 trace_t pm;
-            
+
                 vector vecStartPos = new_record.origin;
                 vector vecEndPos(new_record.origin.m_x, new_record.origin.m_y, (new_record.origin.m_z - 2.0f));
                 bool bMoveToEndPos = false;
@@ -260,6 +260,8 @@ void c_player_manager::update_players()
                     player->SetGroundEntity(&pm);
                 }
             }
+            else
+                player->SetGroundEntity(nullptr);
 
             new_record.on_ground = player->m_ground != nullptr;
             new_record.mins = target->mins();

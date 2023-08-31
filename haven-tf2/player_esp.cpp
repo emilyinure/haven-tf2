@@ -3,7 +3,6 @@
 #include <string.h>
 void c_visuals::player_esp()
 {
-
     for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
     {
         auto& player_esp = g_ui.m_controls.visuals.players;
@@ -70,7 +69,7 @@ void c_visuals::player_esp()
 
         if (player_esp.name->m_value)
             if (g_interfaces.m_engine->get_player_info(player->entindex(), &player_info))
-                g_render.text(g_render.m_fonts.menu.main,
+                g_render.text(g_render.m_fonts.secondary,
                               {bounding_box.m_x + (bounding_box.m_w * 0.5f), bounding_box.m_y - 15}, player_info.m_name,
                               g_cl.m_local->m_i_team_num() == player->m_i_team_num() ? g_ui.m_theme
                                                                                      : color(255, 255, 255),
@@ -103,7 +102,7 @@ void c_visuals::player_esp()
             char buffer[128];
             _itoa(health, buffer, 10);
 
-            g_render.text(g_render.m_fonts.menu.main, {bounding_box.m_x - 2, bounding_box.m_y}, buffer,
+            g_render.text(g_render.m_fonts.secondary, {bounding_box.m_x - 2, bounding_box.m_y}, buffer,
                           color(255, 255, 255), text_align_right);
         }
 
@@ -116,8 +115,8 @@ void c_visuals::player_esp()
             {
                 const color col = {255, 255, 255};
 
-                const vector_2d flag_text_size = g_render.get_text_size(flag_text, g_render.m_fonts.menu.main);
-                g_render.text(g_render.m_fonts.menu.main,
+                const vector_2d flag_text_size = g_render.get_text_size(flag_text, g_render.m_fonts.secondary);
+                g_render.text(g_render.m_fonts.secondary,
                               {(bounding_box.m_x + bounding_box.m_w) + 4, (bounding_box.m_y + flag_offset) - 2},
                               flag_text, col);
 
@@ -152,7 +151,7 @@ void c_visuals::player_esp()
             }
 
             std::string weapon_text = weapon->get_localized_name();
-            g_render.text(g_render.m_fonts.menu.main,
+            g_render.text(g_render.m_fonts.secondary,
                           {bounding_box.m_x + (bounding_box.m_w * 0.5f), bounding_box.m_y - 30}, weapon_text.c_str(),
                           {255, 255, 255, 255}, text_align_center);
         }
