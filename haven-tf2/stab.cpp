@@ -46,7 +46,7 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
     vector vecSwingMaxs = vecSwingMaxsBase * fBoundsScale;
 
     // Setup the swing range.
-    float fSwingRange = g_cl.m_weapon->GetSwingRange(g_cl.m_local);
+    float fSwingRange = g_cl.m_weapon->GetSwingRange();
 
     // Scale the range and bounds by the model scale if they're larger
     // Not scaling down the range for smaller models because midgets need all the help they can get

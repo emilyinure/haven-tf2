@@ -130,7 +130,7 @@ public:
     float& get_charge_damage();
     int GetSlot();
     float rot_speed();
-    float GetSwingRange(c_base_player* pLocal);
+    float GetSwingRange();
     bool do_swing_trace_internal(trace_t& trace);
     bool can_perform_backstab_against_target(c_base_player* player);
     const char* get_print_name();
