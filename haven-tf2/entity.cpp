@@ -324,15 +324,9 @@ float c_base_weapon::GetSwingRange()
         case WPN_PersainPersuader:
         case WPN_Golfclub:
         case WPN_FestiveEyelander:
-        {
             return 70.0f;
-            break;
-        }
         case WPN_DisciplinaryAction:
-        {
             return 90.0f;
-            break;
-        }
     }
 
     return 48.0f;

@@ -174,7 +174,7 @@ void c_backstab::run()
     for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
     {
         const auto base_player = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
-        if (!base_player->is_valid(g_cl.m_local, g_cl.m_weapon->item_index() == WPN_DisciplinaryAction ? false : true))
+        if (!base_player->is_valid(g_cl.m_local, g_cl.m_weapon->item_index() != WPN_DisciplinaryAction))
             continue;
         if (check_player(base_player))
             break;
