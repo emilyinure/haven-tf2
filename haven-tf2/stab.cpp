@@ -46,7 +46,7 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
     vector vecSwingMaxs = vecSwingMaxsBase * fBoundsScale;
 
     // Setup the swing range.
-    float fSwingRange = g_cl.m_weapon->GetSwingRange(g_cl.m_local);
+    float fSwingRange = g_cl.m_weapon->GetSwingRange();
 
     // Scale the range and bounds by the model scale if they're larger
     // Not scaling down the range for smaller models because midgets need all the help they can get
@@ -60,7 +60,7 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
 
     vector vecForward = angle.angle_vector();
     ray_t ray;
-    CTraceFilterIgnoreTeammates ignoreTeammatesFilter(g_cl.m_local, COLLISION_GROUP_NONE, g_cl.m_local->m_i_team_num());
+    CTraceFilterSimple ignoreTeammatesFilter(g_cl.m_local, COLLISION_GROUP_NONE);
     ray.initialize(g_cl.m_shoot_pos, g_cl.m_shoot_pos + vecForward * fSwingRange);
 
     g_interfaces.m_engine_trace->trace_ray(ray, MASK_SOLID, &ignoreTeammatesFilter, &trace);
@@ -174,7 +174,7 @@ void c_backstab::run()
     for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
     {
         const auto base_player = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
-        if (!base_player->is_valid(g_cl.m_local))
+        if (!base_player->is_valid(g_cl.m_local, g_cl.m_weapon->item_index() != WPN_DisciplinaryAction))
             continue;
         if (check_player(base_player))
             break;

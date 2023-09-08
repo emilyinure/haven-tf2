@@ -313,9 +313,23 @@ float c_base_weapon::rot_speed()
     return this->get<float>(g_netvars.m_offsets.dt_base_weapon.m_rot_speed);
 }
 
-float c_base_weapon::GetSwingRange(c_base_player* pLocal)
+float c_base_weapon::GetSwingRange()
 {
-    return static_cast<float>(g_utils.get_virtual_function<int(__thiscall*)(c_base_player*)>(this, 455)(pLocal));
+    switch (this->item_index())
+    {
+        case WPN_Sword:
+        case WPN_ScottsSkullctter:
+        case WPN_Headless:
+        case WPN_Claidheamhmor:
+        case WPN_PersainPersuader:
+        case WPN_Golfclub:
+        case WPN_FestiveEyelander:
+            return 70.0f;
+        case WPN_DisciplinaryAction:
+            return 90.0f;
+    }
+
+    return 48.0f;
 }
 
 bool c_base_weapon::do_swing_trace_internal(trace_t& trace)
