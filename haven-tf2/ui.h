@@ -102,6 +102,12 @@ public:
                 std::shared_ptr<c_combobox> fire_mode;
                 std::shared_ptr<c_slider> hitchance;
             } players;
+            struct
+            {
+                std::shared_ptr<c_checkbox> enabled;
+                std::shared_ptr<c_key_bind> key;
+                std::shared_ptr<c_checkbox> auto_fire;
+            } other;
         } aim;
         struct
         {

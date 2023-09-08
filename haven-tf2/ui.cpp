@@ -46,7 +46,7 @@ void c_ui::init()
     {
         const auto aim = main_window->add_tab("Aim");
         {
-            const auto players = aim->add_groupbox("Players", {0, 5, 473, 322});
+            const auto players = aim->add_groupbox("Projectile", {0, 5, 234, 322});
             {
                 this->m_controls.aim.players.enabled = players->add_checkbox("Enabled");
                 this->m_controls.aim.players.key = players->add_keybind("Key", "Aimbot key", 0);
@@ -60,6 +60,12 @@ void c_ui::init()
                     this->m_controls.aim.players.fire_mode->add_item("Auto Release");
                     this->m_controls.aim.players.fire_mode->add_item("Automatic");
                 }
+            }
+            const auto other = aim->add_groupbox("Other", {239, 5, 234, 322});
+            {
+                this->m_controls.aim.other.enabled = other->add_checkbox("Enabled");
+                this->m_controls.aim.other.key = other->add_keybind("Key", "Aimbot key", 0);
+                this->m_controls.aim.other.auto_fire = other->add_checkbox("Auto Fire");
             }
         }
         const auto visuals = main_window->add_tab("Visuals");

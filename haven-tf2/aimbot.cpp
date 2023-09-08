@@ -28,11 +28,14 @@ void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
     if (!weapon)
         return;
     bool soldier = local->m_class() == TF2_Soldier;
-    if (local->m_class() != TF2_Scout && local->m_class() != TF2_Heavy && !soldier)
+    if (local->m_class() != TF2_Sniper && local->m_class() != TF2_Scout && local->m_class() != TF2_Heavy && !soldier)
         return;
     int slot = weapon->GetSlot();
-    if (soldier && slot != EWeaponSlots::SLOT_SECONDARY)
-        return;
+    if (soldier)
+    {
+        if (slot != EWeaponSlots::SLOT_SECONDARY)
+            return;
+    }
     else if (slot != EWeaponSlots::SLOT_PRIMARY)
         return;
     if ((TICKS_TO_TIME(local->m_tick_base() + 1) < weapon->m_next_primary_attack()) && local->m_class() != TF2_Heavy)
@@ -40,6 +43,13 @@ void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
 
     const vector eye_pos = local->m_vec_origin() + local->m_view_offset();
     float distance = FLT_MAX;
+
+    static auto* cl_interp = g_interfaces.m_cvar->find_var("cl_interp");
+    static auto* cl_interp_ratio = g_interfaces.m_cvar->find_var("cl_interp_ratio");
+    static auto* cl_updaterate = g_interfaces.m_cvar->find_var("cl_updaterate");
+    const float lerp =
+        std::fmaxf(cl_interp->m_value.m_float_value,
+                                 cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
 
     for (auto i = 1; i <= g_interfaces.m_engine->get_max_clients(); i++)
     {
@@ -79,6 +89,7 @@ void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
             cmd->m_viewangles = eye_pos.look(head);
             cmd->buttons_ |= IN_ATTACK;
             distance = cur_distance;
+            cmd->tick_count_ = TIME_TO_TICKS(record->sim_time + lerp);
         }
 
         record->restore();
@@ -88,6 +99,13 @@ void c_aimbot::other(c_base_player* local, usercmd_t* cmd)
 }
 void c_aimbot::run(c_base_player* local, usercmd_t* cmd)
 {
+    if (!g_ui.m_controls.aim.other.enabled->m_value)
+        return;
+    if (!g_ui.m_controls.aim.other.key->value_->enabled)
+        return;
+    if (!g_ui.m_controls.aim.other.auto_fire->m_value && !(cmd->buttons_ & IN_ATTACK))
+        return;
+
     if ((TICKS_TO_TIME(local->m_tick_base() + 1) < local->m_next_attack() && local->m_class() != TF2_Heavy))
         return;
     auto* weapon = local->get_active_weapon();

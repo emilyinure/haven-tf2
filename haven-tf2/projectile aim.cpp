@@ -527,6 +527,8 @@ double pipe_vel_change[2] = {1200., 200.};
 
 void proj_aim::run()
 {
+    if (!g_ui.m_controls.aim.players.enabled->m_value)
+        return;
     int attack = IN_ATTACK;
     if (g_cl.m_weapon->item_index() == WPN_Sandman)
         attack = IN_ATTACK2;
