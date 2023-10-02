@@ -13,6 +13,7 @@
 ### How to use
 - Inject using Process Hacker or any other injector
 - To open and close the menu, press insert
+- When using keybinds, right click to change the activation mode, by default keybinds are always active, regardless of the key state
 
 ### Demo video
 [![video](https://img.youtube.com/vi/bpmpp5XJhtE/0.jpg)](https://youtu.be/bpmpp5XJhtE)
