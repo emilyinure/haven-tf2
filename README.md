@@ -10,6 +10,9 @@
 - Still has redundant and messy code, will be refactoring when I have time aside from my other projects
 - Using a outdated version of a friends framework as a base. Not much is left the same but still a necessary credit!
 
+### How to use
+- Inject using Process Hacker or any other injector
+- To open and close the menu, press insert
 
 ### Demo video
 [![video](https://img.youtube.com/vi/bpmpp5XJhtE/0.jpg)](https://youtu.be/bpmpp5XJhtE)
