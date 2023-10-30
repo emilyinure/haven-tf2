@@ -112,6 +112,9 @@ public:
         struct
         {
             std::shared_ptr<c_checkbox> auto_strafer;
+            std::shared_ptr<c_slider> ThirdpersonHorizontalOffset;
+            std::shared_ptr<c_slider> ThirdpersonVerticalOffset;
+            std::shared_ptr<c_slider> ThirdpersonDistanceOffset;
         } misc;
     } m_controls;
 

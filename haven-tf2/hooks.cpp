@@ -38,6 +38,38 @@ void __fastcall paint(uintptr_t ecx, uintptr_t edx, paint_mode_t mode)
 
 void __fastcall override_view(uintptr_t ecx, uintptr_t edx, c_view_setup* view)
 {
+    if (g_cl.m_local)
+    {
+        static bool thirdperson = false;
+        static bool set = false;
+        if (GetAsyncKeyState('X'))
+        {
+            if (!set)
+            {
+                thirdperson = !thirdperson;
+                g_cl.m_local->force_taunt_cam(thirdperson);
+                set = true;
+            }
+        }
+        else
+            set = false;
+
+       if (thirdperson)
+        {
+            vector ViewAngles;
+            g_interfaces.m_engine->get_view_angles(ViewAngles);
+
+            vector Forward;
+            vector Right;
+            vector Up;
+            ViewAngles.angle_vectors(&Forward, &Right, &Up);
+
+            view->m_origin += Right * g_ui.m_controls.misc.ThirdpersonHorizontalOffset->m_value;
+            view->m_origin += Up * g_ui.m_controls.misc.ThirdpersonVerticalOffset->m_value;
+            view->m_origin += Forward * g_ui.m_controls.misc.ThirdpersonDistanceOffset->m_value;
+        }
+    }
+
     g_hooks.m_original.override_view(ecx, edx, view);
 }
 
@@ -73,25 +105,6 @@ void __fastcall run_command(c_prediction* _this, uintptr_t, c_base_entity* playe
     void __stdcall frame_stage(client_frame_stage_t stage)
 {
     g_cl.m_local = g_interfaces.m_entity_list->get_entity<c_base_player>(g_interfaces.m_engine->get_local_player());
-    if (stage == FRAME_RENDER_START)
-    {
-        if (g_cl.m_local)
-        {
-            static bool thirdperson = false;
-            static bool set = false;
-            if (GetAsyncKeyState('X'))
-            {
-                if (!set)
-                {
-                    thirdperson = !thirdperson;
-                    g_cl.m_local->force_taunt_cam(thirdperson);
-                    set = true;
-                }
-            }
-            else
-                set = false;
-        }
-    }
     g_hooks.m_original.frame_stage(stage);
     if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END)
     {
