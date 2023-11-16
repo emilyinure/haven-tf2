@@ -187,10 +187,8 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
 
 void c_player_manager::update_players()
 {
-
     for (auto i = 1; i <= g_interfaces.m_engine->get_max_clients(); i++)
     {
-
         const auto target = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
         auto* player = &players[i - 1];
         if (player->player != target)
@@ -304,7 +302,7 @@ void c_player_manager::update_players()
                     float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
                     new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
                     new_record.ground_dir = 0.f; 
-                    if (new_record.move_data.length_sqr_2d())
+                    if (new_record.move_data.length_sqr_2d() > 1.f)
                     {
 
                         const int count = fmin(player->m_records.size(), TIME_TO_TICKS(0.4));
@@ -329,12 +327,13 @@ void c_player_manager::update_players()
                         new_record.ground_dir = turn;
                         ApproachAngle(turn, player->m_records[0]->ground_dir, max_turn);
                     }
-                    g_movement.setup_mv(new_record.vel, player->player, g_cl.m_local->entindex());
-                    player->pred_origin = g_movement.run(); 
-                    // if ( fabsf( new_record.dir ) > 0.1f )
-                    //	new_record.dir_decay = std::clamp<float>( new_record.dir_decay + 0.1f, 0.8f, 1.f );
-                    // else
-                    //	new_record.dir_decay = std::clamp<float>( new_record.dir_decay - 0.1f, 0.8f, 1.f );
+
+                    vector predicted_origin;
+                    if(g_movement.setup_mv(new_record.vel, player->player) &&
+                                             g_movement.run(player->pred_origin)){
+                        player->pred_origin = predicted_origin;
+                    }
+                    
                     if (!(new_record.flags & FL_ONGROUND) && (player->m_records[0]->flags & FL_ONGROUND) &&
                         new_record.vel.m_z > 100.f)
                         player->m_last_time_jumped = new_record.sim_time;

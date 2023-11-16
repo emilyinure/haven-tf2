@@ -42,6 +42,7 @@ public:
     }
     float m_fade = 1.f;
     color m_theme = {0x61, 0xBA, 0x3B};
+    
     c_base_control* m_focused_control;
 
     struct draw_t

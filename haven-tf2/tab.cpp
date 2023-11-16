@@ -75,3 +75,5 @@ std::shared_ptr<c_groupbox> c_tab::add_groupbox(const char* name, box_t area)
 
     return groupboxes;
 }
+
+

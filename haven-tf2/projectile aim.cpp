@@ -182,6 +182,7 @@ double get_speed()
             weapon_speed = 1440.;
             break;
         case WPN_StickyLauncher:
+        case WPN_QuickieBombLauncher:
             begin_charge = g_cl.m_weapon->pipe_charge_time();
             charge = (begin_charge == 0.0f) ? 0.f : TICKS_TO_TIME(g_cl.m_local->m_tick_base()) - begin_charge;
             weapon_speed = RemapValClamped((charge), 0.0f, 4.f, 900.f, 2400.f);
@@ -240,6 +241,7 @@ float get_gravity()
         case WPN_LoooseCannon:
         case WPN_LochNLoad:
         case WPN_IronBomber:
+        case WPN_QuickieBombLauncher:
         case WPN_StickyLauncher:
             weapon_gravity = 1.5f;
             break;
@@ -337,6 +339,7 @@ vector aim_offset(player_t* player)
             //	offset = target->get_hitbox_pos( HITBOX_BODY ) - ( target->get_abs_origin( ) );
             break;
         case WPN_StickyLauncher:
+        case WPN_QuickieBombLauncher:
             if (g_movement.mv.on_ground)
                 offset.init(0, 0, 10);
             else
@@ -413,6 +416,7 @@ vector proj_aim::get_aim_offset()
         case WPN_LochNLoad:
         case WPN_GrenadeLauncher:
         case WPN_NewGrenadeLauncher:
+        case WPN_QuickieBombLauncher:
         case WPN_FestiveGrenadeLauncher:
             vec_offset.init(16.0f, 8.0f, -6.0f);
             break;
@@ -436,7 +440,7 @@ bool proj_aim::is_pipe()
     int item_id = g_cl.m_weapon->item_index();
     if (item_id == WPN_IronBomber || item_id == WPN_StickyLauncher || item_id == WPN_LoooseCannon ||
         item_id == WPN_LochNLoad || item_id == WPN_GrenadeLauncher || item_id == WPN_NewGrenadeLauncher ||
-        item_id == WPN_FestiveGrenadeLauncher)
+        item_id == WPN_FestiveGrenadeLauncher || item_id == WPN_QuickieBombLauncher)
     {
         return true;
     }
@@ -623,7 +627,6 @@ void proj_aim::run()
 }
 void get_hull_size(vector& size)
 {
-
     size = {3.8f, 3.8f, 3.8f};
 
     switch (g_cl.m_weapon->item_index())
@@ -676,13 +679,14 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
     auto target = g_player_manager.players[this->m_target->entindex() - 1];
 
     float last_time = -FLT_MAX;
-    if (!g_movement.setup_mv(this->m_target->m_velocity(), this->m_target, g_cl.m_local->entindex()))
+    if (!g_movement.setup_mv(this->m_target->m_velocity(), this->m_target))
         return;
 
     auto* nci = g_interfaces.m_engine->get_net_channel_info();
     static auto* cl_interp = g_interfaces.m_cvar->find_var("cl_interp");
     static auto* cl_interp_ratio = g_interfaces.m_cvar->find_var("cl_interp_ratio");
     static auto* cl_updaterate = g_interfaces.m_cvar->find_var("cl_updaterate");
+
     if (!(nci && cl_interp && cl_interp_ratio && cl_updaterate))
         return;
 
@@ -690,8 +694,9 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
                             cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
     auto mindelta = FLT_MAX;
     auto maxsteps = 5000;
-    float cur_time = -nci->GetLatency(2);
+    float cur_time = -nci->GetAvgLatency(2);
     vector last;
+    
     struct target_holder
     {
         bool valid = false;
@@ -702,13 +707,16 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
         int step = 0;
         bool ground;
     } found_holder;
+
     for (int steps = 0; steps < maxsteps; steps++)
     {
         cur_time += g_interfaces.m_global_vars->m_interval_per_tick;
-        auto pos =
-            g_movement.run() + aim_offset(&target); // +vector( 0, 0, closest->get_collideable( )->obb_mins( ).m_z );;
+        vector pos{};
+        if(!g_movement.run(pos))
+            return;
+        
+        pos += aim_offset(&target); // +vector( 0, 0, closest->get_collideable( )->obb_mins( ).m_z );;
         auto delta_pos = pos - g_cl.m_shoot_pos;
-        pos -= delta_pos.normalized() * 4.f;
         bool valid = true;
 
         vector view = g_cl.m_shoot_pos.look(pos);
@@ -784,17 +792,6 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
     bool shot = false;
     if (found_holder.valid)
     {
-        /*float needed_hit_chance = g_ui.m_controls.aim.players.hitchance->m_value;
-        if (needed_hit_chance > 0.f)
-        {
-            float cur_hitchance = (1.f - (fminf(TICKS_TO_TIME(found_holder.step), 1.f))) * 100.f;
-            if (!found_holder.ground)
-                cur_hitchance *= 0.5f;
-
-            if (needed_hit_chance > cur_hitchance)
-                goto skip;
-        }*/
-
         m_path.clear();
         vector view = found_holder.view;
         if (this->m_weapon_gravity < 1)
@@ -816,16 +813,10 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
         }
         else
         {
-            // if ( get_gravity_aim( speed, gravity, found_holder.pos - found_holder.eye_pos, &view.m_x, false ) ) {
             vector forward, right, up;
-            // if ( is_pipe( ) ) {
-            //	view.m_x -= static_cast< float >( atan2( -pipe_vel_change[ 1 ], pipe_vel_change[ 0 ] ) * 180. / pi );
-            //	view.m_x = std::clamp<float>( view.m_x, -89.f, 89.f );
-            // }
             vector new_dir = view.angle_vector();
             if (proj_can_hit(this->m_target, view, found_holder.time, found_holder.eye_pos, true))
             {
-                //}
                 if (g_ui.m_controls.aim.players.fire_mode->m_selected_index != 0)
                     if (was_shoot)
                         g_cl.m_cmd->buttons_ &= ~attack;
@@ -839,7 +830,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
             }
         }
     }
-skip:
+    
     if (shot)
     {
         auto& log = g_movement.m_logs[target.player->entindex()];

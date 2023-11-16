@@ -164,11 +164,14 @@ void c_visuals::player_esp()
         vector screen_1;
         vector screen_2;
 
-        g_movement.setup_mv(g_cl.m_local->m_velocity(), g_cl.m_local, g_cl.m_local->entindex() - 1);
+        if (!g_movement.setup_mv(g_cl.m_local->m_velocity(), g_cl.m_local))
+            return;
 
         for (auto i = 0; i < 100; i++)
         {
-            g_movement.run();
+            vector nul;
+            if (!g_movement.run(nul))
+                break;
         }
         g_movement.m_logs[g_cl.m_local->entindex()].m_path = g_movement.path;
         g_movement.m_logs[g_cl.m_local->entindex()].end_time = g_movement.end_time;

@@ -128,8 +128,8 @@ void __fastcall calc_view_model(uintptr_t ecx, uintptr_t edx, c_base_player* own
     eye_angles.angle_vectors(&forward, &right, &up);
 
     vector eye_pos = eye_position + ((right * g_ui.m_controls.visuals.view_model.x_offset->m_value) +
-                                             (forward * g_ui.m_controls.visuals.view_model.y_offset->m_value) +
-                                             (up * g_ui.m_controls.visuals.view_model.z_offset->m_value));
+                                    (forward * g_ui.m_controls.visuals.view_model.y_offset->m_value) +
+                                    (up * g_ui.m_controls.visuals.view_model.z_offset->m_value));
     
     eye_angles.m_z += g_ui.m_controls.visuals.view_model.roll->m_value; // VM Roll
     g_hooks.m_original.calc_view_model(ecx, edx, owner, eye_pos, eye_angles);
