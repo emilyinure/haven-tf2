@@ -333,10 +333,10 @@ vector aim_offset(player_t* player)
         case WPN_Original:
         case WPN_Airstrike:
         case WPN_BlackBox:
-            // if( g_movement.mv.on_ground )
-            offset.init(0, 0, 8 * fabsf(up.m_z) + fabsf(forward.m_z) * 8.f);
-            // else
-            //	offset = target->get_hitbox_pos( HITBOX_BODY ) - ( target->get_abs_origin( ) );
+            if( g_movement.mv.on_ground )
+                offset.init(0, 0, 8 * fabsf(up.m_z) + fabsf(forward.m_z) * 8.f);
+            else
+            	offset = (target->mins() + target->maxs()) * 0.5f;
             break;
         case WPN_StickyLauncher:
         case WPN_QuickieBombLauncher:

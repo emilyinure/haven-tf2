@@ -1,5 +1,7 @@
 #include "movement.h"
 #include "client.h"
+#include "interfaces.h"
+#include <numbers>
 
 void c_movement::bhop()
 {
@@ -25,6 +27,64 @@ void c_movement::bhop()
 
     was_jump_held = jump;
 }
+
+double normalize_rad(double a)
+{
+    a = std::fmod(a, std::numbers::pi_v<double> * 2);
+
+    if (a >= std::numbers::pi_v<double>)
+    {
+        a -= 2 * std::numbers::pi_v<double>;
+    }
+    else if (a < -std::numbers::pi_v<double>)
+    {
+        a += 2 * std::numbers::pi_v<double>;
+    }
+
+    return a;
+}
+
+#define M_PI 3.141592653589793238463
+double MaxAccelTheta(double wishspeed)
+{    
+    static auto air_accel = g_interfaces.m_cvar->find_var("sv_airaccelerate");
+    double accel = air_accel->m_value.m_float_value;
+    double accelspeed = accel * 450.f * g_interfaces.m_global_vars->m_interval_per_tick;
+    if (accelspeed <= 0.0)
+        return M_PI;
+    auto vel = g_cl.m_local->m_velocity();
+    if (vel.length_2d() < 1.f)
+        return 0.0;
+
+    double wishspeed_capped = 30;
+    double tmp = wishspeed_capped - accelspeed;
+    if (tmp <= 0.0)
+        return M_PI / 2;
+
+    double speed = vel.length_2d();
+    if (tmp < speed)
+        return std::acos(tmp / speed);
+
+    return 0.0;
+}
+double max_accel_into_yaw_theta(const double& vel_yaw, const double& yaw, const double& wish_speed)
+{
+    const double theta = MaxAccelTheta(wish_speed);
+
+    if (theta == 0.0 || theta == std::numbers::pi_v<double>)
+    {
+        return normalize_rad(yaw - vel_yaw + theta);
+    }
+
+    return std::copysign(theta, normalize_rad(yaw - vel_yaw));
+}
+
+
+static inline double ButtonsPhi(float forward, float side)
+{
+    return -std::atan2f(side, forward);
+}
+
 void c_movement::auto_strafe(float* view)
 {
     if (g_cl.m_local->get_ground() || !(g_cl.m_cmd->buttons_ & IN_JUMP))
@@ -62,46 +122,18 @@ void c_movement::auto_strafe(float* view)
     // convert to absolute change.
     const auto abs_delta = std::abs(delta);
 
-    g_cl.m_cmd->sidemove_ = 450.f * (delta > 0) + -450.f * (delta <= 0);
-    g_cl.m_cmd->forwardmove_ = 0;
     // set strafe direction based on mouse direction change.
+    double vel_yaw_rad = std::atan2(velocity.m_y, velocity.m_x);
+    double yaw_rad = deg_to_rad(*view);
+    double theta = max_accel_into_yaw_theta(vel_yaw_rad, yaw_rad, 450.f);
 
-    // we can accelerate more, because we strafed less then needed
-    // or we got of track and need to be retracked.
+    g_cl.m_cmd->sidemove_ = (theta > 0) * 450.f + (theta < 0) * -450.f;
+    g_cl.m_cmd->forwardmove_ = 0;
 
-    /*
-     * data struct
-     * 68 74 74 70 73 3a 2f 2f 73 74 65 61 6d 63 6f 6d 6d 75 6e 69 74 79 2e 63 6f 6d 2f 69 64 2f 73 69 6d 70 6c 65 72 65
-     * 61 6c 69 73 74 69 63 2f
-     */
-    // std::printf( std::to_string( g_cl.m_local->m_velocity(  ).length_2d(  ) ).c_str(  ) );
-    // std::printf( "\n" );
-    if (abs_delta <= ideal2 || abs_delta >= 30.f)
-    {
-        // compute angle of the direction we are traveling in.
-        const auto velocity_angle = rad_to_deg(atan2(velocity.m_y, velocity.m_x));
+    double phi = ButtonsPhi(g_cl.m_cmd->forwardmove_, g_cl.m_cmd->sidemove_);
+    float yaw = vel_yaw_rad - phi + theta;
 
-        // get the delta between our direction and where we are looking at.
-        auto velocity_delta = velocity_angle - *view;
-        while (velocity_delta > 180)
-            velocity_delta -= 360;
-        while (velocity_delta < -180)
-            velocity_delta += 360;
-
-        // correct our strafe amongst the path of a circle.
-        const auto correct = ideal2;
-
-        if (fabsf(velocity_delta) > correct)
-        {
-            *view = velocity_angle - std::copysignf(correct, velocity_delta);
-            g_cl.m_cmd->sidemove_ = std::copysignf(450.f, velocity_delta);
-        }
-        else
-        {
-            *view += std::copysignf(ideal, velocity_delta);
-            g_cl.m_cmd->sidemove_ = std::copysignf(450.f, velocity_delta);
-        }
-    }
+    *view = rad_to_deg(normalize_rad(yaw));
 }
 
 void c_movement::correct_movement(vector old)

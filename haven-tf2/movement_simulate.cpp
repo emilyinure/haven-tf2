@@ -1403,7 +1403,8 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
 void c_movement_simulate::do_angle_prediction(const std::shared_ptr<player_record_t>& record,
                                               const player_t& player_info)
 {
-    mv.m_dir += record->dir;
+    mv.m_dir = record->dir;
+    return;
     int new_count = 1;
     const int count = fmin(player_info.m_records.size(), int(g_ui.m_controls.aim.players.interp->m_value + 1));
     float last_dir = record->dir;

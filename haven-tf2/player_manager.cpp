@@ -290,17 +290,28 @@ void c_player_manager::update_players()
                     g_movement.mv.m_player = target;
                     new_record.move_data = g_movement.estimate_walking_dir(
                         new_record.vel, player->m_records[0]->vel, new_record.eye_angle, new_record.origin);
-                    float turn = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
+                    new_record.dir_change = (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
                     if (!new_record.on_ground)
-                        turn = dir_turning(new_record.vel, player->m_records[0]->vel);
-                    while (turn > 180.f)
-                        turn -= 360.f;
-                    while (turn < -180.f)
-                        turn += 360.f;
-                    turn /= new_record.m_lag;
+                        new_record.dir_change = dir_turning(new_record.vel, player->m_records[0]->vel);
+                    while (new_record.dir_change > 180.f)
+                        new_record.dir_change -= 360.f;
+                    while (new_record.dir_change < -180.f)
+                        new_record.dir_change += 360.f;
+                    new_record.dir_change /= new_record.m_lag;
+
+                    float accumulated_change = new_record.dir_change;
+                    int count = 1;
+                    for (auto i = 0; i < 2; i++)
+                    {
+                        if (i >= player->m_records.size())
+                            break;
+                        accumulated_change += player->m_records[i]->dir_change;
+                        count++;
+                    }
 
                     float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
-                    new_record.dir = ApproachAngle(turn, player->m_records[0]->dir, max_turn);
+                    new_record.dir =
+                        accumulated_change / count; // ApproachAngle(turn, player->m_records[0]->dir, max_turn);
                     new_record.ground_dir = 0.f; 
                     if (new_record.move_data.length_sqr_2d() > 1.f)
                     {
@@ -318,14 +329,13 @@ void c_player_manager::update_players()
                             }
                         }
 
-                        turn = dir_turning(new_record.move_data, last_move_dir);
+                        float turn = dir_turning(new_record.move_data, last_move_dir);
                         while (turn > 180.f)
                             turn -= 360.f;
                         while (turn < -180.f)
                             turn += 360.f;
                         max_turn = 315 * g_interfaces.m_global_vars->m_interval_per_tick;
                         new_record.ground_dir = turn;
-                        ApproachAngle(turn, player->m_records[0]->ground_dir, max_turn);
                     }
 
                     vector predicted_origin;

@@ -102,7 +102,7 @@ void __fastcall run_command(c_prediction* _this, uintptr_t, c_base_entity* playe
         g_interfaces.m_move_helper = move_helper;
 }
 
-    void __stdcall frame_stage(client_frame_stage_t stage)
+void __stdcall frame_stage(client_frame_stage_t stage)
 {
     g_cl.m_local = g_interfaces.m_entity_list->get_entity<c_base_player>(g_interfaces.m_engine->get_local_player());
     g_hooks.m_original.frame_stage(stage);
@@ -143,9 +143,10 @@ void c_hooks::init()
                   create_move, reinterpret_cast<void**>(&this->m_original.create_move));
     MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_engine_vgui, 14), paint,
                   reinterpret_cast<void**>(&this->m_original.paint));
-    // MH_CreateHook( c_utils::get_virtual_function<void*>(
-    // g_interfaces.m_prediction, 17 ), run_command, reinterpret_cast< void** >(
-    // &this->m_original.run_command ) );
+    MH_CreateHook( c_utils::get_virtual_function<void*>(
+        g_interfaces.m_prediction, 17 ), run_command, reinterpret_cast< void** >(
+        &this->m_original.run_command ) );
+
     this->m_original.wnd_proc =
         reinterpret_cast<WNDPROC>(SetWindowLongPtr(g_cl.m_hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(wnd_proc)));
     MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_surface, e_indexes::index_lock_cursor),

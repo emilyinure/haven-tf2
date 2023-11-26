@@ -17,6 +17,7 @@ public:
     int m_lag = 0;
     vector vel = vector();
     float dir = 0;
+    float dir_change = 0;
     float dir_decay = 0;
     float ground_dir = 0;
     int flags = 0;
