@@ -175,10 +175,9 @@ void c_hooks::init()
                   calc_view_model, reinterpret_cast<void**>(&this->m_original.calc_view_model));
     
     MH_CreateHook(g_modules.get("client.dll")
-                      .get_sig("55 8B EC 83 EC ? 56 8B F1 E8 ? ? ? ? 3B F0 75 ? 8B CE E8 ? ? ? ?" 
-                          "8B 45 ? D9 86 ? ? ? ? D9 18 D9 86 ? ? ? ? D9 58 ? D9 86 ? ? ? ? D9 58 ? 5E 8B E5 5D C2")
+                      .get_sig("55 8B EC 83 EC ? 56 8B F1 E8 ? ? ? ? 3B F0 75 ? 8B CE E8 ? ? ? ? 8B 45 ? D9 86 ? ? ? ? D9 18 D9 86 ? ? ? ? D9 58 ? D9 86 ? ? ? ? D9 58 ? 5E 8B E5 5D C2")
                       .as<void*>(),
-                  estimate_abs_velocity, reinterpret_cast<void**>(&this->m_original.calc_view_model));
+                  estimate_abs_velocity, reinterpret_cast<void**>(&this->m_original.estimate_abs_velocity));
 
     MH_EnableHook(MH_ALL_HOOKS);
 }

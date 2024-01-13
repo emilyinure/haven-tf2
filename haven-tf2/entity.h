@@ -97,6 +97,7 @@ public:
     c_base_entity* get_owner();
     c_base_handle owner_handle();
     int& m_i_team_num();
+    vector get_abs_velocity();
     box_t get_bounding_box();
     bool compute_hitbox_surrounding_box(vector* world_mins, vector* world_maxs);
     vector& mins();
@@ -337,13 +338,13 @@ public:
     void set_abs_origin(vector origin);
     void set_abs_angles(vector angles);
     vector calculate_abs_velocity();
-    vector get_abs_velocity();
     CBoneCacheHandler* bone_cache();
     int& m_class();
     int& flags();
 
     c_base_handle active_weapon_handle();
     c_base_weapon* get_active_weapon();
+    c_base_entity* calculate_ground();
     c_base_entity* get_ground();
     c_base_handle ground_handle();
     int& hitbox_set();
