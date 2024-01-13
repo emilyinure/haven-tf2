@@ -135,6 +135,19 @@ void __fastcall calc_view_model(uintptr_t ecx, uintptr_t edx, c_base_player* own
     g_hooks.m_original.calc_view_model(ecx, edx, owner, eye_pos, eye_angles);
 }
 
+void __fastcall estimate_abs_velocity(uintptr_t ecx, uintptr_t edx, vector& vel) noexcept
+{
+    const auto entity = reinterpret_cast<c_base_player*>(ecx);
+    if (g_cl.m_local && entity != g_cl.m_local &&
+        entity->get_client_class()->m_class_id == 247 /*CTFPlayer*/) // ur class id is outdated
+    {
+        vel = entity->calculate_abs_velocity();
+        return;
+    }
+
+    g_hooks.m_original.estimate_abs_velocity(ecx, edx, vel);
+}
+
 void c_hooks::init()
 {
     MH_Initialize();
@@ -160,6 +173,12 @@ void c_hooks::init()
                                "08 89 45 F0 56 57")
                       .as<void*>(),
                   calc_view_model, reinterpret_cast<void**>(&this->m_original.calc_view_model));
+    
+    MH_CreateHook(g_modules.get("client.dll")
+                      .get_sig("55 8B EC 83 EC ? 56 8B F1 E8 ? ? ? ? 3B F0 75 ? 8B CE E8 ? ? ? ?" 
+                          "8B 45 ? D9 86 ? ? ? ? D9 18 D9 86 ? ? ? ? D9 58 ? D9 86 ? ? ? ? D9 58 ? 5E 8B E5 5D C2")
+                      .as<void*>(),
+                  estimate_abs_velocity, reinterpret_cast<void**>(&this->m_original.calc_view_model));
 
     MH_EnableHook(MH_ALL_HOOKS);
 }

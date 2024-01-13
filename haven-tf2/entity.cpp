@@ -214,6 +214,29 @@ void c_base_player::set_abs_angles(vector angles)
         g_modules.get("client.dll").get_sig("55 8B EC 83 EC ? 56 57 8B F1 E8 ? ? ? ? 8B 7D ?").as<oSetAbsOrigin>();
     func(this, angles);
 }
+
+vector c_base_player::calculate_abs_velocity()
+{
+    typedef void(__thiscall * oCalcAbsoluteVelocity)(void*);
+    static auto func = g_modules.get("client.dll")
+                           .get_sig("55 8B EC 83 EC 3C 56 8B F1 F7")
+                           .as<oCalcAbsoluteVelocity>();
+
+    this->get<int>(416) |= (1 << 12);
+    func(this);
+
+    return get_abs_velocity();
+}
+
+vector c_base_player::get_abs_velocity()
+{
+    vector velocity;
+    velocity[0] = this->get<float>(348);
+    velocity[1] = this->get<float>(352);
+    velocity[2] = this->get<float>(356);
+    return velocity;
+}
+
 CBoneCacheHandler* c_base_player::bone_cache()
 {
     typedef CBoneCacheHandler*(__thiscall * oSetAbsOrigin)(void*, void*);

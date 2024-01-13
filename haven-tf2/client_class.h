@@ -120,6 +120,7 @@ enum e_class_id
     CPlayerResource = 102,
     CPointCamera = 103,
     CPointCommentaryNode = 104,
+  //CPointWorldText = 105,
     CPoseController = 105,
     CPrecipitation = 106,
     CPropVehicleDriveable = 107,

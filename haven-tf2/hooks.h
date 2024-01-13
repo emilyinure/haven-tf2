@@ -20,6 +20,9 @@ public:
         typedef void(__fastcall* calc_view_model_fn)(uintptr_t, uintptr_t, c_base_player*, const vector&, vector& );
         calc_view_model_fn calc_view_model;
 
+        typedef void(__fastcall* estimate_abs_velocity_fn)(uintptr_t, uintptr_t, vector&);
+        estimate_abs_velocity_fn estimate_abs_velocity;
+
         typedef bool(__stdcall* create_move_fn)(float, usercmd_t*);
         create_move_fn create_move;
 
