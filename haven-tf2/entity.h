@@ -337,6 +337,7 @@ public:
     vector m_eye_angles();
     void set_abs_origin(vector origin);
     void set_abs_angles(vector angles);
+    void set_collision_bounds(const vector& mins, const vector& maxs);
     vector calculate_abs_velocity();
     CBoneCacheHandler* bone_cache();
     int& m_class();

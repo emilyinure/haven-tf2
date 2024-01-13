@@ -349,6 +349,18 @@ void c_base_player::set_abs_angles(vector angles)
     func(this, angles);
 }
 
+void c_base_player::set_collision_bounds(const vector& mins, const vector& maxs)
+{
+    typedef void(__thiscall * oSetCollisionBounds)(void*, const vector&, const vector&);
+    static auto func = g_modules.get("client.dll")
+                           .get_sig("55 8B EC 83 EC 28 53 8B 5D 08 56 8B 75 0C 57 8B 03")
+                           .as<oSetCollisionBounds>();
+    if (!this->get_collideable())
+        return;
+
+    func(this->get_collideable(), mins, maxs);
+}
+
 vector c_base_player::calculate_abs_velocity()
 {
     typedef void(__thiscall * oCalcAbsoluteVelocity)(void*);
