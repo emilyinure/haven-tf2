@@ -262,6 +262,8 @@ void c_player_manager::update_players()
                 player->SetGroundEntity(nullptr);
 
             new_record.on_ground = player->m_ground != nullptr;
+            new_record.mins_prescaled = target->get_collideable()->obb_mins_pre_scaled();
+            new_record.maxs_prescaled = target->get_collideable()->obb_maxs_pre_scaled();
             new_record.mins = target->mins();
             new_record.maxs = target->maxs();
             if (new_record.on_ground)
