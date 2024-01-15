@@ -43,11 +43,7 @@ int& c_base_entity::m_i_team_num()
 
 vector c_base_entity::get_abs_velocity()
 {
-    vector velocity;
-    velocity[0] = this->get<float>(348);
-    velocity[1] = this->get<float>(352);
-    velocity[2] = this->get<float>(356);
-    return velocity;
+    return this->get<vector>(348);
 }
 
 box_t c_base_entity::get_bounding_box()
