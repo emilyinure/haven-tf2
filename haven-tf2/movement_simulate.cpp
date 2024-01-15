@@ -653,27 +653,27 @@ void c_movement_simulate::accelerate(vector& wishdir, const float wishspeed, con
     }
 }
 
-void c_movement_simulate::step_move(const vector& vecDestination, trace_t& trace)
+int vector_compare(const vector& v1,
+                   const vector& v2) // umm floating point imprecision anyone??
 {
+    for (int i = 0; i < 3; i++)
+        if (v1[i] != v2[i])
+            return 0;
 
-    const vector vecPos = mv.m_position;
-    const vector vecVel = mv.m_velocity;
+    return 1;
+}
 
-    // Slide move down.
-    try_player_move();
+void c_movement_simulate::step_move(vector target, trace_t& trace)
+{
+    bool low_road = false, up_road = true;
 
-    const vector vecDownPos = mv.m_position;
-    const vector vecDownVel = mv.m_velocity;
-
-    // Reset original values.
-    mv.m_position = vecPos;
-    mv.m_velocity = vecVel;
+    vector end_pos = target;
+    vector pos = mv.m_position, vel = mv.m_velocity;
 
     // Move up a stair height.
-    vector vec_end_pos = mv.m_position;
-    vec_end_pos.m_z += 16.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
+    end_pos.m_z += 18.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
 
-    trace_player_bbox(mv.m_position, vec_end_pos, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace);
+    trace_player_bbox(mv.m_position, end_pos, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace);
     if (!trace.m_start_solid && !trace.m_allsolid)
     {
         mv.m_position = trace.m_end;
@@ -683,41 +683,52 @@ void c_movement_simulate::step_move(const vector& vecDestination, trace_t& trace
     try_player_move();
 
     // Move down a stair (attempt to).
-    vec_end_pos = mv.m_position;
-    vec_end_pos.m_z -= 16.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
+    end_pos = mv.m_position;
+    end_pos.m_z -= 18.f + DIST_EPSILON; // player->m_Local.m_flStepSize + DIST_EPSILON;
 
-    trace_player_bbox(mv.m_position, vec_end_pos, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace);
-
-    // If we are not on the ground any more then use the original movement attempt.
-    if (trace.m_plane.normal[2] < 0.7f)
-    {
-        mv.m_position = trace.m_end;
-        mv.m_velocity = vecDownVel;
-        return;
-    }
-
-    // If the trace ended up in empty space, copy the end over to the origin.
+    trace_player_bbox(mv.m_position, end_pos, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace);
     if (!trace.m_start_solid && !trace.m_allsolid)
     {
-        mv.m_position = (trace.m_end);
+        mv.m_position = trace.m_end;
     }
 
-    const vector vecUpPos = mv.m_position;
-
-    // decide which one went farther
-    const float flDownDist = (vecDownPos.m_x - vecPos.m_x) * (vecDownPos.m_x - vecPos.m_x) +
-                             (vecDownPos.m_y - vecPos.m_y) * (vecDownPos.m_y - vecPos.m_y);
-    const float flUpDist = (vecUpPos.m_x - vecPos.m_x) * (vecUpPos.m_x - vecPos.m_x) +
-                           (vecUpPos.m_y - vecPos.m_y) * (vecUpPos.m_y - vecPos.m_y);
-    if (flDownDist > flUpDist)
+    if ((trace.m_fraction != 1.f && trace.m_plane.normal.m_z < 0.7f) || vector_compare(mv.m_position, pos))
     {
-        mv.m_position = vecDownPos;
-        mv.m_velocity = vecDownVel;
+        low_road = true;
+        up_road = false;
     }
-    else
+
+    if (low_road)
     {
-        // copy z value from slide move
-        mv.m_velocity.m_z = vecDownVel.m_z;
+        vector up_pos, up_vel;
+        if (up_road)
+        {
+            up_pos = mv.m_position;
+            up_vel = mv.m_velocity;
+        }
+
+        mv.m_position = pos;
+        mv.m_velocity = vel;
+        target = end_pos;
+        try_player_move();
+
+        vector down_pos, down_vel;
+        down_pos = mv.m_position;
+        down_vel = mv.m_velocity;
+
+        if (up_road)
+        {
+            float up_dist = (up_pos.m_x - pos.m_x) * (up_pos.m_x - pos.m_x) + (up_pos.m_y - pos.m_y) * (up_pos.m_y - pos.m_y);
+            float down_dist = (down_pos.m_x - pos.m_x) * (down_pos.m_x - pos.m_x) + (down_pos.m_y - pos.m_y) * (down_pos.m_y - pos.m_y);
+
+            if (up_dist >= down_dist)
+            {
+                mv.m_position = up_pos;
+                mv.m_velocity = up_vel;
+
+                mv.m_velocity.m_z = down_vel.m_z;
+            }
+        }
     }
 }
 

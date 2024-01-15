@@ -203,15 +203,25 @@ public:
 		return fabsf( m_x ) < other &&
 			fabsf( m_y ) < other &&
 			fabsf( m_z ) < other;
-	}
-	float &operator[](const int i) {
-		if ( i == 0 )
-			return m_x;
-		if ( i == 1 )
-			return m_y;
-		if ( i == 2 )
-			return m_z;
-	}
+    }
+    float& operator[](const int i)
+    {
+        if (i == 0)
+            return m_x;
+        if (i == 1)
+            return m_y;
+        if (i == 2)
+            return m_z;
+    }
+    float operator[](const int i) const
+    {
+        if (i == 0)
+            return m_x;
+        if (i == 1)
+            return m_y;
+        if (i == 2)
+            return m_z;
+    }
 
 	float length() const {
 		const float ln_sqr = length_sqr( );
