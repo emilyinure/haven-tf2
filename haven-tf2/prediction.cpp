@@ -26,7 +26,7 @@ int prediction::get_tickbase(usercmd_t* pCmd, c_base_player* pLocal)
 
 void prediction::start()
 {
-    if (!g_interfaces.m_move_helper && g_cl.m_local)
+    if (!g_interfaces.m_move_helper || !g_cl.m_local)
         return;
 
     g_interfaces.m_move_helper->SetHost(g_cl.m_local);

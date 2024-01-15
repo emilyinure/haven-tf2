@@ -149,37 +149,16 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
 {
     if (!(flags & FL_ONGROUND))
     {
-        if (GAMEMOVEMENT_JUMP_TIME < jump_time_delta)
-        {
-            if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
-            {
-                vector  hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
-                vector  hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
-                vector  viewDelta = (hullSizeNormal - hullSizeCrouch);
-                vector  out;
-                origin_diff -= viewDelta;
-            }
-            else if (last_flags & FL_DUCKING)
-            {
-
-                vector hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
-                vector hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
-                vector viewDelta = (hullSizeNormal - hullSizeCrouch);
-
-                float flDeltaZ = viewDelta.m_z;
-                flDeltaZ -= viewDelta.m_z;
-
-                origin_diff -= viewDelta;
-            
-            }
-        }
+        vector hullSizeNormal = vector(16, 16, 72) - vector(-16, -16, 0);
+        vector hullSizeCrouch = vector(16, 16, 36) - vector(-16, -16, 0);
+        vector viewDelta = (hullSizeNormal - hullSizeCrouch);
         if ((flags & FL_DUCKING) && !(last_flags & FL_DUCKING))
         {
-            origin_diff += (vector(-24, -24, 0) - vector(-24, -24, 0));
+            origin_diff -= viewDelta;
         }
         else if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
         {
-            origin_diff -= (vector(-24, -24, 0) - vector(-24, -24, 0));
+            origin_diff += viewDelta;
         }
     }
     return (origin_diff) * (1.f / TICKS_TO_TIME(lag));
@@ -368,8 +347,9 @@ bool player_record_t::cache()
     const auto bones_ac = player->player->bone_cache();
     if (!bones_ac)
         return false;
-    bones_ac->UpdateBones(bones, 128, player->player->sim_time());
-    // memcpy( bones_ac->m_pBones, bones, sizeof( matrix_3x4 ) * 128 );
+
+    memcpy(player->player->GetCachedBoneData()->m_elements, bones,
+           sizeof(matrix_3x4) * player->player->GetCachedBoneData()->m_size);
 }
 
 void player_record_t::restore()

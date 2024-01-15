@@ -222,6 +222,7 @@ CBoneCacheHandler* c_base_player::bone_cache()
     return func(this, NULL);
 }
 
+
 int& c_base_player::m_class()
 {
     return this->get<int>(g_netvars.m_offsets.dt_base_player.m_class);

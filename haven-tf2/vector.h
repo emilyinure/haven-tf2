@@ -381,7 +381,7 @@ public:
 	}
 };
 
-class __declspec( align( 16 ) )vector_aligned : public vector {
+class __declspec( align( 16 ) ) vector_aligned : public vector {
 public:
 	inline vector_aligned( void ) {};
 

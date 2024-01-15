@@ -287,7 +287,8 @@ int c_movement_simulate::try_player_move()
                 }
                 else
                 {
-                    clip_velocity(original_velocity, planes[i], new_velocity, 1);
+                    static auto sv_bounce = g_interfaces.m_cvar->find_var("sv_bounce");
+                    clip_velocity(original_velocity, planes[i], new_velocity, 1.f + sv_bounce->m_value.m_float_value * (1 - mv.m_surface_friction));
                 }
             }
 
@@ -1249,21 +1250,12 @@ vector c_movement_simulate::find_unstuck(vector origin)
     trace_player_bbox(origin, origin, player_solid_mask(), COLLISION_GROUP_PLAYER_MOVEMENT, stuck);
     if (stuck.m_start_solid || stuck.m_fraction != 1.0f)
     {
-        for (auto f = 0; f < 3; f++)
+        for (auto f = -1; f < 2; f++)
         {
-            auto temp_f = f;
-            if (temp_f > 1)
-                temp_f = -1;
             for (auto s = -1; s < 2; s++)
             {
-                auto temp_s = f;
-                if (temp_s > 1)
-                    temp_s = -1;
                 for (auto z = -1; z < 2; z++)
                 {
-                    auto temp_z = f;
-                    if (temp_z > 1)
-                        temp_z = -1;
                     vector cur = origin;
                     cur.m_z += f * DIST_EPSILON;
                     cur.m_y += s * DIST_EPSILON;
