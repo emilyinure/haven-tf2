@@ -61,6 +61,7 @@
 #include "i_app_system.h"
 #include "convar.h"
 #include "usercmd.h"
+#include "c_attribute_manager.h"
 
 #include "c_global_vars_base.h"
 #include "i_base_client_dll.h"

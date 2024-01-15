@@ -24,7 +24,7 @@ public:
 
         struct
         {
-            uintptr_t m_hitbox_set;
+            uintptr_t m_hitbox_set, m_model_scale;
         } dt_base_animating;
 
         struct
