@@ -41,6 +41,11 @@ int& c_base_entity::m_i_team_num()
     return this->get<int>(g_netvars.m_offsets.dt_base_entity.m_i_team_num);
 }
 
+vector c_base_entity::get_abs_velocity()
+{
+    return this->get<vector>(348);
+}
+
 box_t c_base_entity::get_bounding_box()
 {
     vector mins = {}, maxs = {}, mins_screen = {}, maxs_screen = {}, origin_screen = {};
@@ -81,6 +86,131 @@ c_base_handle c_base_player::active_weapon_handle()
 c_base_weapon* c_base_player::get_active_weapon()
 {
     return g_interfaces.m_entity_list->get_entity<c_base_weapon>(active_weapon_handle());
+}
+
+c_base_entity* c_base_player::calculate_ground()
+{
+    //Categorize position but without extra stuff
+    auto try_touch_ground_in_quadrants =
+        [](c_base_player* player, vector minsSrc, vector maxsSrc, const vector& start,
+                                        const vector& end, unsigned int fMask, int collisionGroup, trace_t& pm)
+    {
+        vector mins, maxs;
+
+        float fraction = pm.m_fraction;
+        vector endpos = pm.m_end;
+
+        // Check the -x, -y quadrant
+        mins = minsSrc;
+        maxs = vector{min(0.0f, maxsSrc[0]), min(0.0f, maxsSrc[1]), maxsSrc[2]};
+
+        ray_t ray;
+        ray.initialize(start, end, mins, maxs);
+        CTraceFilterIgnorePlayers traceFilter(player, collisionGroup);
+        g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
+        if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
+        {
+            pm.m_fraction = fraction;
+            pm.m_end = endpos;
+            return;
+        }
+
+        // Check the +x, +y quadrant
+        mins = vector{max(0.0f, minsSrc[0]), max(0.0f, minsSrc[1]), minsSrc[2]};
+        maxs = maxsSrc;
+        ray.initialize(start, end, mins, maxs);
+        g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
+        if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
+        {
+            pm.m_fraction = fraction;
+            pm.m_end = endpos;
+            return;
+        }
+
+        // Check the -x, +y quadrant
+        mins = vector{minsSrc[0], max(0.0f, minsSrc[1]), minsSrc[2]};
+        maxs = vector{min(0.0f, maxsSrc[0]), maxsSrc[1], maxsSrc[2]};
+        ray.initialize(start, end, mins, maxs);
+        g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
+        if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
+        {
+            pm.m_fraction = fraction;
+            pm.m_end = endpos;
+            return;
+        }
+
+        // Check the +x, -y quadrant
+        mins = vector{max(0.0f, minsSrc[0]), minsSrc[1], minsSrc[2]};
+        maxs = vector{maxsSrc[0], min(0.0f, maxsSrc[1]), maxsSrc[2]};
+        ray.initialize(start, end, mins, maxs);
+        g_interfaces.m_engine_trace->trace_ray(ray, fMask, &traceFilter, &pm);
+        if (pm.m_entity && pm.m_plane.normal[2] >= 0.7)
+        {
+            pm.m_fraction = fraction;
+            pm.m_end = endpos;
+            return;
+        }
+
+        pm.m_fraction = fraction;
+        pm.m_end = endpos;
+    };
+
+    trace_t pm;
+
+    vector player_mins = this->mins();
+    vector player_maxs = this->maxs();
+    vector position = this->get_abs_origin();
+
+    vector point = position;
+    point[2] -= 2.0f;
+
+    vector bump_origin = position;
+
+    float zvel = this->m_velocity()[2];
+    bool moving_up_rapidly = zvel > 140.0f;
+    float ground_entity_vel_z = 0.0f;
+    if (moving_up_rapidly)
+    {
+        auto ground = get_ground();
+        if (ground)
+        {
+            ground_entity_vel_z = ground->get_abs_velocity()[2];
+            moving_up_rapidly = (zvel - ground_entity_vel_z) > 140.0f;
+        }
+    }
+
+    // Was on ground, but now suddenly am not
+    if (moving_up_rapidly)
+    {
+        return nullptr;
+    }
+
+    // Try and move down.
+    ray_t ray;
+    ray.initialize(bump_origin, point, player_mins, player_maxs);
+    CTraceFilterIgnorePlayers traceFilter(this, COLLISION_GROUP_PLAYER_MOVEMENT);
+    g_interfaces.m_engine_trace->trace_ray(ray, MASK_PLAYERSOLID, &traceFilter, &pm);
+    
+    // Was on ground, but now suddenly am not.  If we hit a steep plane, we are not on ground
+    if (!pm.m_entity || pm.m_plane.normal[2] < 0.7)
+    {
+        // Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on
+        try_touch_ground_in_quadrants(this, player_mins, player_maxs, bump_origin, point, MASK_PLAYERSOLID,
+                                  COLLISION_GROUP_PLAYER_MOVEMENT, pm);
+
+        if (!pm.m_entity || pm.m_plane.normal[2] < 0.7)
+        {
+            return nullptr;
+        }
+        else
+        {
+            return pm.m_entity;
+        }
+    }
+    else
+    {
+        return pm.m_entity;
+    }
 }
 
 c_base_entity* c_base_player::get_ground()
@@ -214,6 +344,44 @@ void c_base_player::set_abs_angles(vector angles)
         g_modules.get("client.dll").get_sig("55 8B EC 83 EC ? 56 57 8B F1 E8 ? ? ? ? 8B 7D ?").as<oSetAbsOrigin>();
     func(this, angles);
 }
+
+void c_base_player::set_collision_bounds(const vector& mins, const vector& maxs)
+{
+    typedef void(__thiscall * oSetCollisionBounds)(void*, const vector&, const vector&);
+    static auto func = g_modules.get("client.dll")
+                           .get_sig("55 8B EC 83 EC 28 53 8B 5D 08 56 8B 75 0C 57 8B 03")
+                           .as<oSetCollisionBounds>();
+    if (!this->get_collideable())
+        return;
+
+    func(this->get_collideable(), mins, maxs);
+}
+
+vector c_base_player::calculate_abs_velocity()
+{
+    typedef void(__thiscall * oCalcAbsoluteVelocity)(void*);
+    static auto func = g_modules.get("client.dll")
+                           .get_sig("55 8B EC 83 EC 3C 56 8B F1 F7")
+                           .as<oCalcAbsoluteVelocity>();
+
+    this->get<int>(416) |= (1 << 12);
+    func(this);
+
+    vector velocity = get_abs_velocity();
+    const auto ground_entity = calculate_ground();
+    if (ground_entity)
+    {
+        if (ground_entity->get_client_class()->m_class_id == CFuncConveyor)
+        {
+            vector right{};
+            ground_entity->m_ang_rot().angle_vectors(nullptr, &right, nullptr);
+            right *= ((c_func_conveyor*)ground_entity)->conveyor_speed();
+            velocity -= right;
+        }
+    }
+    return velocity;
+}
+
 CBoneCacheHandler* c_base_player::bone_cache()
 {
     typedef CBoneCacheHandler*(__thiscall * oSetAbsOrigin)(void*, void*);

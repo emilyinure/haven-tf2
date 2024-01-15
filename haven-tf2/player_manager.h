@@ -26,6 +26,9 @@ public:
     vector eye_angle = vector();
     vector move_data = vector();
 
+    vector mins_prescaled = vector();
+    vector maxs_prescaled = vector();
+
     vector mins = vector();
     vector maxs = vector();
 

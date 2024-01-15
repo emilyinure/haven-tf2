@@ -90,17 +90,15 @@ bool c_backstab::check_player(c_base_player* base_player)
     auto record = m_records[0];
 
     const vector origin = base_player->get_abs_origin();
-    const vector mins = base_player->mins();
-    const vector maxs = base_player->maxs();
+    const vector mins = base_player->get_collideable()->obb_mins_pre_scaled();
+    const vector maxs = base_player->get_collideable()->obb_maxs_pre_scaled();
 
     bool ret_state = false;
     auto bones = base_player->bone_cache();
     if (record && record->valid())
     {
         base_player->set_abs_origin(record->origin);
-        base_player->m_vec_origin() = record->origin;
-        base_player->mins() = record->mins;
-        base_player->maxs() = record->maxs;
+        base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
         bones->UpdateBones(record->bones, 128, record->sim_time);
         const vector point = record->origin + (record->maxs + record->mins) * 0.5f;
         vector look = g_cl.m_shoot_pos.look(point);
@@ -131,9 +129,8 @@ bool c_backstab::check_player(c_base_player* base_player)
             if (record)
             {
                 base_player->set_abs_origin(record->origin);
-                base_player->m_vec_origin() = record->origin;
-                base_player->mins() = record->mins;
-                base_player->maxs() = record->maxs;
+                base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
+
                 bones->UpdateBones(record->bones, 128, record->sim_time);
                 const vector point = record->origin + (record->maxs + record->mins) * 0.5f;
                 vector look = g_cl.m_shoot_pos.look(point);
@@ -158,9 +155,7 @@ bool c_backstab::check_player(c_base_player* base_player)
         }
 
     base_player->set_abs_origin(origin);
-    base_player->m_vec_origin() = origin;
-    base_player->mins() = mins;
-    base_player->maxs() = maxs;
+    base_player->set_collision_bounds(mins, maxs);
 
     return ret_state;
 }

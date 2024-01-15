@@ -1326,8 +1326,7 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player)
     }
     
     mv.m_velocity = record->vel - mv.m_base_velocity;
-    
-    auto& log = m_logs[player->entindex()];
+
     path.clear();
     mv.m_position = find_unstuck(record->origin);
     path.push_back(mv.m_position);
