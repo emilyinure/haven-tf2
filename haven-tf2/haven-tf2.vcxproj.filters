@@ -235,6 +235,9 @@
     <Filter Include="sdk\tf2\classes\render_view">
       <UniqueIdentifier>{fc9670ea-ef07-434b-814a-73ada493d5bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\tf2\classes\c_attribute_manager">
+      <UniqueIdentifier>{1302ed05-f7bd-480e-b9fe-88efc339a489}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry_point.cpp" />
@@ -615,6 +618,9 @@
     </ClInclude>
     <ClInclude Include="render_view.h">
       <Filter>sdk\tf2\classes\render_view</Filter>
+    </ClInclude>
+    <ClInclude Include="c_attribute_manager.h">
+      <Filter>sdk\tf2\classes\c_attribute_manager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

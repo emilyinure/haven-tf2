@@ -131,7 +131,7 @@ public:
     float& get_charge_damage();
     int GetSlot();
     float rot_speed();
-    float GetSwingRange();
+    float get_swing_range();
     bool do_swing_trace_internal(trace_t& trace);
     bool can_perform_backstab_against_target(c_base_player* player);
     const char* get_print_name();
@@ -349,6 +349,7 @@ public:
     c_base_entity* get_ground();
     c_base_handle ground_handle();
     int& hitbox_set();
+    float& model_scale();
     vector get_hitbox_pos(int iHitbox, matrix_3x4* matrix = nullptr, vector mins = vector(0.5f, 0.5f, 0.5f),
                           vector max = vector(0.5f, 0.5f, 0.5f));
 

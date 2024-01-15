@@ -161,6 +161,7 @@
     <ClInclude Include="combobox.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="convar.h" />
+    <ClInclude Include="c_attribute_manager.h" />
     <ClInclude Include="c_base_handle.h" />
     <ClInclude Include="c_global_vars_base.h" />
     <ClInclude Include="c_user_cmd.h" />

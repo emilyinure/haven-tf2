@@ -108,6 +108,7 @@ void c_netvars::get_offsets()
     this->m_offsets.dt_base_weapon.m_clip2 = this->get("DT_BaseCombatWeapon", "m_iClip2").m_offset;
 
     this->m_offsets.dt_base_animating.m_hitbox_set = this->get("DT_BaseAnimating", "m_nHitboxSet").m_offset;
+    this->m_offsets.dt_base_animating.m_model_scale = this->get("DT_BaseAnimating", "m_flModelScale").m_offset;
 
     this->m_offsets.dt_player_resource.m_max_health = this->get("DT_TFPlayerResource", "m_iMaxBuffedHealth").m_offset;
     this->m_offsets.dt_base_player.m_shared = this->get("DT_TFPlayer", "m_Shared").m_offset;
