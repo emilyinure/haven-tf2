@@ -44,6 +44,9 @@ void __fastcall override_view(uintptr_t ecx, uintptr_t edx, c_view_setup* view)
         static bool last_state = state;
 
         if (state != last_state)
+            g_cl.m_local->force_taunt_cam(state);
+
+        if (state)
         {
             vector view_angles;
             g_interfaces.m_engine->get_view_angles(view_angles);
