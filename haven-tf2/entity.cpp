@@ -246,6 +246,11 @@ int& c_base_player::hitbox_set()
     return this->get<int>(g_netvars.m_offsets.dt_base_animating.m_hitbox_set);
 }
 
+float& c_base_player::model_scale()
+{
+    return this->get<float>(g_netvars.m_offsets.dt_base_animating.m_model_scale);
+}
+
 vector c_base_player::get_hitbox_pos(int iHitbox, matrix_3x4* matrix, vector mins, vector max)
 {
     const model_t* model = get_model();
@@ -488,7 +493,7 @@ float c_base_weapon::rot_speed()
     return this->get<float>(g_netvars.m_offsets.dt_base_weapon.m_rot_speed);
 }
 
-float c_base_weapon::GetSwingRange()
+float c_base_weapon::get_swing_range()
 {
     switch (this->item_index())
     {
@@ -499,9 +504,7 @@ float c_base_weapon::GetSwingRange()
         case WPN_PersainPersuader:
         case WPN_Golfclub:
         case WPN_FestiveEyelander:
-            return 70.0f;
-        case WPN_DisciplinaryAction:
-            return 90.0f;
+            return 72.0f;
     }
 
     return 48.0f;

@@ -40,23 +40,24 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
     static vector vecSwingMinsBase(-18, -18, -18);
     static vector vecSwingMaxsBase(18, 18, 18);
 
-    float fBoundsScale = 1.0f;
-    // CALL_ATTRIB_HOOK_FLOAT( fBoundsScale, melee_bounds_multiplier );
+    float fBoundsScale = c_attribute_manager::attribute_hook_float(1.0f, "melee_bounds_multiplier", g_cl.m_weapon);
     vector vecSwingMins = vecSwingMinsBase * fBoundsScale;
     vector vecSwingMaxs = vecSwingMaxsBase * fBoundsScale;
 
     // Setup the swing range.
-    float fSwingRange = g_cl.m_weapon->GetSwingRange();
+    float fSwingRange = g_cl.m_weapon->get_swing_range();
 
     // Scale the range and bounds by the model scale if they're larger
     // Not scaling down the range for smaller models because midgets need all the help they can get
-    // if ( pPlayer->GetModelScale( ) > 1.0f ) {
-    //	fSwingRange *= pPlayer->GetModelScale( );
-    //	vecSwingMins *= pPlayer->GetModelScale( );
-    //	vecSwingMaxs *= pPlayer->GetModelScale( );
-    //}
+    float fModelScale = g_cl.m_local->model_scale();
+    if (fModelScale > 1.0f)
+    {
+        fSwingRange *= fModelScale;
+        vecSwingMins *= fModelScale;
+        vecSwingMaxs *= fModelScale;  
+    }
 
-    // CALL_ATTRIB_HOOK_FLOAT( fSwingRange, melee_range_multiplier );
+    fSwingRange = c_attribute_manager::attribute_hook_float(fSwingRange, "melee_range_multiplier", g_cl.m_weapon);
 
     vector vecForward = angle.angle_vector();
     ray_t ray;
