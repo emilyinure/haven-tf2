@@ -96,9 +96,11 @@ void c_ui::init()
             const auto misc2 = misc->add_groupbox("Misc", {0, 5, 473, 322});
             {
                 this->m_controls.misc.auto_strafer = misc2->add_checkbox("Auto Strafer");
-                this->m_controls.misc.ThirdpersonHorizontalOffset = misc2->add_slider("Thirdperson Horizontal Offset", -100, 100);
-                this->m_controls.misc.ThirdpersonVerticalOffset = misc2->add_slider("Thirdperson Vertical Offset", -100, 100);
-                this->m_controls.misc.ThirdpersonDistanceOffset = misc2->add_slider("Thirdperson Distance Offset", -100, 100);
+                this->m_controls.misc.third_person =
+                    misc2->add_keybind("Third Person Key", "Third Person Key", key_bind_type_toggle);
+                this->m_controls.misc.third_person_horizontal_offset = misc2->add_slider("Thirdperson Horizontal Offset", -100, 100);
+                this->m_controls.misc.third_person_vertical_offset = misc2->add_slider("Thirdperson Vertical Offset", -100, 100);
+                this->m_controls.misc.third_person_distance_offset = misc2->add_slider("Thirdperson Distance Offset", -100, 100);
             }
         }
     }

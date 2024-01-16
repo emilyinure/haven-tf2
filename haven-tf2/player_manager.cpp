@@ -10,7 +10,7 @@
 bool player_record_t::valid() const
 {
     // use prediction curtime for this.
-    const float curtime = TICKS_TO_TIME(g_cl.m_local->m_tick_base());
+    const float curtime = TICKS_TO_TIME(g_cl.m_local->m_tick_base() + 1);
 
     // correct is the amount of time we have to correct game time,
     static auto* cl_interp = g_interfaces.m_cvar->find_var("cl_interp");
@@ -30,7 +30,7 @@ bool player_record_t::valid() const
 
     // calculate difference between tick sent by player and our latency based tick.
     // ensure this record isn't too old.
-    return std::abs(correct - (curtime - sim_time)) < 0.19f;
+    return std::abs(correct - (curtime - sim_time)) < 0.20f;
 }
 
 vector direction_pressed(player_record_t* record, vector last_vel)

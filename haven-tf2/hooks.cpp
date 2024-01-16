@@ -40,34 +40,24 @@ void __fastcall override_view(uintptr_t ecx, uintptr_t edx, c_view_setup* view)
 {
     if (g_cl.m_local)
     {
-        static bool thirdperson = false;
-        static bool set = false;
-        if (GetAsyncKeyState('X'))
+        bool state = g_ui.m_controls.misc.third_person->value_->enabled;
+        static bool last_state = state;
+
+        if (state != last_state)
         {
-            if (!set)
-            {
-                thirdperson = !thirdperson;
-                g_cl.m_local->force_taunt_cam(thirdperson);
-                set = true;
-            }
+            vector view_angles;
+            g_interfaces.m_engine->get_view_angles(view_angles);
+
+            vector forward;
+            vector right;
+            vector up;
+            view_angles.angle_vectors(&forward, &right, &up);
+
+            view->m_origin += right * g_ui.m_controls.misc.third_person_horizontal_offset->m_value;
+            view->m_origin += up * g_ui.m_controls.misc.third_person_vertical_offset->m_value;
+            view->m_origin += forward * g_ui.m_controls.misc.third_person_distance_offset->m_value;
         }
-        else
-            set = false;
-
-       if (thirdperson)
-        {
-            vector ViewAngles;
-            g_interfaces.m_engine->get_view_angles(ViewAngles);
-
-            vector Forward;
-            vector Right;
-            vector Up;
-            ViewAngles.angle_vectors(&Forward, &Right, &Up);
-
-            view->m_origin += Right * g_ui.m_controls.misc.ThirdpersonHorizontalOffset->m_value;
-            view->m_origin += Up * g_ui.m_controls.misc.ThirdpersonVerticalOffset->m_value;
-            view->m_origin += Forward * g_ui.m_controls.misc.ThirdpersonDistanceOffset->m_value;
-        }
+        last_state = state;
     }
 
     g_hooks.m_original.override_view(ecx, edx, view);
@@ -128,9 +118,9 @@ void __fastcall calc_view_model(uintptr_t ecx, uintptr_t edx, c_base_player* own
     eye_angles.angle_vectors(&forward, &right, &up);
 
     vector eye_pos = eye_position + ((right * g_ui.m_controls.visuals.view_model.x_offset->m_value) +
-                                    (forward * g_ui.m_controls.visuals.view_model.y_offset->m_value) +
-                                    (up * g_ui.m_controls.visuals.view_model.z_offset->m_value));
-    
+                                     (forward * g_ui.m_controls.visuals.view_model.y_offset->m_value) +
+                                     (up * g_ui.m_controls.visuals.view_model.z_offset->m_value));
+
     eye_angles.m_z += g_ui.m_controls.visuals.view_model.roll->m_value; // VM Roll
     g_hooks.m_original.calc_view_model(ecx, edx, owner, eye_pos, eye_angles);
 }
@@ -156,9 +146,8 @@ void c_hooks::init()
                   create_move, reinterpret_cast<void**>(&this->m_original.create_move));
     MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_engine_vgui, 14), paint,
                   reinterpret_cast<void**>(&this->m_original.paint));
-    MH_CreateHook( c_utils::get_virtual_function<void*>(
-        g_interfaces.m_prediction, 17 ), run_command, reinterpret_cast< void** >(
-        &this->m_original.run_command ) );
+    MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_prediction, 17), run_command,
+                  reinterpret_cast<void**>(&this->m_original.run_command));
 
     this->m_original.wnd_proc =
         reinterpret_cast<WNDPROC>(SetWindowLongPtr(g_cl.m_hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(wnd_proc)));
@@ -173,9 +162,10 @@ void c_hooks::init()
                                "08 89 45 F0 56 57")
                       .as<void*>(),
                   calc_view_model, reinterpret_cast<void**>(&this->m_original.calc_view_model));
-    
+
     MH_CreateHook(g_modules.get("client.dll")
-                      .get_sig("55 8B EC 83 EC ? 56 8B F1 E8 ? ? ? ? 3B F0 75 ? 8B CE E8 ? ? ? ? 8B 45 ? D9 86 ? ? ? ? D9 18 D9 86 ? ? ? ? D9 58 ? D9 86 ? ? ? ? D9 58 ? 5E 8B E5 5D C2")
+                      .get_sig("55 8B EC 83 EC ? 56 8B F1 E8 ? ? ? ? 3B F0 75 ? 8B CE E8 ? ? ? ? 8B 45 ? D9 86 ? ? ? ? "
+                               "D9 18 D9 86 ? ? ? ? D9 58 ? D9 86 ? ? ? ? D9 58 ? 5E 8B E5 5D C2")
                       .as<void*>(),
                   estimate_abs_velocity, reinterpret_cast<void**>(&this->m_original.estimate_abs_velocity));
 
