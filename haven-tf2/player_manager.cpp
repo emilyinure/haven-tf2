@@ -166,7 +166,7 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
 
 void c_player_manager::update_players()
 {
-    for (auto i = 1; i <= g_interfaces.m_engine->get_max_clients(); i++)
+    for (auto i = 1; i <= g_interfaces.m_entity_list->get_highest_entity_index(); i++)
     {
         const auto target = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
         auto* player = &players[i - 1];
@@ -252,12 +252,7 @@ void c_player_manager::update_players()
 
             target->set_abs_origin(target->m_vec_origin());
 
-            const auto bones_ac = player->player->bone_cache();
-            if (!bones_ac)
-                return;
-
-            bones_ac->UpdateBones(new_record.bones, 128, -1);
-
+            target->invalidate_bone_cache();
             new_record.built = target->setup_bones(new_record.bones, 128, 0x100, target->sim_time());
 
 
@@ -356,8 +351,5 @@ bool player_record_t::cache()
 
 void player_record_t::restore()
 {
-    const auto bones_ac = player->player->bone_cache();
-    if (!bones_ac)
-        return;
-    bones_ac->UpdateBones(bones, 128, -1);
+    player->player->invalidate_bone_cache();
 }

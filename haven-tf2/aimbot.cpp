@@ -131,40 +131,44 @@ void c_aimbot::run(c_base_player* local, usercmd_t* cmd)
     static auto* cl_updaterate = g_interfaces.m_cvar->find_var("cl_updaterate");
     float lerp = std::fmaxf(cl_interp->m_value.m_float_value,
                             cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
-    for (auto i = 1; i <= g_interfaces.m_engine->get_max_clients(); i++)
+    for (auto i = 1; i <= g_interfaces.m_entity_list->get_highest_entity_index(); i++)
     {
         auto player = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
 
         if (!player->is_valid(local))
             continue;
 
-        auto target = g_player_manager.players[player->entindex() - 1];
+        auto &target = g_player_manager.players[player->entindex() - 1];
         if (target.player != player || target.m_records.empty())
             continue;
         auto record = target.m_records[0];
         if (!record || !record->built)
             continue;
-        auto cur_distance = fabsf((player->m_vec_origin() - eye_pos).delta(cmd->m_viewangles));
-        if (cur_distance > 100.f || distance <= cur_distance)
-            continue;
 
-        if (damage < player->m_i_health())
-            continue;
+        //if (damage < player->m_i_health())
+        //    continue;
 
         auto backup_mins = player->mins();
         auto backup_maxs = player->maxs();
 
+        auto head = player->get_hitbox_pos(0, record->bones);
+
+        auto cur_distance = fabsf((head - eye_pos).delta(cmd->m_viewangles));
+        if (cur_distance > 100.f || distance <= cur_distance)
+            continue;
+
         player->mins() *= 10.f;
         player->maxs() *= 10.f;
         record->cache();
-        auto head = player->get_hitbox_pos(0, record->bones);
+        g_interfaces.m_debug_overlay->add_box_overlay(head, vector(-8, -8, -8), vector(8, 8, 8), vector(0, 0, 0), 255,
+                                                      0, 0, 255, 0.1);
         ray_t ray;
         ray.initialize(eye_pos, head);
         trace_filter traceFilter;
         traceFilter.skip = local;
         trace_t trace;
         g_interfaces.m_engine_trace->trace_ray(ray, MASK_SHOT, &traceFilter, &trace);
-        if (trace.m_entity == player && trace.m_hitbox == 0)
+        if (trace.m_entity == player)
         {
             cmd->m_viewangles = eye_pos.look(head);
             cmd->buttons_ |= IN_ATTACK;

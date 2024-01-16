@@ -452,7 +452,7 @@ void proj_aim::select_target()
     this->m_target = nullptr;
     bool found_vis = false;
     float distance = FLT_MAX;
-    for (auto i = 1; i <= g_interfaces.m_engine->get_max_clients(); i++)
+    for (auto i = 1; i <= g_interfaces.m_entity_list->get_highest_entity_index(); i++)
     {
         auto player = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
 

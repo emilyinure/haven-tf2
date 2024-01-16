@@ -30,5 +30,7 @@ void c_offsets::init()
 
         // x-ref "Usage: \"load_itempreset <preset index>\"
         this->m_sigs.in_cond = client.get_sig("55 8B EC 83 EC 08 56 57 8B 7D 08 8B F1 83").m_ptr;
+
+        this->m_sigs.invalidate_bone_cache = client.get_sig("A1 ? ? ? ? 48 C7 81 60 08 00 00 FF FF 7F FF").m_ptr;
     }
 }

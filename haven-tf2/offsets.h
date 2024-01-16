@@ -10,6 +10,7 @@ public:
         uint8_t* global_vars_base;
         uint8_t* compute_hitbox_surrounding_box;
         uint8_t* in_cond;
+        uint8_t* invalidate_bone_cache;
     } m_sigs;
 
     void init();

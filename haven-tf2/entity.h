@@ -93,6 +93,7 @@ public:
     {
         return g_utils.get_virtual_function<bool(__thiscall*)(void*, int, int)>(this, 145)(this, group, mask);
     }
+    void invalidate_bone_cache();
     vector world_space_center();
     c_base_entity* get_owner();
     c_base_handle owner_handle();

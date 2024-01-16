@@ -51,6 +51,6 @@ public:
 class c_player_manager
 {
 public:
-    player_t players[64];
+    std::unordered_map<int, player_t> players;
     void update_players();
 } inline g_player_manager;
