@@ -160,8 +160,8 @@ void c_aimbot::run(c_base_player* local, usercmd_t* cmd)
         player->mins() *= 10.f;
         player->maxs() *= 10.f;
         record->cache();
-        g_interfaces.m_debug_overlay->add_box_overlay(head, vector(-8, -8, -8), vector(8, 8, 8), vector(0, 0, 0), 255,
-                                                      0, 0, 255, 0.1);
+        //g_interfaces.m_debug_overlay->add_box_overlay(head, vector(-8, -8, -8), vector(8, 8, 8), vector(0, 0, 0), 255,
+        //                                              0, 0, 255, 0.1);
         ray_t ray;
         ray.initialize(eye_pos, head);
         trace_filter traceFilter;
