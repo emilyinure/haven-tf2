@@ -10,7 +10,7 @@
 bool player_record_t::valid() const
 {
     // use prediction curtime for this.
-    const float curtime = TICKS_TO_TIME(g_cl.m_local->m_tick_base());
+    const float curtime = TICKS_TO_TIME(g_cl.m_local->m_tick_base() + 1);
 
     // correct is the amount of time we have to correct game time,
     static auto sv_maxunlag = g_interfaces.m_cvar->find_var("sv_maxunlag");
@@ -159,37 +159,16 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
 {
     if (!(flags & FL_ONGROUND))
     {
-        if (GAMEMOVEMENT_JUMP_TIME < jump_time_delta)
-        {
-            if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
-            {
-                vector  hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
-                vector  hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
-                vector  viewDelta = (hullSizeNormal - hullSizeCrouch);
-                vector  out;
-                origin_diff -= viewDelta;
-            }
-            else if (last_flags & FL_DUCKING)
-            {
-
-                vector hullSizeNormal = vector(24, 24, 82) - vector(-24, -24, 0);
-                vector hullSizeCrouch = vector(24, 24, 62) - vector(-24, -24, 0);
-                vector viewDelta = (hullSizeNormal - hullSizeCrouch);
-
-                float flDeltaZ = viewDelta.m_z;
-                flDeltaZ -= viewDelta.m_z;
-
-                origin_diff -= viewDelta;
-            
-            }
-        }
+        vector hullSizeNormal = vector(16, 16, 72) - vector(-16, -16, 0);
+        vector hullSizeCrouch = vector(16, 16, 36) - vector(-16, -16, 0);
+        vector viewDelta = (hullSizeNormal - hullSizeCrouch);
         if ((flags & FL_DUCKING) && !(last_flags & FL_DUCKING))
         {
-            origin_diff += (vector(-24, -24, 0) - vector(-24, -24, 0));
+            origin_diff -= viewDelta;
         }
         else if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
         {
-            origin_diff -= (vector(-24, -24, 0) - vector(-24, -24, 0));
+            origin_diff += viewDelta;
         }
     }
     return (origin_diff) * (1.f / TICKS_TO_TIME(lag));
@@ -197,7 +176,7 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
 
 void c_player_manager::update_players()
 {
-    for (auto i = 1; i <= g_interfaces.m_engine->get_max_clients(); i++)
+    for (auto i = 1; i <= g_interfaces.m_entity_list->get_highest_entity_index(); i++)
     {
         const auto target = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
         auto* player = &players[i - 1];
@@ -284,12 +263,7 @@ void c_player_manager::update_players()
 
             target->set_abs_origin(target->m_vec_origin());
 
-            const auto bones_ac = player->player->bone_cache();
-            if (!bones_ac)
-                return;
-
-            bones_ac->UpdateBones(new_record.bones, 128, -1);
-
+            target->invalidate_bone_cache();
             new_record.built = target->setup_bones(new_record.bones, 128, 0x100, target->sim_time());
 
 
@@ -381,14 +355,12 @@ bool player_record_t::cache()
     const auto bones_ac = player->player->bone_cache();
     if (!bones_ac)
         return false;
-    bones_ac->UpdateBones(bones, 128, player->player->sim_time());
-    // memcpy( bones_ac->m_pBones, bones, sizeof( matrix_3x4 ) * 128 );
+
+    memcpy(player->player->GetCachedBoneData()->m_elements, bones,
+           sizeof(matrix_3x4) * player->player->GetCachedBoneData()->m_size);
 }
 
 void player_record_t::restore()
 {
-    const auto bones_ac = player->player->bone_cache();
-    if (!bones_ac)
-        return;
-    bones_ac->UpdateBones(bones, 128, -1);
+    player->player->invalidate_bone_cache();
 }

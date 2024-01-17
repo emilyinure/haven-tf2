@@ -84,7 +84,6 @@ void c_netvars::get_offsets()
     this->m_offsets.dt_base_entity.m_i_team_num = this->get("DT_BaseEntity", "m_iTeamNum").m_offset;
     this->m_offsets.dt_base_entity.m_owner_handle = this->get("DT_BaseEntity", "m_hOwnerEntity").m_offset;
     this->m_offsets.dt_base_entity.m_simulation_time = this->get("DT_BaseEntity", "m_flSimulationTime").m_offset;
-    this->m_offsets.dt_base_entity.m_simulation_time = this->get("DT_BaseEntity", "m_flSimulationTime").m_offset;
     this->m_offsets.dt_base_entity.m_move_type = this->get("DT_BaseEntity", "movetype").m_offset;
     this->m_offsets.dt_base_entity.m_ang_rot = this->get("DT_BaseEntity", "m_angRotation").m_offset;
 

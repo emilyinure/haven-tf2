@@ -93,6 +93,7 @@ public:
     {
         return g_utils.get_virtual_function<bool(__thiscall*)(void*, int, int)>(this, 145)(this, group, mask);
     }
+    void invalidate_bone_cache();
     vector world_space_center();
     c_base_entity* get_owner();
     c_base_handle owner_handle();
@@ -321,6 +322,10 @@ class c_base_player : public c_base_entity
     typedef bool(__thiscall* in_cond_fn)(void*, int);
 
 public:
+    c_utl_vector<matrix_3x4>* GetCachedBoneData()
+    {
+        return reinterpret_cast<c_utl_vector<matrix_3x4>*>(reinterpret_cast<DWORD>(this) + 0x848); // 0x844?
+    }
     c_tf_player_shared* m_shared();
     bool in_cond(e_tf_cond cond)
     {

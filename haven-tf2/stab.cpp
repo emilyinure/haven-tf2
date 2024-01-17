@@ -100,7 +100,7 @@ bool c_backstab::check_player(c_base_player* base_player)
     {
         base_player->set_abs_origin(record->origin);
         base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
-        bones->UpdateBones(record->bones, 128, record->sim_time);
+		record->cache();
         vector look = g_cl.m_shoot_pos.look(record->world_space_center);
 
         trace_t trace;
@@ -118,6 +118,7 @@ bool c_backstab::check_player(c_base_player* base_player)
                 ret_state = true;
             }
         }
+        record->restore();
     }
 
     record = nullptr;
@@ -131,8 +132,7 @@ bool c_backstab::check_player(c_base_player* base_player)
             {
                 base_player->set_abs_origin(record->origin);
                 base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
-
-                bones->UpdateBones(record->bones, 128, record->sim_time);
+				record->cache();
                 vector look = g_cl.m_shoot_pos.look(record->world_space_center);
 
                 trace_t trace;
@@ -148,9 +148,13 @@ bool c_backstab::check_player(c_base_player* base_player)
                         g_cl.m_cmd->buttons_ |= IN_ATTACK;
                         g_cl.m_cmd->tick_count_ = TIME_TO_TICKS(record->sim_time) + lerp;
                         ret_state = true;
+                        record->restore();
+                        base_player->set_abs_origin(origin);
+                        base_player->set_collision_bounds(mins, maxs);
                         break;
                     }
                 }
+                record->restore();
             }
         }
 

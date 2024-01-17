@@ -222,6 +222,11 @@ c_base_handle c_base_player::ground_handle()
     return this->get<c_base_handle>(g_netvars.m_offsets.dt_base_player.m_ground_handle);
 }
 
+void c_base_entity::invalidate_bone_cache()
+{
+    reinterpret_cast<void(__thiscall*)(void*)>(g_offsets.m_sigs.invalidate_bone_cache)(this);
+}
+
 vector c_base_entity::world_space_center()
 {
     return get_abs_origin() + (maxs() + mins()) * 0.5f;
@@ -335,7 +340,7 @@ float c_base_player::m_max_speed()
 
 vector c_base_player::m_eye_angles()
 {
-    return this->get<vector>(g_netvars.m_offsets.dt_base_player.m_eye_angles);
+     return this->get<vector>(g_netvars.m_offsets.dt_base_player.m_eye_angles);
 }
 void c_base_player::set_abs_origin(vector origin)
 {
@@ -395,6 +400,7 @@ CBoneCacheHandler* c_base_player::bone_cache()
     return func(this, NULL);
 }
 
+
 int& c_base_player::m_class()
 {
     return this->get<int>(g_netvars.m_offsets.dt_base_player.m_class);
@@ -424,7 +430,8 @@ bool c_base_player::is_valid(c_base_player* local, const bool team_check, const 
 {
     if (!this)
         return false;
-
+    if (auto client_class = this->get_client_class(); !client_class || client_class->m_class_id != CTFPlayer)
+        return false;
     if (dormant_check && this->is_dormant())
         return false;
 
