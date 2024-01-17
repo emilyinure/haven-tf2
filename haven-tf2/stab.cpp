@@ -3,10 +3,10 @@
 #include "sdk.h"
 
 #define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
-bool CanPerformBackstabONTarget(vector& angle, vector& enemy_view, c_base_player* target)
+bool CanPerformBackstabONTarget(vector& angle, vector& enemy_view, vector& world_space_center)
 {
     vector vecToTarget;
-    vecToTarget = target->world_space_center() - g_cl.m_local->world_space_center();
+    vecToTarget = world_space_center - g_cl.m_local->world_space_center();
     vecToTarget.m_z = 0.0f;
     vecToTarget.normalize_in_place();
 
@@ -101,12 +101,12 @@ bool c_backstab::check_player(c_base_player* base_player)
         base_player->set_abs_origin(record->origin);
         base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
         bones->UpdateBones(record->bones, 128, record->sim_time);
-        const vector point = record->origin + (record->maxs + record->mins) * 0.5f;
-        vector look = g_cl.m_shoot_pos.look(point);
+        vector look = g_cl.m_shoot_pos.look(record->world_space_center);
 
         trace_t trace;
 
-        if ((g_cl.m_local->m_class() != TF2_Spy || CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
+        if ((g_cl.m_local->m_class() != TF2_Spy ||
+             CanPerformBackstabONTarget(look, record->eye_angle,record->world_space_center)) &&
             DoSwingTraceInternal(look, trace))
         {
             auto entity = trace.m_entity;
@@ -133,13 +133,12 @@ bool c_backstab::check_player(c_base_player* base_player)
                 base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
 
                 bones->UpdateBones(record->bones, 128, record->sim_time);
-                const vector point = record->origin + (record->maxs + record->mins) * 0.5f;
-                vector look = g_cl.m_shoot_pos.look(point);
+                vector look = g_cl.m_shoot_pos.look(record->world_space_center);
 
                 trace_t trace;
 
                 if ((g_cl.m_local->m_class() != TF2_Spy ||
-                     CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
+                     CanPerformBackstabONTarget(look, record->eye_angle, record->world_space_center)) &&
                     DoSwingTraceInternal(look, trace))
                 {
                     auto entity = trace.m_entity;
