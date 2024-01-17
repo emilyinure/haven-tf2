@@ -100,7 +100,7 @@ bool c_backstab::check_player(c_base_player* base_player)
     {
         base_player->set_abs_origin(record->origin);
         base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
-		record->cache();
+	    record->cache();
         vector look = g_cl.m_shoot_pos.look(record->world_space_center);
 
         trace_t trace;
@@ -132,7 +132,7 @@ bool c_backstab::check_player(c_base_player* base_player)
             {
                 base_player->set_abs_origin(record->origin);
                 base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
-				record->cache();
+			    record->cache();
                 vector look = g_cl.m_shoot_pos.look(record->world_space_center);
 
                 trace_t trace;
