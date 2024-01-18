@@ -38,7 +38,7 @@ bool player_record_t::valid() const
     }
     // check bounds [ 0, sv_maxunlag ]
     correct = std::clamp<float>(correct, 0.f, sv_maxunlag->m_value.m_float_value);
-    return std::fabs(correct - TICKS_TO_TIME(g_cl.m_local->m_tick_base() - TIME_TO_TICKS(sim_time))) < <= 0.2f;
+    return std::fabs(correct - TICKS_TO_TIME(g_cl.m_local->m_tick_base() - TIME_TO_TICKS(sim_time))) <= 0.2f;
 }
 
 vector direction_pressed(player_record_t* record, vector last_vel)
