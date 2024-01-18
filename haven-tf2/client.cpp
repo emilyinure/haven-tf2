@@ -42,7 +42,6 @@ void c_client::on_move(usercmd_t* cmd)
     vector original_view = cmd->m_viewangles;
     if (this->m_local)
     {
-        this->m_shoot_pos = this->m_local->m_vec_origin() + this->m_local->m_view_offset();
 
         if (g_ui.m_controls.misc.auto_strafer->m_value)
             g_local_move.auto_strafe(&original_view.m_y);
@@ -50,6 +49,7 @@ void c_client::on_move(usercmd_t* cmd)
 
         g_prediction.start();
         {
+            this->m_shoot_pos = this->m_local->m_vec_origin() + this->m_local->m_view_offset();
             if (g_cl.m_weapon = g_cl.m_local->get_active_weapon())
             {
                 g_aimbot.run(m_local, cmd);

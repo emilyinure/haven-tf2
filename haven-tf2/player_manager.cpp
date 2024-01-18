@@ -16,11 +16,10 @@ bool player_record_t::valid() const
     static auto* cl_interp = g_interfaces.m_cvar->find_var("cl_interp");
     static auto* cl_interp_ratio = g_interfaces.m_cvar->find_var("cl_interp_ratio");
     static auto* cl_updaterate = g_interfaces.m_cvar->find_var("cl_updaterate");
-    const float lerp = std::fmaxf(cl_interp->m_value.m_float_value,
-                                  cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
-    float correct = lerp;
+    const int lerp_ticks = TIME_TO_TICKS(std::fmaxf(cl_interp->m_value.m_float_value,
+                                  cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value));
+    float correct = TICKS_TO_TIME(lerp_ticks);
 
-    // stupid fake latency goes into the incoming latency.
     const auto* nci = g_interfaces.m_engine->get_net_channel_info();
     if (nci)
         correct += nci->GetLatency(1);
@@ -30,7 +29,7 @@ bool player_record_t::valid() const
 
     // calculate difference between tick sent by player and our latency based tick.
     // ensure this record isn't too old.
-    return std::abs(correct - (curtime - sim_time)) < 0.20f;
+    return std::fabs(correct - TICKS_TO_TIME(g_cl.m_local->m_tick_base() - TIME_TO_TICKS(curtime))) < 0.190f;
 }
 
 vector direction_pressed(player_record_t* record, vector last_vel)

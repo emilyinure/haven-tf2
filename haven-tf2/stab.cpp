@@ -5,8 +5,9 @@
 #define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
 bool CanPerformBackstabONTarget(vector& angle, vector& enemy_view, c_base_player* target)
 {
-    vector vecToTarget;
-    vecToTarget = target->world_space_center() - g_cl.m_local->world_space_center();
+    vector vecToTarget, target_center = ((target->maxs() - target->mins()) * 0.5f) + target->mins(),
+                        local_center = ((g_cl.m_local->maxs() - g_cl.m_local->mins()) * 0.5f) + g_cl.m_local->mins();
+    vecToTarget = (target_center + target->get_abs_origin()) - (local_center + g_cl.m_local->get_abs_origin());
     vecToTarget.m_z = 0.0f;
     vecToTarget.normalize_in_place();
 
@@ -25,14 +26,7 @@ bool CanPerformBackstabONTarget(vector& angle, vector& enemy_view, c_base_player
     float flPosVsOwnerViewDot = vecToTarget.dot(vecOwnerForward);   // Facing?
     float flViewAnglesDot = vecTargetForward.dot(vecOwnerForward);  // Facestab?
 
-    // Debug
-    // 	NDebugOverlay::HorzArrow( pTarget->WorldSpaceCenter(), pTarget->WorldSpaceCenter() + 50.0f *
-    // vecTargetForward, 5.0f, 0, 255, 0, 255, true, NDEBUG_PERSIST_TILL_NEXT_SERVER ); 	NDebugOverlay::HorzArrow(
-    // pOwner->WorldSpaceCenter(), pOwner->WorldSpaceCenter() + 50.0f * vecOwnerForward, 5.0f, 0, 255, 0, 255, true,
-    // NDEBUG_PERSIST_TILL_NEXT_SERVER ); 	DevMsg( "PosDot: %3.2f FacingDot: %3.2f AnglesDot: %3.2f\n",
-    // flPosVsTargetViewDot, flPosVsOwnerViewDot, flViewAnglesDot );
-
-    return (flPosVsTargetViewDot > 0.1f && flPosVsOwnerViewDot > 0.6 && flViewAnglesDot > -0.2f);
+    return (flPosVsTargetViewDot > 0.f && flPosVsOwnerViewDot > 0.5f && flViewAnglesDot > -0.3f);
 }
 bool DoSwingTraceInternal(vector& angle, trace_t& trace)
 {
@@ -54,7 +48,7 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
     {
         fSwingRange *= fModelScale;
         vecSwingMins *= fModelScale;
-        vecSwingMaxs *= fModelScale;  
+        vecSwingMaxs *= fModelScale;
     }
 
     fSwingRange = c_attribute_manager::attribute_hook_float(fSwingRange, "melee_range_multiplier", g_cl.m_weapon);
@@ -65,13 +59,13 @@ bool DoSwingTraceInternal(vector& angle, trace_t& trace)
     ray.initialize(g_cl.m_shoot_pos, g_cl.m_shoot_pos + vecForward * fSwingRange);
 
     g_interfaces.m_engine_trace->trace_ray(ray, MASK_SOLID, &ignoreTeammatesFilter, &trace);
-    if (trace.did_hit())
+    if (trace.m_fraction < 1.f)
         return true;
     ray = ray_t();
     trace = trace_t();
     ray.initialize(g_cl.m_shoot_pos, g_cl.m_shoot_pos + vecForward * fSwingRange, vecSwingMinsBase, vecSwingMaxsBase);
     g_interfaces.m_engine_trace->trace_ray(ray, MASK_SOLID, &ignoreTeammatesFilter, &trace);
-    return trace.did_hit();
+    return trace.m_fraction < 1.f;
 }
 bool c_backstab::check_player(c_base_player* base_player)
 {
@@ -123,42 +117,41 @@ bool c_backstab::check_player(c_base_player* base_player)
 
     record = nullptr;
     if (!ret_state)
+    {
         for (const auto next : m_records)
         {
             if (!next->valid())
                 continue;
             record = next;
-            if (record)
-            {
-                base_player->set_abs_origin(record->origin);
-                base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
-
-                record->cache();
-                const vector point = record->origin + (record->maxs + record->mins) * 0.5f;
-                vector look = g_cl.m_shoot_pos.look(point);
-
-                trace_t trace;
-
-                if ((g_cl.m_local->m_class() != TF2_Spy ||
-                     CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
-                    DoSwingTraceInternal(look, trace))
-                {
-                    auto entity = trace.m_entity;
-                    if (entity == base_player)
-                    {
-                        g_cl.m_cmd->m_viewangles = look;
-                        g_cl.m_cmd->buttons_ |= IN_ATTACK;
-                        g_cl.m_cmd->tick_count_ = TIME_TO_TICKS(record->sim_time) + lerp;
-                        ret_state = true;
-                        record->restore();
-                        base_player->set_abs_origin(origin);
-                        base_player->set_collision_bounds(mins, maxs);
-                        break;
-                    }
-                }
-                record->restore();
-            }
         }
+
+        if (record)
+        {
+            base_player->set_abs_origin(record->origin);
+            base_player->set_collision_bounds(record->mins_prescaled, record->maxs_prescaled);
+
+            record->cache();
+            const vector point = record->origin + (record->maxs + record->mins) * 0.5f;
+            vector look = g_cl.m_shoot_pos.look(point);
+
+            trace_t trace;
+
+            if ((g_cl.m_local->m_class() != TF2_Spy ||
+                 CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
+                DoSwingTraceInternal(look, trace))
+            {
+                auto entity = trace.m_entity;
+                if (entity == base_player)
+                {
+                    g_cl.m_cmd->m_viewangles = look;
+                    g_cl.m_cmd->buttons_ |= IN_ATTACK;
+                    g_cl.m_cmd->tick_count_ = TIME_TO_TICKS(record->sim_time) + lerp;
+                    ret_state = true;
+                }
+            }
+            record->restore();
+        }
+    }
 
     base_player->set_abs_origin(origin);
     base_player->set_collision_bounds(mins, maxs);
