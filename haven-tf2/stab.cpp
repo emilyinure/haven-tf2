@@ -90,6 +90,12 @@ bool c_backstab::check_player(c_base_player* base_player)
 
     bool ret_state = false;
     auto bones = base_player->bone_cache();
+
+    float fSwingRange = g_cl.m_weapon->get_swing_range();
+    float fModelScale = g_cl.m_local->model_scale();
+    if (fModelScale > 1.0f)
+        fSwingRange *= fModelScale;
+
     if (record && record->valid())
     {
         base_player->set_abs_origin(record->origin);
@@ -100,8 +106,9 @@ bool c_backstab::check_player(c_base_player* base_player)
 
         trace_t trace;
 
-        if ((g_cl.m_local->m_class() != TF2_Spy || CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
-            DoSwingTraceInternal(look, trace))
+        if (std::powf(fSwingRange, 2) * 2 <= (record->origin - g_cl.m_shoot_pos).length_sqr() && //optimization
+            ((g_cl.m_local->m_class() != TF2_Spy || CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
+             DoSwingTraceInternal(look, trace)))
         {
             auto entity = trace.m_entity;
             if (entity == base_player)
@@ -136,9 +143,10 @@ bool c_backstab::check_player(c_base_player* base_player)
 
             trace_t trace;
 
-            if ((g_cl.m_local->m_class() != TF2_Spy ||
-                 CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
-                DoSwingTraceInternal(look, trace))
+            if (std::powf(fSwingRange, 2) * 2 <= (record->origin - g_cl.m_shoot_pos).length_sqr() && //optimization
+                     ((g_cl.m_local->m_class() != TF2_Spy ||
+                         CanPerformBackstabONTarget(look, record->eye_angle, base_player)) &&
+                        DoSwingTraceInternal(look, trace)))
             {
                 auto entity = trace.m_entity;
                 if (entity == base_player)
