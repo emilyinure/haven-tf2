@@ -13,6 +13,7 @@ bool player_record_t::valid() const
     const float curtime = TICKS_TO_TIME(g_cl.m_local->m_tick_base() + 1);
 
     // correct is the amount of time we have to correct game time,
+    static auto sv_maxunlag = g_interfaces.m_cvar->find_var("sv_maxunlag");
     static auto* cl_interp = g_interfaces.m_cvar->find_var("cl_interp");
     static auto* cl_interp_ratio = g_interfaces.m_cvar->find_var("cl_interp_ratio");
     static auto* cl_updaterate = g_interfaces.m_cvar->find_var("cl_updaterate");
@@ -20,16 +21,24 @@ bool player_record_t::valid() const
                                   cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value));
     float correct = TICKS_TO_TIME(lerp_ticks);
 
+    //https://www.unknowncheats.me/forum/counterstrike-global-offensive/359885-fldeadtime-int.html
+    //https://github.com/pmrowla/hl2sdk-csgo/blob/master/game/server/player_lagcompensation.cpp#L716
+    //does this ever come into use? no, is it needed maybe
+    //yes it does, thank you i forgot about this
+    const auto dead_time = static_cast<int>(curtime - sv_maxunlag->m_value.m_float_value);
+    if (sim_time < dead_time)
+        return false;
+
+    // stupid fake latency goes into the incoming latency.
     const auto* nci = g_interfaces.m_engine->get_net_channel_info();
     if (nci)
-        correct += nci->GetLatency(1);
+    {
+        correct += nci->GetLatency(0);
+        correct += nci->GetLatency(1);  
+    }
     // check bounds [ 0, sv_maxunlag ]
-    static auto sv_maxunlag = g_interfaces.m_cvar->find_var("sv_maxunlag");
     correct = std::clamp<float>(correct, 0.f, sv_maxunlag->m_value.m_float_value);
-
-    // calculate difference between tick sent by player and our latency based tick.
-    // ensure this record isn't too old.
-    return std::fabs(correct - TICKS_TO_TIME(g_cl.m_local->m_tick_base() - TIME_TO_TICKS(curtime))) < 0.190f;
+    return std::fabs(correct - TICKS_TO_TIME(g_cl.m_local->m_tick_base() - TIME_TO_TICKS(sim_time))) < <= 0.2f;
 }
 
 vector direction_pressed(player_record_t* record, vector last_vel)
@@ -190,6 +199,7 @@ void c_player_manager::update_players()
             player_record_t new_record;
             new_record.flags = target->flags();
             new_record.eye_angle = target->m_eye_angles();
+            new_record.world_space_center = target->world_space_center();
             new_record.m_lag =
                 (player->m_sim_time == -1.f)
                     ? 1

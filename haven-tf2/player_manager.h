@@ -24,6 +24,7 @@ public:
     c_base_entity* last_ground = nullptr;
     vector origin = vector();
     vector eye_angle = vector();
+    vector world_space_center = vector();
     vector move_data = vector();
 
     vector mins_prescaled = vector();
