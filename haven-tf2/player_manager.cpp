@@ -28,7 +28,7 @@ bool player_record_t::valid() const
     //https://github.com/pmrowla/hl2sdk-csgo/blob/master/game/server/player_lagcompensation.cpp#L716
     //does this ever come into use? no, is it needed maybe
     //yes it does, thank you i forgot about this
-    const auto dead_time = static_cast<int>(TICKS_TO_TIME(curticks) - sv_maxunlag->m_value.m_float_value);
+    const auto dead_time = static_cast<int>(TICKS_TO_TIME(curtick) - sv_maxunlag->m_value.m_float_value);
     if (sim_time < dead_time)
         return false;
 
