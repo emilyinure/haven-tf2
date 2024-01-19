@@ -25,5 +25,6 @@ public:
     i_localize* m_localize;
     void* m_client_mode;
     c_render_view* m_render_view;
+    c_client_state* m_client_state;
 };
 inline c_interfaces g_interfaces;

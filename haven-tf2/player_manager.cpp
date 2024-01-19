@@ -9,8 +9,11 @@
 
 bool player_record_t::valid() const
 {
-    // use prediction curtime for this.
-    const float curtime = TICKS_TO_TIME(g_cl.m_local->m_tick_base() + 1);
+    const auto* nci = g_interfaces.m_engine->get_net_channel_info();
+    if (!nci || !g_interfaces.m_client_state)
+        return false;
+
+    const float curtime = TICKS_TO_TIME(g_interfaces.m_client_state->clock_drift.server_tick + 1 + TIME_TO_TICKS(nci->GetLatency(0)));
 
     // correct is the amount of time we have to correct game time,
     static auto sv_maxunlag = g_interfaces.m_cvar->find_var("sv_maxunlag");
@@ -30,15 +33,12 @@ bool player_record_t::valid() const
         return false;
 
     // stupid fake latency goes into the incoming latency.
-    const auto* nci = g_interfaces.m_engine->get_net_channel_info();
-    if (nci)
-    {
-        correct += nci->GetLatency(0);
-        correct += nci->GetLatency(1);  
-    }
+    correct += nci->GetLatency(0);
+    correct += nci->GetLatency(1);  
+
     // check bounds [ 0, sv_maxunlag ]
     correct = std::clamp<float>(correct, 0.f, sv_maxunlag->m_value.m_float_value);
-    return std::fabs(correct - TICKS_TO_TIME(g_cl.m_local->m_tick_base() - TIME_TO_TICKS(sim_time))) <= 0.2f;
+    return std::fabs(correct - (curtime - sim_time)) <= 0.2f;
 }
 
 vector direction_pressed(player_record_t* record, vector last_vel)

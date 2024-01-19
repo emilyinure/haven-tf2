@@ -79,6 +79,7 @@
 #include "i_engine_trace.h"
 #include "i_localize.h"
 #include "render_view.h"
+#include "c_client_state.h"
 
 #include "render.h"
 
