@@ -163,6 +163,7 @@
     <ClInclude Include="convar.h" />
     <ClInclude Include="c_attribute_manager.h" />
     <ClInclude Include="c_base_handle.h" />
+    <ClInclude Include="c_client_state.h" />
     <ClInclude Include="c_global_vars_base.h" />
     <ClInclude Include="c_user_cmd.h" />
     <ClInclude Include="c_utl_memory.h" />
