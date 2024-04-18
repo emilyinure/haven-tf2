@@ -676,7 +676,7 @@ void get_hull_size(vector& size)
 }
 void proj_aim::find_shot(bool& was_shoot, int attack)
 {
-    auto target = g_player_manager.players[this->m_target->entindex() - 1];
+    auto &target = g_player_manager.players[this->m_target->entindex() - 1];
 
     float last_time = -FLT_MAX;
     if (!g_movement.setup_mv(this->m_target->m_velocity(), this->m_target))
@@ -694,7 +694,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
                             cl_interp_ratio->m_value.m_float_value / cl_updaterate->m_value.m_float_value);
     auto mindelta = FLT_MAX;
     auto maxsteps = 5000;
-    float cur_time = -nci->GetAvgLatency(2);
+    float cur_time = target.m_sim_time;
     vector last;
     
     struct target_holder
@@ -707,6 +707,9 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
         int step = 0;
         bool ground;
     } found_holder;
+
+    float projectile_spawn_time =
+        g_cl.m_local->m_tick_base() * g_interfaces.m_global_vars->m_interval_per_tick;
 
     for (int steps = 0; steps < maxsteps; steps++)
     {
@@ -768,7 +771,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
             ((steps * g_interfaces.m_global_vars->m_interval_per_tick) < 0.8f))
             continue;
 
-        auto delta = rocket_time - cur_time;
+        auto delta = (rocket_time + projectile_spawn_time) - cur_time;
         auto vis_pos = pos;
 
         if (fabsf(delta) < mindelta && fabsf(delta) < g_interfaces.m_global_vars->m_interval_per_tick * 5)
