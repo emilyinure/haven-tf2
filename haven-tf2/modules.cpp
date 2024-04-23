@@ -66,7 +66,7 @@ void c_modules::add(const char* name, bool populate_ifaces)
     {
         // export CreateInterface calls CreateInterfaceInternal https://i-dont.go-outsi.de/5ptWtWhKH
         // this sig *should* be global.
-        mod.populate_interfaces(mod.get_sig("8B 35 ?? ?? ?? ?? 57 85 F6 74 38").add(0x2));
+        mod.populate_interfaces(mod.get_sig("4C 8B 0D ?? ?? ?? ?? 4C 8B D2").rel32(0x3));
     }
 
     this->modules_.emplace_back(mod);
@@ -81,7 +81,7 @@ void module_t::populate_interfaces(uint8_t* reg)
         return;
     }
 
-    const auto interface_list = **reinterpret_cast<interface_reg***>(reg);
+    const auto interface_list = *reinterpret_cast<interface_reg**>(reg);
 
     if (!interface_list)
     {

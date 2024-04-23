@@ -5,8 +5,8 @@ void c_tier0::init()
     this->tier0_module_ = g_modules.get("tier0.dll");
 
     this->msg_ = this->tier0_module_.get_proc_address<generic_msg_fn>("Msg");
-    this->con_warning_ = this->tier0_module_.get_proc_address<generic_msg_fn>("?ConWarning@@YAXPBDZZ");
-    this->dev_msg_ = this->tier0_module_.get_proc_address<generic_msg_fn>("?DevMsg@@YAXPBDZZ");
+    this->con_warning_ = this->tier0_module_.get_proc_address<generic_msg_fn>("?ConWarning");
+    this->dev_msg_ = this->tier0_module_.get_proc_address<generic_msg_fn>("?DevMsg");
 }
 
 // dunno why we have these.

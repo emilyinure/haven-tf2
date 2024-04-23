@@ -152,7 +152,6 @@ bool c_backstab::check_player(c_base_player* base_player)
                 if (entity == base_player)
                 {
                     g_cl.m_cmd->m_viewangles = look;
-                    g_cl.m_cmd->buttons_ |= IN_ATTACK;
                     g_cl.m_cmd->tick_count_ = TIME_TO_TICKS(record->sim_time) + lerp;
                     ret_state = true;
                 }
@@ -172,13 +171,19 @@ void c_backstab::run()
     int slot = g_cl.m_weapon->GetSlot();
     if (slot != SLOT_MELEE)
         return;
-
+    bool valid = false;
     for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
     {
         const auto base_player = g_interfaces.m_entity_list->get_entity<c_base_player>(i);
         if (!base_player->is_valid(g_cl.m_local, g_cl.m_weapon->item_index() != WPN_DisciplinaryAction))
             continue;
         if (check_player(base_player))
+        {
+            valid = true;
+            if (last_valid)
+                g_cl.m_cmd->buttons_ |= IN_ATTACK;
             break;
+        }
     }
+    valid = last_valid;
 }

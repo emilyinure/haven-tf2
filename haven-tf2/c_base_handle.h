@@ -3,6 +3,6 @@
 // todo: impl. the rest of this.
 class c_base_handle
 {
-protected:
+public:
     unsigned long m_index;
 };

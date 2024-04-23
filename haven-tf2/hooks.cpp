@@ -7,12 +7,12 @@
 #include "sdk.h"
 #include "stab.h"
 
-void __fastcall paint(uintptr_t ecx, uintptr_t edx, paint_mode_t mode)
+void paint(uintptr_t ecx, paint_mode_t mode)
 {
     if (g_cl.m_unloading)
-        return g_hooks.m_original.paint(ecx, edx, mode);
+        return g_hooks.m_original.paint(ecx, mode);
 
-    g_hooks.m_original.paint(ecx, edx, mode);
+    g_hooks.m_original.paint(ecx, mode);
 
     g_cl.m_local = g_interfaces.m_entity_list->get_entity<c_base_player>(g_interfaces.m_engine->get_local_player());
 
@@ -36,7 +36,7 @@ void __fastcall paint(uintptr_t ecx, uintptr_t edx, paint_mode_t mode)
     }
 }
 
-void __fastcall override_view(uintptr_t ecx, uintptr_t edx, c_view_setup* view)
+void override_view(uintptr_t ecx, c_view_setup* view)
 {
     if (g_cl.m_local)
     {
@@ -63,10 +63,10 @@ void __fastcall override_view(uintptr_t ecx, uintptr_t edx, c_view_setup* view)
         last_state = state;
     }
 
-    g_hooks.m_original.override_view(ecx, edx, view);
+    g_hooks.m_original.override_view(ecx, view);
 }
 
-bool __stdcall create_move(float sample, usercmd_t* cmd)
+bool create_move(void* idk, float sample, usercmd_t* cmd)
 {
     g_hooks.m_original.create_move(sample, cmd);
     if (cmd->command_number_ != 0)
@@ -77,7 +77,7 @@ bool __stdcall create_move(float sample, usercmd_t* cmd)
     return false;
 }
 
-LRESULT __stdcall wnd_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+LRESULT wnd_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
     if (g_cl.m_unloading)
         return CallWindowProcA(g_hooks.m_original.wnd_proc, hwnd, msg, wparam, lparam);
@@ -87,7 +87,7 @@ LRESULT __stdcall wnd_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     return CallWindowProcA(g_hooks.m_original.wnd_proc, hwnd, msg, wparam, lparam);
 }
 
-void __fastcall run_command(c_prediction* _this, uintptr_t, c_base_entity* player, usercmd_t* cmd,
+void run_command(c_prediction* _this, c_base_entity* player, usercmd_t* cmd,
                             CMoveHelper* move_helper)
 {
     g_hooks.m_original.run_command(_this, player, cmd, move_helper);
@@ -95,10 +95,10 @@ void __fastcall run_command(c_prediction* _this, uintptr_t, c_base_entity* playe
         g_interfaces.m_move_helper = move_helper;
 }
 
-void __stdcall frame_stage(client_frame_stage_t stage)
+void frame_stage(void* _this, client_frame_stage_t stage)
 {
     g_cl.m_local = g_interfaces.m_entity_list->get_entity<c_base_player>(g_interfaces.m_engine->get_local_player());
-    g_hooks.m_original.frame_stage(stage);
+    g_hooks.m_original.frame_stage(_this, stage);
     if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END)
     {
         if (g_cl.m_local)
@@ -108,12 +108,12 @@ void __stdcall frame_stage(client_frame_stage_t stage)
     }
 }
 
-void __fastcall lock_cursor(uintptr_t ecx, uintptr_t edx)
+void lock_cursor(uintptr_t ecx)
 {
-    return g_ui.m_open ? g_interfaces.m_surface->unlock_cursor() : g_hooks.m_original.lock_cursor(ecx, edx);
+    return g_ui.m_open ? g_interfaces.m_surface->unlock_cursor() : g_hooks.m_original.lock_cursor(ecx);
 }
 
-void __fastcall calc_view_model(uintptr_t ecx, uintptr_t edx, c_base_player* owner, const vector& eye_position,
+void calc_view_model(uintptr_t ecx, c_base_player* owner, const vector& eye_position,
                                 vector& eye_angles)
 {
 
@@ -125,10 +125,10 @@ void __fastcall calc_view_model(uintptr_t ecx, uintptr_t edx, c_base_player* own
                                      (up * g_ui.m_controls.visuals.view_model.z_offset->m_value));
 
     eye_angles.m_z += g_ui.m_controls.visuals.view_model.roll->m_value; // VM Roll
-    g_hooks.m_original.calc_view_model(ecx, edx, owner, eye_pos, eye_angles);
+    g_hooks.m_original.calc_view_model(ecx, owner, eye_pos, eye_angles);
 }
 
-void __fastcall estimate_abs_velocity(uintptr_t ecx, uintptr_t edx, vector& vel) noexcept
+void estimate_abs_velocity(uintptr_t ecx, vector& vel) noexcept
 {
     const auto entity = reinterpret_cast<c_base_player*>(ecx);
     if (g_cl.m_local && entity != g_cl.m_local &&
@@ -138,14 +138,14 @@ void __fastcall estimate_abs_velocity(uintptr_t ecx, uintptr_t edx, vector& vel)
         return;
     }
 
-    g_hooks.m_original.estimate_abs_velocity(ecx, edx, vel);
+    g_hooks.m_original.estimate_abs_velocity(ecx, vel);
 }
 
 void c_hooks::init()
 {
     MH_Initialize();
 
-    MH_CreateHook(g_modules.get("client.dll").get_sig("55 8B EC E8 ? ? ? ? 8B C8 85 C9 75 ? B0 ?").as<void*>(),
+    MH_CreateHook(g_modules.get("client.dll").get_sig("40 53 48 83 EC 30 0F 29 74 24 20 49 8B D8").as<void*>(),
                   create_move, reinterpret_cast<void**>(&this->m_original.create_move));
     MH_CreateHook(c_utils::get_virtual_function<void*>(g_interfaces.m_engine_vgui, 14), paint,
                   reinterpret_cast<void**>(&this->m_original.paint));

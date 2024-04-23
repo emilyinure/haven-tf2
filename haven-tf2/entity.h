@@ -55,7 +55,7 @@ public:
 
 class c_base_entity : public i_client_entity
 {
-    typedef bool(__thiscall* compute_hitbox_surrounding_box_fn)(void*, vector*, vector*);
+    typedef bool(* compute_hitbox_surrounding_box_fn)(void*, vector*, vector*);
 
     enum e_indexes
     {
@@ -64,8 +64,8 @@ class c_base_entity : public i_client_entity
     };
 
 public:
-    __VFUNC(get_health(), e_indexes::GET_HEALTH, int(__thiscall*)(void*));
-    __VFUNC(get_max_health(), e_indexes::GET_MAX_HEALTH, int(__thiscall*)(void*));
+    __VFUNC(get_health(), e_indexes::GET_HEALTH, int(*)(void*));
+    __VFUNC(get_max_health(), e_indexes::GET_MAX_HEALTH, int(*)(void*));
 
     template <typename T> T* as()
     {
@@ -91,7 +91,7 @@ public:
     }
     bool should_collide(int group, int mask)
     {
-        return g_utils.get_virtual_function<bool(__thiscall*)(void*, int, int)>(this, 145)(this, group, mask);
+        return g_utils.get_virtual_function<bool(*)(void*, int, int)>(this, 145)(this, group, mask);
     }
     void invalidate_bone_cache();
     vector world_space_center();
@@ -290,7 +290,7 @@ enum e_tf_cond
 };
 class c_tf_player_shared
 {
-    typedef bool(__thiscall* in_cond_fn)(void*, int);
+    typedef bool(* in_cond_fn)(void*, int);
 
 public:
     bool in_cond(e_tf_cond cond);
@@ -319,7 +319,7 @@ enum move_type_t
 
 class c_base_player : public c_base_entity
 {
-    typedef bool(__thiscall* in_cond_fn)(void*, int);
+    typedef bool(* in_cond_fn)(void*, int);
 
 public:
     c_utl_vector<matrix_3x4>* GetCachedBoneData()

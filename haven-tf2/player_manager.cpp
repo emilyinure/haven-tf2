@@ -156,16 +156,13 @@ vector get_velocity(vector origin_diff, int lag, int flags, int last_flags, floa
 {
     if (!(flags & FL_ONGROUND))
     {
-        vector hullSizeNormal = vector(16, 16, 72) - vector(-16, -16, 0);
-        vector hullSizeCrouch = vector(16, 16, 36) - vector(-16, -16, 0);
-        vector viewDelta = (hullSizeNormal - hullSizeCrouch);
         if ((flags & FL_DUCKING) && !(last_flags & FL_DUCKING))
         {
-            origin_diff -= viewDelta;
+            origin_diff.m_z -= 37;
         }
         else if (!(flags & FL_DUCKING) && (last_flags & FL_DUCKING))
         {
-            origin_diff += viewDelta;
+            origin_diff.m_z += 37;
         }
     }
     return (origin_diff) * (1.f / TICKS_TO_TIME(lag));
@@ -349,12 +346,7 @@ bool player_record_t::cache()
 {
     if (!built)
         return false;
-    const auto bones_ac = player->player->bone_cache();
-    if (!bones_ac)
-        return false;
-
-    memcpy(player->player->GetCachedBoneData()->m_elements, bones,
-           sizeof(matrix_3x4) * player->player->GetCachedBoneData()->m_size);
+    return false;
 }
 
 void player_record_t::restore()

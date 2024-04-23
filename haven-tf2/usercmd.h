@@ -29,7 +29,7 @@
 
 struct usercmd_t {
 public:
-	int pad0;
+    int64_t pad0;
 	int command_number_ = 0;
 	int tick_count_ = 0;
 	vector m_viewangles;
@@ -38,7 +38,7 @@ public:
 	float upmove_ = 0;
 	int buttons_ = 0;
 	char impulse_ = 0;
-	int weaponselect_ = 0;
+    int weaponselect_ = 0;
 	int weaponsubtype_ = 0;
 	int randomseed_ = 0;
 	short mousedx_ = 0;

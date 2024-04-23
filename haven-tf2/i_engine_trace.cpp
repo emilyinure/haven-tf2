@@ -68,51 +68,16 @@ CTraceFilterSimple::CTraceFilterSimple(c_base_entity* passedict, int collisionGr
     m_pExtraShouldHitCheckFunction = pExtraShouldHitFunc;
 }
 
-//-----------------------------------------------------------------------------
-// The trace filter!
-//-----------------------------------------------------------------------------
-typedef bool(_cdecl* PassServer)(void* pTouch, void* pPass);
-typedef bool(_cdecl* StandardFilter)(void* a1, int a2);
-PassServer oPassServerEntityFilter = 0;
-typedef bool(__stdcall* ShouldCollide)(int a1, int a2);
-ShouldCollide oShouldCollide = 0;
-StandardFilter oStandardFilterRules = 0;
+typedef bool(* ShouldHitEntity)(CTraceFilterSimple*, c_base_entity*, int);
+ShouldHitEntity oShouldHitEntity = 0;
 bool CTraceFilterSimple::should_hit_entity(c_base_entity* pHandleEntity, int contentsMask)
 {
-    if (!oPassServerEntityFilter)
-        oPassServerEntityFilter =
-            g_modules.get("client.dll").get_sig("55 8B EC 56 8B 75 ? 85 F6 75 ? B0 ?").as<PassServer>();
-    if (!oShouldCollide)
-        oShouldCollide = g_modules.get("client.dll").get_sig("55 8B EC 8B 55 ? 56 8B 75 ? 3B F2").as<ShouldCollide>();
-    if (!oStandardFilterRules)
-        oStandardFilterRules = g_modules.get("client.dll")
-                                   .get_sig("55 8B EC 8B 4D ? 56 8B 01 FF 50 ? 8B F0 85 F6 75 ? B0 ? 5E 5D C3")
-                                   .as<StandardFilter>();
-    if (!oStandardFilterRules(pHandleEntity, contentsMask))
-        return false;
-
-    if (m_pPassEnt)
-    {
-        if (!oPassServerEntityFilter(pHandleEntity, m_pPassEnt))
-        {
-            return false;
-        }
-    }
-    "55 8B EC 56 8B 75 ? 85 F6 75 ? B0 ?"; // bool __cdecl PassServerEntityFilter(int pTouch, int pPass)
-    "55 8B EC 8B 4D ? 56 8B 01 FF 50 ? 8B F0 85 F6 75 ? B0 ? 5E 5D C3"; // bool __cdecl StandardFilterRules(int a1, int
-                                                                        // a2)
-    // Don't test if the game code tells us we should ignore this collision...
-    c_base_entity* pEntity = (c_base_entity*)(pHandleEntity);
-    if (!pEntity)
-        return false;
-    if (!pEntity->should_collide(m_collisionGroup, contentsMask))
-        return false;
-    if (pEntity && !oShouldCollide(m_collisionGroup, pEntity->collision_group()))
-        return false;
-    if (m_pExtraShouldHitCheckFunction && (!(m_pExtraShouldHitCheckFunction(pHandleEntity, contentsMask))))
-        return false;
-
-    return true;
+    if (!oShouldHitEntity)
+        oShouldHitEntity =
+            g_modules.get("client.dll")
+                .get_sig("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 48 8B 02 48 8B E9") // first index of CTraceFilterSimple
+                .as<ShouldHitEntity>();
+    return oShouldHitEntity(this, pHandleEntity, contentsMask);
 }
 
 bool CTraceFilterIgnorePlayers::should_hit_entity(c_base_entity* pServerEntity, int contentsMask)

@@ -8,13 +8,14 @@ void c_interfaces::gather()
         this->m_prediction = client.get_interface("VClientPrediction001", true).as<c_prediction>();
         this->m_entity_list = client.get_interface("VClientEntityList0").as<i_client_entity_list>();
         this->m_game_movement = client.get_interface("GameMovement001", true).as<c_game_movement>();
-        this->m_game_rules = **client.get_sig("8B 0D ? ? ? ? 83 C4 10 C7 45").as<game_rules***>(0x2);
-        this->m_client_mode = **reinterpret_cast<void***>(client.get_sig("8B 0D ? ? ? ? 8B 02 D9 05").add(2));
+        //this->m_game_rules = **client.get_sig("8B 0D ? ? ? ? 83 C4 10 C7 45").as<game_rules***>(0x2);
+        this->m_client_mode = *reinterpret_cast<void**>(client.get_sig("48 8B 0D ? ? ? ? 45 33 C9 FF 93").rel32(0x3));
+        this->m_global_vars =
+            *reinterpret_cast<c_global_vars_base**>(client.get_sig("48 8B 05 ?? ?? ?? ?? 48 8D 56 18").rel32(0x3));
     }
 
     const auto engine = g_modules.get("engine.dll");
     {
-        this->m_global_vars = *engine.get_sig("A1 ? ? ? ? 8B 11 68").as<c_global_vars_base**>(0x8);
         this->m_engine = engine.get_interface("VEngineClient0").as<iv_engine_client>();
         this->m_engine_sound = engine.get_interface("IEngineSoundClient0").as<i_engine_sound>();
         this->m_engine_vgui = engine.get_interface("VEngineVGui0").as<i_engine_vgui>();
@@ -22,7 +23,7 @@ void c_interfaces::gather()
         this->m_engine_trace = engine.get_interface("EngineTraceClient003", true).as<i_engine_trace>();
         this->m_model_info = engine.get_interface("VModelInfoClient006", true).as<i_model_info>();
         this->m_render_view = engine.get_interface("VEngineRenderView014", true).as<c_render_view>();
-        this->m_client_state = *engine.get_sig("68 ? ? ? ? E8 ? ? ? ? 83 C4 08 5F 5E 5B 5D C3").as<c_client_state**>(1);
+        this->m_client_state = *reinterpret_cast<c_client_state**>(engine.get_sig("48 8D 0D ? ? ? ? E8 ? ? ? ? F3 0F 5E 05").rel32(0x3));
     }
 
     const auto vgui_mat_surface = g_modules.get("vguimatsurface.dll");

@@ -11,25 +11,25 @@ class c_hooks
 public:
     struct
     {
-        typedef void(__fastcall* paint_fn)(uintptr_t, uintptr_t, paint_mode_t);
+        typedef void(* paint_fn)(uintptr_t, paint_mode_t);
         paint_fn paint;
 
-        typedef void(__fastcall* override_view_fn)(uintptr_t, uintptr_t, c_view_setup*);
+        typedef void(* override_view_fn)(uintptr_t, c_view_setup*);
         override_view_fn override_view;
 
-        typedef void(__fastcall* calc_view_model_fn)(uintptr_t, uintptr_t, c_base_player*, const vector&, vector& );
+        typedef void(* calc_view_model_fn)(uintptr_t, c_base_player*, const vector&, vector& );
         calc_view_model_fn calc_view_model;
 
-        typedef void(__fastcall* estimate_abs_velocity_fn)(uintptr_t, uintptr_t, vector&);
+        typedef void(* estimate_abs_velocity_fn)(uintptr_t, vector&);
         estimate_abs_velocity_fn estimate_abs_velocity;
 
-        typedef bool(__stdcall* create_move_fn)(float, usercmd_t*);
+        typedef bool(* create_move_fn)(float, usercmd_t*);
         create_move_fn create_move;
 
-        typedef void(__stdcall* frame_stage_fn)(client_frame_stage_t);
+        typedef void (*frame_stage_fn)(void*, client_frame_stage_t);
         frame_stage_fn frame_stage;
 
-        typedef void(__fastcall* lock_cursor_fn)(uintptr_t, uintptr_t);
+        typedef void(* lock_cursor_fn)(uintptr_t);
         lock_cursor_fn lock_cursor;
 
         typedef void(__thiscall* run_command_fn)(c_prediction*, c_base_entity*, usercmd_t*, CMoveHelper*);

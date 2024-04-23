@@ -26,6 +26,24 @@ struct signature_t
     {
         return this->m_ptr + offset;
     }
+
+    __forceinline uint8_t* rel32(size_t offset)
+    {
+        uint8_t* out;
+        uint32_t r;
+
+        out = m_ptr + offset;
+
+        // get rel32 offset.
+        r = *(uint32_t*)out;
+        if (!r)
+            return nullptr;
+
+        // relative to address of next instruction.
+        out = (out + 4) + r;
+
+        return (uint8_t*)out;
+    }
 };
 
 struct module_t

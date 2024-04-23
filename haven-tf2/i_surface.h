@@ -38,8 +38,8 @@ enum e_font_flags
 
 class i_surface
 {
-    typedef void(__thiscall* start_drawing_fn)(void*);
-    typedef void(__thiscall* finish_drawing_fn)(void*);
+    typedef void(* start_drawing_fn)(void*);
+    typedef void(* finish_drawing_fn)(void*);
 
     enum e_indexes
     {
@@ -62,36 +62,39 @@ class i_surface
     };
 
 public:
-    __VFUNC(draw_set_color(color col), e_indexes::DRAW_SET_COLOR, void(__thiscall*)(void*, color), col);
+    //__VFUNC(draw_set_color(color col), e_indexes::DRAW_SET_COLOR, void (*)(void*, color), col);
+    __VFUNC(draw_set_color(color col), e_indexes::DRAW_SET_COLOR, void (*)(void*, int, int, int, int), col.m_r, col.m_g,
+            col.m_b, col.m_a);
     __VFUNC(draw_filled_rect(int x, int y, int x2, int y2), e_indexes::DRAW_FILLED_RECT,
-            void(__thiscall*)(void*, int, int, int, int), x, y, x2, y2);
+            void(*)(void*, int, int, int, int), x, y, x2, y2);
     __VFUNC(draw_outlined_rect(int x, int y, int x2, int y2), e_indexes::DRAW_OUTLINED_RECT,
-            void(__thiscall*)(void*, int, int, int, int), x, y, x2, y2);
-    __VFUNC(draw_line(int x, int y, int x2, int y2), e_indexes::DRAW_LINE, void(__thiscall*)(void*, int, int, int, int),
+            void(*)(void*, int, int, int, int), x, y, x2, y2);
+    __VFUNC(draw_line(int x, int y, int x2, int y2), e_indexes::DRAW_LINE, void(*)(void*, int, int, int, int),
             x, y, x2, y2);
-    __VFUNC(create_font(), e_indexes::CREATE_FONT, unsigned long(__thiscall*)(void*));
+    __VFUNC(create_font(), e_indexes::CREATE_FONT, unsigned long(*)(void*));
     __VFUNC(set_font_glyph_set(unsigned long font, const char* font_name, int tall, int weight, int flags),
             e_indexes::SET_FONT_GLYPH_SET,
-            bool(__thiscall*)(void*, unsigned long, const char*, int, int, int, int, int, int, int), font, font_name,
+            bool(*)(void*, unsigned long, const char*, int, int, int, int, int, int, int), font, font_name,
             tall, weight, 0, 0, flags, 0, 0);
     __VFUNC(draw_set_text_font(unsigned long font), e_indexes::DRAW_SET_TEXT_FONT,
-            void(__thiscall*)(void*, unsigned long), font);
-    __VFUNC(draw_set_text_color(color col), e_indexes::DRAW_SET_TEXT_COLOR, void(__thiscall*)(void*, color), col);
-    __VFUNC(draw_set_text_pos(int x, int y), e_indexes::DRAW_SET_TEXT_POS, void(__thiscall*)(void*, int, int), x, y);
+            void(*)(void*, unsigned long), font);
+    __VFUNC(draw_set_text_color(color col), e_indexes::DRAW_SET_TEXT_COLOR, void (*)(void*, int, int, int, int),
+            col.m_r, col.m_g, col.m_b, col.m_a);
+    __VFUNC(draw_set_text_pos(int x, int y), e_indexes::DRAW_SET_TEXT_POS, void(*)(void*, int, int), x, y);
     __VFUNC(draw_print_text(const wchar_t* text, int text_length), e_indexes::DRAW_PRINT_TEXT,
-            void(__thiscall*)(void*, const wchar_t*, int, int), text, text_length, 0);
+            void(*)(void*, const wchar_t*, int, int), text, text_length, 0);
     __VFUNC(get_text_size(unsigned long font, const wchar_t* text, int& wide, int& tall), e_indexes::GET_TEXT_SIZE,
-            void(__thiscall*)(void*, unsigned long, const wchar_t*, int&, int&), font, text, wide, tall);
-    __VFUNC(unlock_cursor(), e_indexes::UNLOCK_CURSOR, void(__thiscall*)(void*));
+            void(*)(void*, unsigned long, const wchar_t*, int&, int&), font, text, wide, tall);
+    __VFUNC(unlock_cursor(), e_indexes::UNLOCK_CURSOR, void(*)(void*));
     __VFUNC(draw_set_texture_rgba(int id, const unsigned char* rgba, int wide, int tall, int hardwareFilter,
                                   bool forceReload),
-            e_indexes::DRAW_SET_TEXTURE_RGBA, void(__thiscall*)(void*, int, const unsigned char*, int, int, int, bool),
+            e_indexes::DRAW_SET_TEXTURE_RGBA, void(*)(void*, int, const unsigned char*, int, int, int, bool),
             id, rgba, wide, tall, hardwareFilter, forceReload);
-    __VFUNC(draw_set_texture(int id), e_indexes::DRAW_SET_TEXTURE, void(__thiscall*)(void*, int), id);
-    __VFUNC(create_texture_id(bool procedural = false), e_indexes::TEXTURE_ID, int(__thiscall*)(void*, bool),
+    __VFUNC(draw_set_texture(int id), e_indexes::DRAW_SET_TEXTURE, void(*)(void*, int), id);
+    __VFUNC(create_texture_id(bool procedural = false), e_indexes::TEXTURE_ID, int(*)(void*, bool),
             procedural);
     __VFUNC(draw_textured_polygon(int id, Vertex_t* verts, bool bClipVertices = true), e_indexes::DRAW_TEXTURED_POLYGON,
-            void(__thiscall*)(void*, int, Vertex_t*, bool), id, verts, bClipVertices);
+            void(*)(void*, int, Vertex_t*, bool), id, verts, bClipVertices);
 
 
     void start_drawing();

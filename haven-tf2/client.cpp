@@ -54,7 +54,7 @@ void c_client::on_move(usercmd_t* cmd)
             {
                 g_aimbot.run(m_local, cmd);
                 g_proj.run();
-                g_backstab.run();
+                //g_backstab.run();
             }
         }
         g_prediction.finish();

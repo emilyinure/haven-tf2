@@ -6,7 +6,7 @@ public:
     bool m_bFirstRunOfFunctions : 1;
     bool m_bGameCodeMovedPlayer : 1;
 
-    void* m_nPlayerHandle; // edict index on server, client entity handle on client
+    uintptr_t m_nPlayerHandle; // edict index on server, client entity handle on client
 
     int m_nImpulseCommand;     // Impulse command issued.
     vector m_vecViewAngles;    // Command view angles (local space)

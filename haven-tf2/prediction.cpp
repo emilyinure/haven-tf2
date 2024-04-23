@@ -38,7 +38,7 @@ void prediction::start()
     m_nOldTickCount = g_interfaces.m_global_vars->m_tick_count;
 
     static auto update_buttons =
-        g_modules.get("client.dll").get_sig("55 8B EC 8B 81 ? ? ? ? 8B D0").as<int(__thiscall*)(c_base_entity*, int)>();
+        g_modules.get("client.dll").get_sig("44 8B 81 24 16 00 00 89 91 24 16 00 00 44 89 81 18 16 00 00 44 33 C2 41 8B C0 23 C2 F7 D2 41 23 D0 89 81 1C 16 00 00 89 91 20 16 00 00 C3").as<int(*)(c_base_entity*, int)>();
     update_buttons(g_cl.m_local, g_cl.m_cmd->buttons_);
     const bool bOldIsFirstPrediction = g_interfaces.m_prediction->m_bFirstTimePredicted;
     const bool bOldInPrediction = g_interfaces.m_prediction->m_bInPrediction;

@@ -43,7 +43,7 @@ int& c_base_entity::m_i_team_num()
 
 vector c_base_entity::get_abs_velocity()
 {
-    return this->get<vector>(348);
+    return this->get<vector>(472);
 }
 
 box_t c_base_entity::get_bounding_box()
@@ -80,6 +80,7 @@ bool c_base_entity::compute_hitbox_surrounding_box(vector* world_mins, vector* w
 
 c_base_handle c_base_player::active_weapon_handle()
 {
+
     return this->get<c_base_handle>(g_netvars.m_offsets.dt_base_player.m_active_weapon);
 }
 
@@ -224,7 +225,7 @@ c_base_handle c_base_player::ground_handle()
 
 void c_base_entity::invalidate_bone_cache()
 {
-    reinterpret_cast<void(__thiscall*)(void*)>(g_offsets.m_sigs.invalidate_bone_cache)(this);
+    reinterpret_cast<void(*)(void*)>(g_offsets.m_sigs.invalidate_bone_cache)(this);
 }
 
 vector c_base_entity::world_space_center()
@@ -299,7 +300,7 @@ void c_base_player::force_taunt_cam(const int nTo)
 
 void c_base_player::SetCurrentCmd(usercmd_t* pCmd)
 {
-    static auto offset = g_netvars.get("DT_BasePlayer", "m_hConstraintEntity").m_offset - 0x4;
+    static auto offset = g_netvars.get("DT_BasePlayer", "m_hConstraintEntity").m_offset - 0x8;
     get<usercmd_t*>(offset) = pCmd;
 }
 
@@ -344,22 +345,25 @@ vector c_base_player::m_eye_angles()
 }
 void c_base_player::set_abs_origin(vector origin)
 {
-    vector* abs = &this->get<vector>(700);
-    *abs = origin;
+    typedef void(* oSetAbsOrigin)(void*, vector);
+    static auto func = g_modules.get("client.dll")
+                           .get_sig("48 89 5C 24 10 57 48 83 EC 20 48 8B FA 48 8B D9 E8 ?? ?? ?? ?? F3")
+                           .as<oSetAbsOrigin>();
+    func(this, origin);
 }
 void c_base_player::set_abs_angles(vector angles)
 {
-    typedef void(__thiscall * oSetAbsOrigin)(void*, vector);
+    typedef void(* oSetAbsAngles)(void*, vector);
     static auto func =
-        g_modules.get("client.dll").get_sig("55 8B EC 83 EC ? 56 57 8B F1 E8 ? ? ? ? 8B 7D ?").as<oSetAbsOrigin>();
+        g_modules.get("client.dll").get_sig("48 89 5C 24 18 57 48 81 EC 80").as<oSetAbsAngles>();
     func(this, angles);
 }
 
 void c_base_player::set_collision_bounds(const vector& mins, const vector& maxs)
 {
-    typedef void(__thiscall * oSetCollisionBounds)(void*, const vector&, const vector&);
+    typedef void(* oSetCollisionBounds)(void*, const vector&, const vector&);
     static auto func = g_modules.get("client.dll")
-                           .get_sig("55 8B EC 83 EC 28 53 8B 5D 08 56 8B 75 0C 57 8B 03")
+                           .get_sig("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 41 56 48 81 EC A0")
                            .as<oSetCollisionBounds>();
     if (!this->get_collideable())
         return;
@@ -369,12 +373,12 @@ void c_base_player::set_collision_bounds(const vector& mins, const vector& maxs)
 
 vector c_base_player::calculate_abs_velocity()
 {
-    typedef void(__thiscall * oCalcAbsoluteVelocity)(void*);
+    typedef void(* oCalcAbsoluteVelocity)(void*);
     static auto func = g_modules.get("client.dll")
-                           .get_sig("55 8B EC 83 EC 3C 56 8B F1 F7")
+                           .get_sig("40 57 48 81 EC 90 00 00 00 F7")
                            .as<oCalcAbsoluteVelocity>();
 
-    this->get<int>(416) |= (1 << 12);
+    this->get<int>(544) |= (1 << 12);
     func(this);
 
     vector velocity = get_abs_velocity();
@@ -514,23 +518,23 @@ bool c_base_weapon::do_swing_trace_internal(trace_t& trace)
 {
     static auto do_swing_trace_internal_fn =
         g_modules.get("client.dll")
-            .get_sig("53 8B DC 83 EC 08 83 E4 F0 83 C4 04 55 8B 6B 04 89 6C 24 04 8B EC 81 EC 38 05")
+            .get_sig("48 89 74 24 18 55 57 41 55 41 56 41 57 48 8D AC")
             .m_ptr;
-    return reinterpret_cast<bool(__thiscall*)(void*, trace_t&, bool, c_utl_vector<trace_t>*)>(
+    return reinterpret_cast<bool(*)(void*, trace_t&, bool, c_utl_vector<trace_t>*)>(
         do_swing_trace_internal_fn)(this, trace, false, NULL);
 }
 
 bool c_base_weapon::can_perform_backstab_against_target(c_base_player* player)
 {
     static auto can_perform_backstab_against_target_fn =
-        g_modules.get("client.dll").get_sig("55 8B EC 51 53 56 8B 75 08 8B D9 85").m_ptr;
-    return reinterpret_cast<bool(__thiscall*)(void*, c_base_player*)>(can_perform_backstab_against_target_fn)(this,
+        g_modules.get("client.dll").get_sig("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 0F 29 74 24 30 48").m_ptr;
+    return reinterpret_cast<bool(*)(void*, c_base_player*)>(can_perform_backstab_against_target_fn)(this,
                                                                                                               player);
 }
 
 const char* c_base_weapon::get_print_name()
 {
-    return g_utils.get_virtual_function<const char*(__thiscall*)(void*)>(this, 333)(this);
+    return g_utils.get_virtual_function<const char*(*)(void*)>(this, 333)(this);
 }
 
 const char* c_base_weapon::get_localized_name()
@@ -541,7 +545,7 @@ const char* c_base_weapon::get_localized_name()
 bool c_tf_player_shared::in_cond(e_tf_cond cond)
 {
     static auto in_cond =
-        g_modules.get("client.dll").get_sig("55 8B EC 83 EC 08 56 57 8B 7D 08 8B F1 83 FF 20").as<in_cond_fn>();
+        (in_cond_fn)g_offsets.m_sigs.in_cond;
 
     if (!in_cond)
         return false;
