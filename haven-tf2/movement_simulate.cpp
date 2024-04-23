@@ -288,7 +288,8 @@ int c_movement_simulate::try_player_move()
                 else
                 {
                     static auto sv_bounce = g_interfaces.m_cvar->find_var("sv_bounce");
-                    clip_velocity(original_velocity, planes[i], new_velocity, 1.f + sv_bounce->m_value.m_float_value * (1 - mv.m_surface_friction));
+                    clip_velocity(original_velocity, planes[i], new_velocity,
+                                  1.f + sv_bounce->m_value.m_float_value * (1 - mv.m_surface_friction));
                 }
             }
 
@@ -612,6 +613,7 @@ void c_movement_simulate::air_move()
     wishvel[2] = 0; // Zero out z part of velocity
 
     wishdir = wishvel; // Determine maginitude of speed of move
+    mv.m_walk_direction = wishdir;
     float wishspeed = wishdir.normalize_in_place();
 
     // vector wishdir = wishvel;   // Determine maginitude of speed of move
@@ -718,8 +720,10 @@ void c_movement_simulate::step_move(vector target, trace_t& trace)
 
         if (up_road)
         {
-            float up_dist = (up_pos.m_x - pos.m_x) * (up_pos.m_x - pos.m_x) + (up_pos.m_y - pos.m_y) * (up_pos.m_y - pos.m_y);
-            float down_dist = (down_pos.m_x - pos.m_x) * (down_pos.m_x - pos.m_x) + (down_pos.m_y - pos.m_y) * (down_pos.m_y - pos.m_y);
+            float up_dist =
+                (up_pos.m_x - pos.m_x) * (up_pos.m_x - pos.m_x) + (up_pos.m_y - pos.m_y) * (up_pos.m_y - pos.m_y);
+            float down_dist = (down_pos.m_x - pos.m_x) * (down_pos.m_x - pos.m_x) +
+                              (down_pos.m_y - pos.m_y) * (down_pos.m_y - pos.m_y);
 
             if (up_dist >= down_dist)
             {
@@ -755,9 +759,8 @@ void c_movement_simulate::walk_move()
     // look.m_y += mv.m_ground_dir;
     // mv.m_walk_direction = look.angle_vector( ) * mv.m_walk_direction.length( );
     vector temp = mv.m_walk_direction.angle_to();
-    //mv.m_accumulated_ground += mv.m_ground_dir;
+    // mv.m_accumulated_ground += mv.m_ground_dir;
 
-    
     temp.m_y += mv.m_ground_dir;
     /*
     if (mv.m_ground_dir > 0)
@@ -777,30 +780,9 @@ void c_movement_simulate::walk_move()
         }
     }
     */
-    mv.m_walk_direction = vector(0, temp.m_y, 0).angle_vector() * mv.m_walk_direction.length_2d();
-    const vector new_vel = mv.m_walk_direction; // mv.m_velocity + mv.m_walk_direction;
-
-    // vector view = vector( 0, 0, 0 ).look( new_vel );
-    vector view(0, mv.m_eye_dir, 0);
-    view.angle_vectors(&forward, &right, &up); // Determine movement angles
-
-    // Copy movement amounts
-    const float fmove = mv.m_walk_direction.m_x;
-    // if ( mv.m_walk_direction.length_2d( ) == 0.f )
-    //	fmove = 0.f;
-    const float smove = mv.m_walk_direction.m_y;
-
-    // Zero out z components of movement vectors
-    forward[2] = 0;
-    right[2] = 0;
-
-    forward.normalize_in_place(); // Normalize remainder of vectors.
-    right.normalize_in_place();   //
-
-    for (int i = 0; i < 2; i++) // Determine x and y parts of velocity
-        wishvel[i] = forward[i] * fmove + right[i] * smove;
-
-    wishvel[2] = 0; // Zero out z part of velocity
+    mv.m_walk_direction = vector(0, temp.m_y, 0).angle_vector() * 636.396103f;
+    wishvel = mv.m_walk_direction;
+    wishvel.m_z = 0.f;
 
     vector wishdir = wishvel; // Determine maginitude of speed of move
     float wishspeed = wishdir.normalize_in_place();
@@ -1001,9 +983,9 @@ bool c_movement_simulate::charge_move()
         if (weapon->item_index() != medicweapons::WPN_QuickFix)
             return false;
 
-        //auto* target = ;
-        //if (!pHealTarget || !pHealTarget->m_Shared.InCond(TF_COND_SHIELD_CHARGE))
-        //    return false;
+        // auto* target = ;
+        // if (!pHealTarget || !pHealTarget->m_Shared.InCond(TF_COND_SHIELD_CHARGE))
+        //     return false;
     }
 
     mv.m_max_speed = tf_max_charge_speed->m_value.m_float_value;
@@ -1086,121 +1068,9 @@ vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fr
         return vector();
     }
 
-    vector wishvel;
-    vector forward, right, up;
-
-    eye_ang.angle_vectors(&forward, &right, &up); // Determine movement angles
-    velocity[2] = 0;
-    forward[2] = 0;
-    right[2] = 0;
-    forward.normalize_in_place(); // Normalize remainder of vectors.
-    right.normalize_in_place();   //
-
-    vector best;
-    float best_dist = FLT_MAX;
-
-    for (auto f = 0; f < 3; f++)
-    {
-        for (auto s = 0; s < 3; s++)
-        {
-            mv.m_position = origin;
-            mv.m_velocity = last_fric_vel;
-            // Copy movement amounts
-            float fmove = 0.f;
-            float smove = 0.f;
-            if (f == 1)
-                fmove = 450.f;
-            if (f == 2)
-                fmove = -450.f;
-            if (s == 1)
-                smove = 450.f;
-            if (s == 2)
-                smove = -450.f;
-
-            for (int i = 0; i < 2; i++) // Determine x and y parts of velocity
-                wishvel[i] = forward[i] * fmove + right[i] * smove;
-
-            wishvel[2] = 0; // Zero out z part of velocity
-
-            vector wishdir(((forward.m_x * fmove) + (right.m_x * smove)), ((forward.m_y * fmove) + (right.m_y * smove)),
-                           0.0f);
-
-            float wishspeed = wishdir.normalize_in_place();
-
-            wishspeed = std::clamp<float>(wishspeed, 0.0f, mv.m_max_speed);
-
-            // Accelerate in the x,y plane.
-            mv.m_velocity[2] = 0;
-
-            float flAccelerate = sv_accelerate->m_value.m_float_value;
-            // if our wish speed is too low (attributes), we must increase acceleration or we'll never overcome friction
-            // Reverse the basic friction calculation to find our required acceleration
-            if (wishspeed > 0 && wishspeed < calc_wish_speed_threshold())
-            {
-                const float fl_speed = mv.m_velocity.length();
-                const float fl_control =
-                    (fl_speed < sv_stopspeed->m_value.m_float_value) ? sv_stopspeed->m_value.m_float_value : fl_speed;
-                flAccelerate = (fl_control * sv_friction->m_value.m_float_value) / wishspeed + 1;
-            }
-
-            // Set pmove velocity
-            accelerate(wishdir, wishspeed, flAccelerate);
-
-            mv.m_velocity[2] = 0;
-
-            float flNewSpeed = mv.m_velocity.length();
-            if ((flNewSpeed != 0.0f) && (flNewSpeed > mv.m_max_speed))
-            {
-                float flScale = (mv.m_max_speed / flNewSpeed);
-                mv.m_velocity.m_x *= flScale;
-                mv.m_velocity.m_y *= flScale;
-            }
-
-            if (tf_clamp_back_speed->m_value.m_float_value < 1.0f &&
-                mv.m_velocity.length() > tf_clamp_back_speed_min->m_value.m_float_value)
-            {
-                float flDot = forward.dot(mv.m_velocity);
-
-                // are we moving backwards at all?
-                if (flDot < 0)
-                {
-                    vector vecBackMove = forward * flDot;
-                    vector vecRightMove = right * right.dot(mv.m_velocity);
-
-                    // clamp the back move vector if it is faster than max
-                    float flBackSpeed = vecBackMove.length();
-                    float flMaxBackSpeed = (mv.m_max_speed * tf_clamp_back_speed->m_value.m_float_value);
-
-                    if (flBackSpeed > flMaxBackSpeed)
-                    {
-                        vecBackMove *= flMaxBackSpeed / flBackSpeed;
-                    }
-
-                    // reassemble velocity
-                    mv.m_velocity = vecBackMove + vecRightMove;
-
-                    // Re-run this to prevent crazy values (clients can induce this via usercmd viewangles hacking)
-                    flNewSpeed = mv.m_velocity.length();
-                    if (flNewSpeed > mv.m_max_speed)
-                    {
-                        float flScale = (mv.m_max_speed / flNewSpeed);
-                        mv.m_velocity.m_x *= flScale;
-                        mv.m_velocity.m_y *= flScale;
-                    }
-                }
-            }
-
-            try_player_move();
-            float dst = (velocity - mv.m_velocity).length_2d();
-            if (dst < best_dist)
-            {
-                best.init(fmove, smove, 0);
-                best_dist = dst;
-            }
-        }
-    }
-
-    return best;
+    vector wishvel = last_fric_vel - velocity;
+    wishvel.normalize_in_place();
+    return wishvel * 636.396103f;;
 }
 
 vector c_movement_simulate::estimate_air_dir(vector velocity, vector last_fric_vel, vector eye_ang, vector origin)
@@ -1284,7 +1154,7 @@ vector c_movement_simulate::find_unstuck(vector origin)
 }
 
 #define TIME_TO_TICKS(dt) ((int)(0.5f + (float)(dt) / g_interfaces.m_global_vars->m_interval_per_tick))
-#define TICKS_TO_TIME(dt) ((int)((float)(dt)*g_interfaces.m_global_vars->m_interval_per_tick))
+#define TICKS_TO_TIME(dt) ((int)((float)(dt) * g_interfaces.m_global_vars->m_interval_per_tick))
 
 bool c_movement_simulate::grab_convars()
 {
@@ -1311,13 +1181,13 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player)
 
     if (!grab_convars())
         return false;
-    
+
     const auto& player_info = g_player_manager.players[player->entindex() - 1];
     if (player_info.m_records.size() < 2)
         return false;
 
     const auto& record = player_info.m_records[0];
-    
+
     mv.m_accumulated_ground = 0.f;
     mv.m_player = player;
     mv.on_ground = player_info.m_ground != nullptr;
@@ -1335,13 +1205,13 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player)
         else
             air_input_prediction(record, player_info);
     }
-    
+
     mv.m_velocity = record->vel - mv.m_base_velocity;
 
     path.clear();
     mv.m_position = find_unstuck(record->origin);
     path.push_back(mv.m_position);
-    
+
     return true;
 }
 
@@ -1351,11 +1221,11 @@ void c_movement_simulate::air_input_prediction(const std::shared_ptr<player_reco
     mv.m_ground_dir = 0.f;
     mv.m_air_dir = estimate_air_dir(record->vel - mv.m_base_velocity, player_info.m_records[1]->vel, record->eye_angle,
                                     find_unstuck(player_info.m_records[1]->origin));
-    
+
     mv.m_decay = 0.f;
 
-    if (mv.m_air_dir.length_2d() > 0.1f)
-        mv.m_walk_direction = vector(450.f, 0, 0);
+    // if (mv.m_air_dir.length_2d() > 0.1f)
+    //     mv.m_walk_direction = mv.m_air_dir;
 }
 
 void c_movement_simulate::ground_input_prediction(const player_t& player_info,
@@ -1382,8 +1252,9 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
     {
         if (i >= player_info.m_records.size())
             break;
-        float frac =
-            (fabs(player_info.m_records[i]->ground_dir) > 1.f) ? 1.f : 2.f; // might change frac calculation but thats it
+        float frac = (fabs(player_info.m_records[i]->ground_dir) > 1.f)
+                         ? 1.f
+                         : 2.f; // might change frac calculation but thats it
         ground_dir += player_info.m_records[i]->ground_dir * frac;
         dividen += frac;
     }
@@ -1469,13 +1340,14 @@ void c_movement_simulate::draw()
     }
 }
 
-void c_movement_simulate::update_strafe(){
+void c_movement_simulate::update_strafe()
+{
     mv.m_eye_dir += mv.m_dir;
     mv.m_dir -= mv.m_dir * mv.m_decay;
 
-    const double offsetValue = mv.m_eye_dir + 180.f;   // value relative to 0
+    const double offsetValue = mv.m_eye_dir + 180.f; // value relative to 0
 
-    mv.m_eye_dir = ( offsetValue - ( floor( offsetValue / 360.f ) * 360.f ) ) - 180.f;
+    mv.m_eye_dir = (offsetValue - (floor(offsetValue / 360.f) * 360.f)) - 180.f;
 }
 
 bool c_movement_simulate::run(vector& position)
@@ -1493,6 +1365,6 @@ bool c_movement_simulate::run(vector& position)
     end_time = mv.m_time + 10.f;
 
     position = mv.m_position;
-    
+
     return true;
 }
