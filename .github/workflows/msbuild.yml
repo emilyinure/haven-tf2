@@ -12,7 +12,6 @@ env:
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
-  BUILD_PLATFORM: x64
 
 permissions:
   contents: read
@@ -61,6 +60,6 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: output/x64/haven_tf2.dll
+        asset_path: output/Release/haven_tf2.dll
         asset_name: haven_tf2.dll
         asset_content_type: application/dll
