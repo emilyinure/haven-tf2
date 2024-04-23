@@ -786,7 +786,7 @@ void proj_aim::find_shot(bool& was_shoot, int attack)
             found_holder.ground = g_movement.mv.on_ground;
         }
 
-        if (rocket_time <= (steps * g_interfaces.m_global_vars->m_interval_per_tick))
+        if ((rocket_time + projectile_spawn_time + 0.5f) <= cur_time)
         {
             break;
         }
