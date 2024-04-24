@@ -1330,7 +1330,7 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
 
         last_angle = new_angle;
         float delta_to_inital_time = initial_angle_time - current_tick->sim_time;
-        if (delta_to_inital_time < 0.4f)
+        if (delta_to_inital_time < 0.3f)
         {
             x += cos(deg_to_rad(last_angle));
             y += sin(deg_to_rad(last_angle));
@@ -1397,7 +1397,7 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
         mv.ground_rotation_timing = delta_to_inital_time;
         rotation_timing_found = true;
     }
-    [[unlikely]] if (total_circle_time > 0.f)
+    [[unlikely]] if (total_circle_time > .9f)
     {
         mv.ground_circle_prediction = true;
         mv.ground_rotating_right = total_accumulated_angle_change > 0.f;

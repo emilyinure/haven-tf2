@@ -462,6 +462,14 @@ void proj_aim::select_target()
         auto& target = g_player_manager.players[player->entindex() - 1];
         if (target.player != player || target.m_records.empty())
             continue;
+        player_info_t info;
+        if (g_interfaces.m_engine->get_player_info(player->entindex(), &info))
+        {
+            CSteamID tempID = CSteamID(info.m_friends_id, k_EUniversePublic, k_EAccountTypeIndividual);
+
+            if (g_interfaces.steam_friends->HasFriend(tempID, k_EFriendFlagImmediate))
+                continue;
+        }
 
         auto vis_pos = player->get_abs_origin();
         vis_pos.m_z += ((player->get_collideable()->obb_maxs().m_z + player->get_collideable()->obb_mins().m_z) * 0.5f);

@@ -26,5 +26,11 @@ public:
     void* m_client_mode;
     c_render_view* m_render_view;
     c_client_state* m_client_state;
+    ISteamClient* steam_client = nullptr;
+    ISteamUser* steam_user = nullptr;
+    ISteamFriends* steam_friends = nullptr;
+    ISteamApps* steam_apps = nullptr;
+    ISteamUserStats* steam_user_stats = nullptr;
+    ISteamUtils* steam_utils = nullptr;
 };
 inline c_interfaces g_interfaces;

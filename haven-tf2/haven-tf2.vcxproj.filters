@@ -241,6 +241,9 @@
     <Filter Include="sdk\tf2\interfaces\classes\c_client_state">
       <UniqueIdentifier>{f28c84b8-55b5-4231-93a4-744588753d9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\tf2\interfaces\classes\steamworks">
+      <UniqueIdentifier>{e77f7f34-145c-41e5-beb6-3b926ad81391}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry_point.cpp" />
@@ -628,5 +631,145 @@
     <ClInclude Include="c_client_state.h">
       <Filter>sdk\tf2\interfaces\classes\c_client_state</Filter>
     </ClInclude>
+    <ClInclude Include="isteamclient.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamcontroller.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamdualsense.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamfriends.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamgamecoordinator.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamgameserver.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamgameserverstats.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamhtmlsurface.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamhttp.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteaminput.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteaminventory.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteammatchmaking.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteammusic.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteammusicremote.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamnetworking.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamnetworkingmessages.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamnetworkingsockets.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamnetworkingutils.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamparentalsettings.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamps3overlayrenderer.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamremoteplay.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamremotestorage.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamscreenshots.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamugc.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamuser.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamuserstats.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamutils.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamvideo.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="matchmakingtypes.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_api.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_api_common.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_api_flat.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_api_internal.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_gameserver.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamclientpublic.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamencryptedappticket.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamhttpenums.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamnetworkingfakeip.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamnetworkingtypes.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamps3params.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamtypes.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="steamuniverse.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamapplist.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamapps.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+    <ClInclude Include="isteamappticket.h">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="steam_api.json">
+      <Filter>sdk\tf2\interfaces\classes\steamworks</Filter>
+    </None>
   </ItemGroup>
 </Project>

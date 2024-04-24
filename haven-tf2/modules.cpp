@@ -17,6 +17,7 @@ void c_modules::init()
     this->add("vguimatsurface.dll");
     this->add("vstdlib.dll");
     this->add("vgui2.dll");
+    this->add("steamclient64.dll");
 }
 
 module_t c_modules::get(const char* name)

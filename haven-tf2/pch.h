@@ -75,6 +75,13 @@
 #include "i_cvar.h"
 #include "i_model_info.h"
 #include "mem_alloc.h"
+#include "isteamclient.h"
+#include "isteamfriends.h"
+#include "isteamutils.h"
+#include "isteamapps.h"
+#include "isteamuserstats.h"
+#include "isteamuser.h"
+
 #include "game_rules.h"
 #include "i_engine_trace.h"
 #include "i_localize.h"
