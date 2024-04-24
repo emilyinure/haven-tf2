@@ -3,7 +3,7 @@
 #include <string.h>
 void c_visuals::player_esp()
 {
-    for (auto i = 1; i < g_interfaces.m_engine->get_max_clients(); i++)
+    for (auto i = 1; i <= g_interfaces.m_entity_list->get_highest_entity_index(); i++)
     {
         auto& player_esp = g_ui.m_controls.visuals.players;
 
@@ -17,9 +17,6 @@ void c_visuals::player_esp()
         if (!player->is_valid(g_cl.m_local))
             continue;
 
-        auto shared = player->m_shared();
-        if (!shared)
-            continue;
 
         auto bounding_box = player->get_bounding_box();
 
@@ -106,6 +103,18 @@ void c_visuals::player_esp()
                           color(255, 255, 255), text_align_right);
         }
 
+        if (player_esp.weapon->m_value)
+        {
+            const auto weapon = reinterpret_cast<c_base_weapon*>(player->get_active_weapon());
+            if (weapon)
+            {
+                std::string weapon_text = weapon->get_localized_name();
+                g_render.text(g_render.m_fonts.secondary,
+                              {bounding_box.m_x + (bounding_box.m_w * 0.5f), bounding_box.m_y - 30},
+                              weapon_text.c_str(), {255, 255, 255, 255}, text_align_center);
+            }
+        }
+
         // eventually do multi combo box.
         if (player_esp.flags->m_value)
         {
@@ -126,6 +135,10 @@ void c_visuals::player_esp()
             if (health > max_health)
                 draw_flag("Overheal", color(255, 255, 255));
 
+            auto shared = player->m_shared();
+            if (!shared)
+                continue;
+
             if (shared->in_cond(e_tf_cond::TF_COND_DISGUISED))
                 draw_flag("Disguised", color(255, 255, 255));
 
@@ -142,19 +155,6 @@ void c_visuals::player_esp()
                 draw_flag("Taunting", color(255, 255, 255));
         }
 
-        if (player_esp.weapon->m_value)
-        {
-            const auto weapon = reinterpret_cast<c_base_weapon*>(player->get_active_weapon());
-            if (!weapon)
-            {
-                return;
-            }
-
-            std::string weapon_text = weapon->get_localized_name();
-            g_render.text(g_render.m_fonts.secondary,
-                          {bounding_box.m_x + (bounding_box.m_w * 0.5f), bounding_box.m_y - 30}, weapon_text.c_str(),
-                          {255, 255, 255, 255}, text_align_center);
-        }
     }
 
     // predicted path
