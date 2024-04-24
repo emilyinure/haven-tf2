@@ -1,18 +1,19 @@
 ---
-BasedOnStyle: Microsoft
-IndentWidth: 4
-ColumnLimit: 120
+BasedOnStyle: LLVM
+ColumnLimit: 96
 ---
 Language: Cpp
-AccessModifierOffset: -4
+AccessModifierOffset: -2
 SortIncludes: false
 IndentCaseLabels: true
 NamespaceIndentation: All
 DerivePointerAlignment: false
 PointerAlignment: Left
-TabWidth: 4
 UseCRLF: false
 UseTab: Never
+AlignConsecutiveMacros: AcrossComments
+AlignConsecutiveAssignments: AcrossComments
+AlignConsecutiveDeclarations: AcrossComments
 BraceWrapping:
     AfterCaseLabel: true
     AfterUnion: true
