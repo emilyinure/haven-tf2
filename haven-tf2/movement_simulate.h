@@ -78,6 +78,9 @@ public:
         float m_time = 0;
         float m_accumulated_ground = 0.f;
         float m_decay = 1;
+        float ground_circle_prediction;
+        float ground_rotating_right;
+        float ground_rotation_timing;
         vector m_air_dir = vector();
     } mv;
 

@@ -297,8 +297,9 @@ void c_player_manager::update_players()
                     if (new_record.move_data.length_sqr_2d() > 1.f)
                     {
 
-                        const int count = fmin(player->m_records.size(), TIME_TO_TICKS(0.4));
+                        const int count = fmin(player->m_records.size(), TIME_TO_TICKS(0.2));
                         vector last_move_dir;
+                        bool found = false;
                         for (auto i = 0; i < count; i++)
                         {
                             if (i >= player->m_records.size())
@@ -306,17 +307,20 @@ void c_player_manager::update_players()
                             if (player->m_records[i]->move_data.length_sqr_2d() > 1.f)
                             {
                                 last_move_dir = player->m_records[i]->move_data;
+                                found = true;
                                 break;
                             }
                         }
-
-                        float turn = dir_turning(new_record.move_data, last_move_dir);
-                        while (turn > 180.f)
-                            turn -= 360.f;
-                        while (turn < -180.f)
-                            turn += 360.f;
-                        max_turn = 315 * g_interfaces.m_global_vars->m_interval_per_tick;
-                        new_record.ground_dir = turn;
+                        if (found)
+                        {
+                            float turn = dir_turning(new_record.move_data, last_move_dir);
+                            while (turn > 180.f)
+                                turn -= 360.f;
+                            while (turn < -180.f)
+                                turn += 360.f;
+                            max_turn = 315 * g_interfaces.m_global_vars->m_interval_per_tick;
+                            new_record.ground_dir = turn;
+                        }
                     }
 
                     vector predicted_origin;

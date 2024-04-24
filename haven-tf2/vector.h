@@ -260,10 +260,10 @@ public:
 		const float ln = length( );
 		if ( isnan( ln ) || ln == 0.f )
 			return 0;
-    const float mult = 1.f/ln;
-		m_x *= ln;
-		m_y *= ln;
-		m_z *= ln;
+        const float mult = 1.f / ln;
+		m_x *= mult;
+		m_y *= mult;
+		m_z *= mult;
 		return ln;
 	};
 	vector normalized( ) const {

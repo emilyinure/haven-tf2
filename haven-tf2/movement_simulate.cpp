@@ -752,16 +752,49 @@ void c_movement_simulate::walk_move()
     vector dest;
     trace_t pm;
     vector forward, right, up;
+    vector(0, mv.m_eye_dir, 0).angle_vectors(&forward, &right, &up); // Determine movement angles
+
+    
+    if (mv.m_walk_direction.length_2d() > 1.f)
+    {
+        if (mv.ground_circle_prediction)
+        {
+            float wish_dir_angle = atan2(mv.m_walk_direction.m_y, mv.m_walk_direction.m_x);
+
+            float rot = (g_interfaces.m_global_vars->m_interval_per_tick * 360.f) / mv.ground_rotation_timing;
+            if (!mv.ground_rotating_right)
+                rot *= -1.f;
+
+            wish_dir_angle += deg_to_rad(rot);
+
+            mv.m_walk_direction.m_x = cos(wish_dir_angle) * 450.f;
+            mv.m_walk_direction.m_y = sin(wish_dir_angle) * 450.f;
+            mv.m_walk_direction.m_z = 0.f;
+        }
+        else if (mv.ground_rotation_timing > 0.f)
+        {
+            if (mv.m_time > mv.ground_rotation_timing)
+            {
+                float wish_dir_angle = atan2(mv.m_walk_direction.m_y, mv.m_walk_direction.m_x);
+
+                float rot = mv.ground_rotating_right ? 45.f : -45.f;
+                wish_dir_angle += deg_to_rad(rot);
+
+                mv.m_walk_direction.m_x = cos(wish_dir_angle) * 450.f;
+                mv.m_walk_direction.m_y = sin(wish_dir_angle) * 450.f;
+                mv.m_walk_direction.m_z = 0.f;
+                mv.ground_rotation_timing = -1.f;
+            }
+        }
+    }
 
     const bool old_ground = mv.on_ground;
 
     // vector look = vector( ).look( mv.m_walk_direction );
     // look.m_y += mv.m_ground_dir;
     // mv.m_walk_direction = look.angle_vector( ) * mv.m_walk_direction.length( );
-    vector temp = mv.m_walk_direction.angle_to();
     // mv.m_accumulated_ground += mv.m_ground_dir;
 
-    temp.m_y += mv.m_ground_dir;
     /*
     if (mv.m_ground_dir > 0)
     {
@@ -780,7 +813,6 @@ void c_movement_simulate::walk_move()
         }
     }
     */
-    mv.m_walk_direction = vector(0, temp.m_y, 0).angle_vector() * 636.396103f;
     wishvel = mv.m_walk_direction;
     wishvel.m_z = 0.f;
 
@@ -1068,8 +1100,10 @@ vector c_movement_simulate::estimate_walking_dir(vector velocity, vector last_fr
         return vector();
     }
 
-    vector wishvel = last_fric_vel - velocity;
-    wishvel.normalize_in_place();
+    vector wishvel = velocity - last_fric_vel;
+    float len = wishvel.normalize_in_place();
+    if (len <= 1.f)
+        return vector();
     return wishvel * 636.396103f;;
 }
 
@@ -1197,6 +1231,9 @@ bool c_movement_simulate::setup_mv(vector last_vel, c_base_player* player)
     mv.m_max_speed = max_speed(player);
     mv.m_walk_direction.init();
     mv.m_decay = 0;
+    mv.ground_circle_prediction = false;
+    mv.ground_rotating_right = 0.f;
+    mv.ground_rotation_timing = 0.f;
     if (player_info.m_records.size() > 1)
     {
         do_angle_prediction(record, player_info);
@@ -1242,35 +1279,90 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
     mv.m_air_dir = mv.m_walk_direction =
         estimate_walking_dir(record->vel - mv.m_base_velocity, last_fric_vel, record->eye_angle,
                              find_unstuck(player_info.m_records[1]->origin));
-    mv.m_dir /= 2.f;
-    float ground_dir = 0.f;
-    float decay_amount = 0.f;
-    float dividen = 0.f;
-    const int count =
-        fmin(player_info.m_records.size(), TIME_TO_TICKS(0.5f)); // i think im going to settle on this for now :/
-    for (auto i = 0; i < count; i++)
+    
+    float initial_angle = (rad_to_deg(atan2(mv.m_walk_direction.m_y, mv.m_walk_direction.m_x)));
+    while (initial_angle > 180.f)
+        initial_angle -= 360.f;
+    while (initial_angle < -180.f)
+        initial_angle += 360.f;
+
+    bool rotation_timing_found = false;
+    size_t count = std::min<size_t>(player_info.m_records.size() - 1, 133);
+    float total_accumulated_angle_change = 0.f;
+    float last_angle = initial_angle;
+    float initial_angle_time = player_info.m_records[0]->sim_time;
+    float total_circle_time = -1.f;
+    bool disable_circle = false;
+    for (int i = 1; i < count - 1; i++)
     {
-        if (i >= player_info.m_records.size())
+        auto current_tick = player_info.m_records[i];
+        auto tick_before = player_info.m_records[i + 1];
+
+        if (!(current_tick->flags & 1) || !(tick_before->flags & 1))
             break;
-        float frac = (fabs(player_info.m_records[i]->ground_dir) > 1.f)
-                         ? 1.f
-                         : 2.f; // might change frac calculation but thats it
-        ground_dir += player_info.m_records[i]->ground_dir * frac;
-        dividen += frac;
-    }
 
-    mv.m_ground_dir = 0;
-    if (dividen > 0)
+        vector temp_velocity = mv.m_velocity;
+        mv.m_velocity = tick_before->vel;
+        friction();
+        vector velocity_difference = current_tick->vel - mv.m_velocity;
+        mv.m_velocity = temp_velocity;
+        float speed_delta = velocity_difference.length_2d();
+
+        if (speed_delta <= 1.f)
+            continue;
+
+        float new_angle = rad_to_deg(atan2(velocity_difference.m_y, velocity_difference.m_x));
+        while (new_angle > 180.f)
+            new_angle -= 360.f;
+        while (new_angle < -180.f)
+            new_angle += 360.f;
+
+        float angle_diff = last_angle - new_angle;
+        while (angle_diff > 180.f)
+            angle_diff -= 360.f;
+        while (angle_diff < -180.f)
+            angle_diff += 360.f;
+        total_accumulated_angle_change += angle_diff;
+
+        last_angle = new_angle;
+        float delta_to_inital_time = initial_angle_time - current_tick->sim_time;
+        if (total_accumulated_angle_change < 100 && delta_to_inital_time < .15f)
+            disable_circle = true;
+        [[unlikely]] if (std::abs(total_accumulated_angle_change) > 360.f && !disable_circle)
+        {
+            total_circle_time = initial_angle_time - current_tick->sim_time;
+            break;
+        }
+        if (rotation_timing_found)
+        {
+            if (disable_circle)
+                break;
+            continue;
+        }
+
+        float diff_from_inital_angle = initial_angle - new_angle;
+        while (diff_from_inital_angle > 180.f)
+            diff_from_inital_angle -= 360.f;
+        while (diff_from_inital_angle < -180.f)
+            diff_from_inital_angle += 360.f;
+        if (std::abs(diff_from_inital_angle) < 45.f)
+            continue;
+
+        if (delta_to_inital_time > 0.15f)
+            continue;
+
+        mv.ground_rotating_right = diff_from_inital_angle > 0.f;
+        mv.ground_rotation_timing = delta_to_inital_time;
+        rotation_timing_found = true;
+        if (delta_to_inital_time < 0.1f)
+            break; // dont allow circles to form if we havent moved recently
+    }
+    [[unlikely]] if (total_circle_time > 0.f)
     {
-        float avg_delta = ground_dir / dividen;
-        while (avg_delta > 360.f)
-            avg_delta -= 360.f;
-        while (avg_delta < -360.f)
-            avg_delta += 360.f;
-
-        mv.m_ground_dir = avg_delta;
+        mv.ground_circle_prediction = true;
+        mv.ground_rotating_right = total_accumulated_angle_change > 0.f;
+        mv.ground_rotation_timing = total_circle_time;
     }
-    mv.total_changed = 0.f;
 }
 
 void c_movement_simulate::do_angle_prediction(const std::shared_ptr<player_record_t>& record,
