@@ -1371,7 +1371,7 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
 
         last_angle = new_angle;
         float delta_to_inital_time = initial_angle_time - current_tick->sim_time;
-        if (total_accumulated_angle_change < 90 && delta_to_inital_time > .2f)
+        if (std::abs(total_accumulated_angle_change) < 90 && delta_to_inital_time > .3f)
             disable_circle = true;
         [[unlikely]] if (std::abs(total_accumulated_angle_change) > 360.f && !disable_circle)
         {
@@ -1396,7 +1396,7 @@ void c_movement_simulate::ground_input_prediction(const player_t& player_info,
         mv.ground_rotating_right = diff_from_inital_angle > 0.f;
         mv.ground_rotation_timing = delta_to_inital_time;
         rotation_timing_found = true;
-        if (delta_to_inital_time > 0.1f)
+        if (delta_to_inital_time > 0.2f)
             break; // dont allow circles to form if we havent moved recently
     }
     [[unlikely]] if (total_circle_time > 0.f)
