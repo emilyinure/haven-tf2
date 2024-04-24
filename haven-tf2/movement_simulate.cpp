@@ -561,7 +561,6 @@ void c_movement_simulate::air_move() {
   wishvel[2] = 0; // Zero out z part of velocity
 
   wishdir             = wishvel; // Determine maginitude of speed of move
-  mv.m_walk_direction = wishdir;
   float wishspeed     = wishdir.normalize_in_place();
 
   // vector wishdir = wishvel;   // Determine maginitude of speed of move
@@ -573,6 +572,7 @@ void c_movement_simulate::air_move() {
   //  look.m_y += mv.m_dir;
   //  mv.m_velocity = look.angle_vector() * mv.m_velocity.length();
   try_player_move();
+  mv.m_walk_direction = mv.m_velocity;
 }
 
 void c_movement_simulate::accelerate(vector& wishdir, const float wishspeed,
