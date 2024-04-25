@@ -285,7 +285,7 @@ int c_movement_simulate::try_player_move() {
       // Did we go all the way through plane set
       if (i != numplanes) { // go along this plane
                             // pmove.velocity is set in clipping call, no need to set again.
-      } else { // go along the crease
+      } else {              // go along the crease
         if (numplanes != 2) {
           mv.m_velocity.init();
           break;
@@ -560,8 +560,8 @@ void c_movement_simulate::air_move() {
     wishvel[i] = forward[i] * fmove + right[i] * smove;
   wishvel[2] = 0; // Zero out z part of velocity
 
-  wishdir             = wishvel; // Determine maginitude of speed of move
-  float wishspeed     = wishdir.normalize_in_place();
+  wishdir         = wishvel; // Determine maginitude of speed of move
+  float wishspeed = wishdir.normalize_in_place();
 
   // vector wishdir = wishvel;   // Determine maginitude of speed of move
   // float wishspeed = wishdir.normalize_in_place( );
@@ -913,7 +913,7 @@ void c_movement_simulate::full_walk_move() {
 //		//CategorizeGroundSurface( *pm );
 //
 //		// Standing on an entity other than the world, so signal that we are touching
-//something.
+// something.
 //		//if ( !pm->DidHitWorld( ) ) {
 //		//	MoveHelper( )->AddToTouched( *pm, mv->m_vecVelocity );
 //		//}
@@ -1171,7 +1171,7 @@ void c_movement_simulate::air_input_prediction(const std::shared_ptr<player_reco
       estimate_air_dir(record->vel - mv.m_base_velocity, player_info.m_records[1]->vel,
                        record->eye_angle, find_unstuck(player_info.m_records[1]->origin));
 
-  mv.m_decay = 0.f;
+  mv.m_decay       = 0.f;
   mv.m_air_eye_dir = record->air_dir;
 
   // if (mv.m_air_dir.length_2d() > 0.1f)

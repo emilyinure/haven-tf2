@@ -265,73 +265,78 @@ void c_player_manager::update_players() {
 
           float accumulated_change = 0.f;
           int   count              = 0;
-          for (auto i = 0; i < 100; i++) {
-            if (i + 3 >= player->m_records.size())
-              break;
-            auto record_far  = player->m_records[i + 2];
-            auto record_last = player->m_records[i + 1];
-            auto record = player->m_records[i];
+          if (player->m_records.size() > 6) {
+            for (int i = min(60, player->m_records.size() - 4); i >= 0; --i) {
+              auto record_far  = player->m_records[i + 2];
+              auto record_last = player->m_records[i + 1];
+              auto record      = player->m_records[i];
 
-            float velocity_ang = rad_to_deg(atan2(record->vel.m_y, record->vel.m_x));
+              float velocity_ang = rad_to_deg(atan2(record->vel.m_y, record->vel.m_x));
 
-            if ((record->flags & FL_ONGROUND) || (record_last->flags & FL_ONGROUND)) {
-              break;
+              if ((record->flags & FL_ONGROUND) || (record_last->flags & FL_ONGROUND)) {
+                accumulated_change = 0.f;
+                count              = 0;
+                continue;
+              }
+
+              float last_velocity_ang =
+                  rad_to_deg(atan2(record_last->vel.m_y, record_last->vel.m_x));
+              float far_velocity_ang =
+                  rad_to_deg(atan2(record_far->vel.m_y, record_far->vel.m_x));
+
+              float far_delta_theta = (last_velocity_ang - far_velocity_ang);
+              float delta_theta     = (velocity_ang - last_velocity_ang);
+
+              while (far_delta_theta > 180.f)
+                far_delta_theta -= 360.f;
+              while (far_delta_theta < -180.f)
+                far_delta_theta += 360.f;
+
+              while (delta_theta > 180.f)
+                delta_theta -= 360.f;
+              while (delta_theta < -180.f)
+                delta_theta += 360.f;
+
+              float last_speed = record_last->vel.length_2d();
+              float far_speed  = record_far->vel.length_2d();
+
+              if (last_speed < 30.f || far_speed < 30.f) {
+                accumulated_change = 0.f;
+                count              = 0;
+                continue;
+              }
+
+              float counter_strafe_far = rad_to_deg(asin(30.f / far_speed));
+              if (far_delta_theta < 0)
+                counter_strafe_far *= -1.f;
+
+              float counter_strafe = rad_to_deg(asin(30.f / last_speed));
+              if (delta_theta < 0)
+                counter_strafe *= -1.f;
+
+              float delta_time = record->sim_time - record_last->sim_time;
+              if (!(delta_time > 0))
+                continue;
+
+              delta_theta =
+                  ((velocity_ang - counter_strafe) - (last_velocity_ang - counter_strafe_far));
+              while (delta_theta > 180.f)
+                delta_theta -= 360.f;
+              while (delta_theta < -180.f)
+                delta_theta += 360.f;
+              if (delta_theta > 20.f)
+                continue;
+
+              delta_theta /= delta_time;
+
+              delta_theta *= g_interfaces.m_global_vars->m_interval_per_tick;
+
+              if (count == 0)
+                accumulated_change = delta_theta;
+              else
+                accumulated_change = 0.54f * delta_theta + (1.f - 0.54f) * accumulated_change;
+              count++;
             }
-
-            float last_velocity_ang =
-                rad_to_deg(atan2(record_last->vel.m_y, record_last->vel.m_x));
-            float far_velocity_ang =
-                rad_to_deg(atan2(record_far->vel.m_y, record_far->vel.m_x));
-
-            float far_delta_theta = (last_velocity_ang - far_velocity_ang);
-            float delta_theta     = (velocity_ang - last_velocity_ang);
-
-            while (far_delta_theta > 180.f)
-              far_delta_theta -= 360.f;
-            while (far_delta_theta < -180.f)
-              far_delta_theta += 360.f;
-
-            while (delta_theta > 180.f)
-              delta_theta -= 360.f;
-            while (delta_theta < -180.f)
-              delta_theta += 360.f;
-
-            float last_speed = record_last->vel.length_2d();
-            float far_speed  = record_far->vel.length_2d();
-
-            if (last_speed < 30.f || far_speed < 30.f)
-              break;
-
-            float counter_strafe_far = rad_to_deg(asin(30.f / far_speed));
-            if (far_delta_theta < 0)
-              counter_strafe_far *= -1.f;
-
-            float counter_strafe = rad_to_deg(asin(30.f / last_speed));
-            if (delta_theta < 0)
-              counter_strafe *= -1.f;
-
-            float delta_time = record->sim_time - record_last->sim_time;
-            if (!(delta_time > 0))
-              continue;
-
-            delta_theta = ((velocity_ang - counter_strafe) -
-                                                (last_velocity_ang - counter_strafe_far));
-            while (delta_theta > 180.f)
-              delta_theta -= 360.f;
-            while (delta_theta < -180.f)
-              delta_theta += 360.f;
-            if (delta_theta > 45.f)
-              continue;
-
-            delta_theta /= delta_time;
-
-            delta_theta *= g_interfaces.m_global_vars->m_interval_per_tick;
-
-            if (count == 0)
-              accumulated_change = delta_theta;
-            else
-              accumulated_change = 0.54f * delta_theta + (1.f - 0.54f) * accumulated_change;
-            count++;
           }
           new_record.dir = 0.f;
           if (count != 0) {
@@ -339,7 +344,7 @@ void c_player_manager::update_players() {
             new_record.dir          = std::clamp(
                 accumulated_change, -angle_limit,
                 angle_limit); // ApproachAngle(turn, player->m_records[0]->dir, max_turn);
-            float velocity_ang   = rad_to_deg(atan2(new_record.vel.m_y, new_record.vel.m_x));
+            float velocity_ang = rad_to_deg(atan2(new_record.vel.m_y, new_record.vel.m_x));
             float counter_strafe =
                 rad_to_deg(asin(30.f / player->m_records[0]->vel.length_2d()));
             new_record.air_dir = velocity_ang - counter_strafe;
@@ -350,7 +355,7 @@ void c_player_manager::update_players() {
           }
           new_record.ground_dir = 0.f;
 
-          float max_turn        = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
+          float max_turn = 10.f * g_interfaces.m_global_vars->m_interval_per_tick;
           if (new_record.move_data.length_sqr_2d() > 1.f) {
 
             const int count = fmin(player->m_records.size(), TIME_TO_TICKS(0.2));
