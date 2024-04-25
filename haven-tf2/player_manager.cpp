@@ -256,6 +256,7 @@ void c_player_manager::update_players() {
               (new_record.eye_angle.m_y - player->m_records[0]->eye_angle.m_y);
           if (!new_record.on_ground) {
           }
+
           while (new_record.dir_change > 180.f)
             new_record.dir_change -= 360.f;
           while (new_record.dir_change < -180.f)
@@ -265,14 +266,15 @@ void c_player_manager::update_players() {
           float accumulated_change = 0.f;
           int   count              = 0;
           for (auto i = 0; i < 100; i++) {
-            if (i + 2 >= player->m_records.size())
+            if (i + 3 >= player->m_records.size())
               break;
-            auto record_far  = player->m_records[i + 1];
-            auto record_last = player->m_records[i];
+            auto record_far  = player->m_records[i + 2];
+            auto record_last = player->m_records[i + 1];
+            auto record = player->m_records[i];
 
-            float velocity_ang = rad_to_deg(atan2(new_record.vel.m_y, new_record.vel.m_x));
+            float velocity_ang = rad_to_deg(atan2(record->vel.m_y, record->vel.m_x));
 
-            if ((new_record.flags & FL_ONGROUND) || (record_last->flags & FL_ONGROUND)) {
+            if ((record->flags & FL_ONGROUND) || (record_last->flags & FL_ONGROUND)) {
               break;
             }
 
@@ -308,7 +310,7 @@ void c_player_manager::update_players() {
             if (delta_theta < 0)
               counter_strafe *= -1.f;
 
-            float delta_time = new_record.sim_time - record_last->sim_time;
+            float delta_time = record->sim_time - record_last->sim_time;
             if (!(delta_time > 0))
               continue;
 
