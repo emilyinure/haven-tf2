@@ -11,6 +11,7 @@ public:
     bool m_unloading = false, m_debug_build = true;
     HWND m_hwnd = nullptr;
     view_matrix m_view_matrix;
+    int last_reliable_state;
 
     void init();
     void unload();

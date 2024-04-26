@@ -114,3 +114,5 @@ _ReSharper*/
 
 # JetBrains Rider
 *.sln.iml
+/haven-tf2/x64
+/vcpkg_installed/x64-windows

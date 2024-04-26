@@ -101,6 +101,8 @@ void c_ui::init()
                 this->m_controls.misc.third_person_horizontal_offset = misc2->add_slider("Thirdperson Horizontal Offset", -100, 100);
                 this->m_controls.misc.third_person_vertical_offset = misc2->add_slider("Thirdperson Vertical Offset", -100, 100);
                 this->m_controls.misc.third_person_distance_offset = misc2->add_slider("Thirdperson Distance Offset", -100, 100);
+                this->m_controls.misc.fake_latency_toggle = misc2->add_checkbox("Fake Latency");
+                this->m_controls.misc.fake_latency_amount = misc2->add_slider("Latency Amount", 0, 900);
             }
         }
     }

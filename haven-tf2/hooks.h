@@ -37,6 +37,10 @@ public:
 
         using get_outer_abs_velo_fn = void(__stdcall*)(vector);
         get_outer_abs_velo_fn get_outer_abs_velocity_orig;
+
+        using send_datagram_fn = int(__fastcall*)(i_net_channel_info*, bf_write*);
+        send_datagram_fn send_datagram;
+
         WNDPROC wnd_proc;
     } m_original;
 
