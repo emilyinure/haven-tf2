@@ -141,6 +141,31 @@ void estimate_abs_velocity(uintptr_t ecx, vector& vel) noexcept
     g_hooks.m_original.estimate_abs_velocity(ecx, vel);
 }
 
+int send_datagram(i_net_channel_info* channel, bf_write* datagram )
+{
+    if (!g_interfaces.m_engine->is_in_game())
+        return g_hooks.m_original.send_datagram(channel, datagram);
+
+    if ( g_interfaces.m_client_state->network_channel != channel )
+        return g_hooks.m_original.send_datagram(channel, datagram);
+
+    const int backup = channel->m_nInSequenceNr;
+    const bool need_spike = g_cl.last_reliable_state == channel->m_nInReliableState;
+    g_cl.last_reliable_state = channel->m_nInReliableState;
+
+    const int val_to_spike =
+        static_cast<int>(0.5f + (g_ui.m_controls.misc.fake_latency_amount->m_value * 0.001f - channel->GetLatency(0)) / // TIME_TO_TICKS(amount + latency(FLOW_OUTGOING))
+                                    g_interfaces.m_global_vars->m_interval_per_tick);
+
+    if (g_ui.m_controls.misc.fake_latency_toggle->m_value && val_to_spike > 0 && need_spike && channel->m_nInSequenceNr > val_to_spike)
+        channel->m_nInSequenceNr -= val_to_spike;
+
+    const int ret = g_hooks.m_original.send_datagram(channel, datagram);
+    channel->m_nInSequenceNr = backup;
+
+    return ret;
+}
+
 void c_hooks::init()
 {
     MH_Initialize();
@@ -171,6 +196,10 @@ void c_hooks::init()
                                "D9 18 D9 86 ? ? ? ? D9 58 ? D9 86 ? ? ? ? D9 58 ? 5E 8B E5 5D C2")
                       .as<void*>(),
                   estimate_abs_velocity, reinterpret_cast<void**>(&this->m_original.estimate_abs_velocity));
+
+    MH_CreateHook(
+        g_modules.get("engine.dll").get_sig("40 55 57 41 56 48 8D AC 24 ? ? ? ?").as<void*>(),
+        send_datagram, reinterpret_cast<void**>(&this->m_original.send_datagram));
 
     MH_EnableHook(MH_ALL_HOOKS);
 }

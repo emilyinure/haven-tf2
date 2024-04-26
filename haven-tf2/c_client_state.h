@@ -3,7 +3,8 @@
 class c_client_state
 {
 public:
-    char pad0[16];
+    void* vtables[3];
+    int socket;
     i_net_channel_info* network_channel;
     char pad1[320];
     struct c_clock_drift

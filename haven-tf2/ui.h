@@ -117,6 +117,8 @@ public:
             std::shared_ptr<c_slider> third_person_horizontal_offset;
             std::shared_ptr<c_slider> third_person_vertical_offset;
             std::shared_ptr<c_slider> third_person_distance_offset;
+            std::shared_ptr<c_checkbox> fake_latency_toggle;
+            std::shared_ptr<c_slider> fake_latency_amount;
         } misc;
     } m_controls;
 

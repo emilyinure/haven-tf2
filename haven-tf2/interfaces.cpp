@@ -28,7 +28,7 @@ void c_interfaces::gather()
         this->m_engine_trace = engine.get_interface("EngineTraceClient003", true).as<i_engine_trace>();
         this->m_model_info = engine.get_interface("VModelInfoClient006", true).as<i_model_info>();
         this->m_render_view = engine.get_interface("VEngineRenderView014", true).as<c_render_view>();
-        this->m_client_state = *reinterpret_cast<c_client_state**>(engine.get_sig("48 8D 0D ? ? ? ? E8 ? ? ? ? F3 0F 5E 05").rel32(0x3));
+        this->m_client_state = reinterpret_cast<c_client_state*>(engine.get_sig("48 8D 0D ? ? ? ? E8 ? ? ? ? F3 0F 5E 05").rel32(0x3));
     }
 
     const auto steam = g_modules.get("steamclient64.dll");
